@@ -453,28 +453,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TimeInMilliseconds: 7500
-  Size: {x: 1920, y: 1080}
+  Size:
+    x: 1920
+    y: 1080
   LengthInMilliseconds: 15000
   HapticScripts:
   - Points:
-    - {x: 11.69, y: 0.42}
-    - {x: 3000, y: 77.4}
-    - {x: 6000, y: 57.2}
-    - {x: 9000, y: 25}
-    - {x: 12000, y: 63.8}
-    - {x: 15000, y: 57}
-    - {x: 18000, y: 25}
+    - x: 0
+      y: 5
+    - x: 1
+      y: 46
+    - x: 7500
+      y: 0
+    - x: 10000
+      y: 33
+    - x: 15000
+      y: 56
+    - x: 20000
+      y: 75
+    - x: 25000
+      y: 39
     StrokeColor: {r: 1, g: 0, b: 0, a: 1}
-    LineWidth: 5
-  - Points:
-    - {x: 11.69, y: 70.8}
-    - {x: 3000, y: 44.2}
-    - {x: 6000, y: 43.1}
-    - {x: 9000, y: 13.3}
-    - {x: 12000, y: 50.7}
-    - {x: 15000, y: 72.4}
-    - {x: 18000, y: 100}
-    StrokeColor: {r: 0.22821665, g: 1, b: 0, a: 1}
     LineWidth: 5
   _UIDocument: {fileID: 492903793}
 --- !u!1 &832575517
