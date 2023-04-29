@@ -2,26 +2,23 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
-public class CanvasManager : MonoBehaviour
+public class FunScriptRenderer : MonoBehaviour
 {
     public int TimeInMilliseconds;
 
     public float2 Size = new float2(1920, 1080);
     public int LengthInMilliseconds = 15000;
-
-    public HapticScript[] HapticScripts;
+    public List<Haptics> Haptics = new List<Haptics>();
     public UIDocument _UIDocument;
-
     private List<LineDrawer> _lineDrawers = new List<LineDrawer>();
     private List<float2> _coords = new List<float2>();
 
-    void Update()
+    private void Update()
     {
         // Create LineDrawers
-        while (_lineDrawers.Count < HapticScripts.Length)
+        while (_lineDrawers.Count < Haptics.Count)
         {
             var lineDrawer = new LineDrawer();
             _lineDrawers.Add(lineDrawer);
@@ -29,7 +26,7 @@ public class CanvasManager : MonoBehaviour
         }
 
         // Remove LineDrawers
-        while (_lineDrawers.Count > HapticScripts.Length)
+        while (_lineDrawers.Count > Haptics.Count)
         {
             _UIDocument.rootVisualElement.Remove(_lineDrawers[_lineDrawers.Count - 1]);
             _lineDrawers.RemoveAt(_lineDrawers.Count - 1);
@@ -38,25 +35,25 @@ public class CanvasManager : MonoBehaviour
         // Update LineDrawers
         for (int i = 0; i < _lineDrawers.Count; i++)
         {
-            _lineDrawers[i].StrokeColor = HapticScripts[i].StrokeColor;
-            _lineDrawers[i].LineWidth = HapticScripts[i].LineWidth;
-            _lineDrawers[i].Coords = ConvertActionsToCoords(HapticScripts[i].Actions);
+            _lineDrawers[i].StrokeColor = Haptics[i].LineRenderSettings.StrokeColor;
+            _lineDrawers[i].LineWidth = Haptics[i].LineRenderSettings.LineWidth;
+            _lineDrawers[i].Coords = ConvertActionsToCoords(Haptics[i].Funscript.actions);
             _lineDrawers[i].MarkDirtyRepaint();
         }
     }
 
-    float2[] ConvertActionsToCoords(int2[] actions)
+    private float2[] ConvertActionsToCoords(FunAction[] actions)
     {
         _coords.Clear();
-        Array.Sort(actions, new Int2Comparer());
+        Array.Sort(actions, new FunActionComparer());
 
         bool firstPoint = false;
         float2 coord = float2.zero;
 
         for (int i = 0; i < actions.Length; i++)
         {
-            float at = actions[i].x;
-            float pos = actions[i].y;
+            float at = actions[i].at;
+            float pos = actions[i].pos;
 
             // Action.Pos is before timeline
             if (at < TimeInMilliseconds - 0.5f * LengthInMilliseconds)
@@ -82,18 +79,18 @@ public class CanvasManager : MonoBehaviour
 
                 // Draw value at the start of the screen
 
-                int at0 = actions[i - 1].x;
+                int at0 = actions[i - 1].at;
 
                 // if the first point is inside the timeline, we need to draw a separate coordinate at 0
                 if (at0 > TimeInMilliseconds - 0.5f * LengthInMilliseconds)
                 {
                     coord.x = 0;
-                    coord.y = actions[i - 1].y * -(Size.y / 100);
+                    coord.y = actions[i - 1].pos * -(Size.y / 100);
                     _coords.Add(coord);
                 }
 
-                coord.x = (actions[i - 1].x - TimeInMilliseconds + LengthInMilliseconds * 0.5f) * (Size.x / LengthInMilliseconds);
-                coord.y = actions[i - 1].y * -(Size.y / 100);
+                coord.x = (actions[i - 1].at - TimeInMilliseconds + LengthInMilliseconds * 0.5f) * (Size.x / LengthInMilliseconds);
+                coord.y = actions[i - 1].pos * -(Size.y / 100);
                 _coords.Add(coord);
             }
 
@@ -105,9 +102,9 @@ public class CanvasManager : MonoBehaviour
             // Draw value at the end of the screen, when the last point is beyond timeline end
             if (at > TimeInMilliseconds + 0.5f * LengthInMilliseconds)
             {
-                float t = (TimeInMilliseconds + 0.5f * LengthInMilliseconds - actions[i - 1].x) / (actions[i].x - actions[i - 1].x);
+                float t = (TimeInMilliseconds + 0.5f * LengthInMilliseconds - actions[i - 1].at) / (actions[i].at - actions[i - 1].at);
                 coord.x = LengthInMilliseconds * (Size.x / LengthInMilliseconds);
-                coord.y = math.lerp(actions[i - 1].y, actions[i].y, t) * -(Size.y / 100);
+                coord.y = math.lerp(actions[i - 1].pos, actions[i].pos, t) * -(Size.y / 100);
                 _coords.Add(coord);
                 break;
             }
@@ -121,34 +118,7 @@ public class CanvasManager : MonoBehaviour
                 _coords.Add(coord);
             }
         }
-
         return _coords.ToArray();
     }
 }
 
-[Serializable]
-public struct HapticScript
-{
-    public int2[] Actions;
-    public Color StrokeColor;
-    public float LineWidth;
-}
-
-public class Int2Comparer : IComparer<int2>
-{
-    public int Compare(int2 a, int2 b)
-    {
-        if (a.x < b.x)
-        {
-            return -1;
-        }
-        else if (a.x > b.x)
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-}
