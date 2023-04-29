@@ -40,7 +40,7 @@ public class CanvasManager : MonoBehaviour
         {
             _lineDrawers[i].StrokeColor = HapticScripts[i].StrokeColor;
             _lineDrawers[i].LineWidth = HapticScripts[i].LineWidth;
-            _lineDrawers[i].Coords = ConvertActionsToCoords(HapticScripts[i].Points);
+            _lineDrawers[i].Coords = ConvertActionsToCoords(HapticScripts[i].Actions);
             _lineDrawers[i].MarkDirtyRepaint();
         }
     }
@@ -51,7 +51,6 @@ public class CanvasManager : MonoBehaviour
         Array.Sort(actions, new Int2Comparer());
 
         bool firstPoint = false;
-        bool lastPoint = false;
         float2 coord = float2.zero;
 
         for (int i = 0; i < actions.Length; i++)
@@ -68,11 +67,11 @@ public class CanvasManager : MonoBehaviour
                     coord.y = pos * -(Size.y / 100);
                     coord.x = 0;
                     _coords.Add(coord);
-                    
+
                     coord.x = LengthInMilliseconds * (Size.x / LengthInMilliseconds);
                     _coords.Add(coord);
                 }
-                
+
                 continue;
             }
 
@@ -84,7 +83,7 @@ public class CanvasManager : MonoBehaviour
                 // Draw value at the start of the screen
 
                 int at0 = actions[i - 1].x;
-                
+
                 // if the first point is inside the timeline, we need to draw a separate coordinate at 0
                 if (at0 > TimeInMilliseconds - 0.5f * LengthInMilliseconds)
                 {
@@ -130,7 +129,7 @@ public class CanvasManager : MonoBehaviour
 [Serializable]
 public struct HapticScript
 {
-    public int2[] Points;
+    public int2[] Actions;
     public Color StrokeColor;
     public float LineWidth;
 }
