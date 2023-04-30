@@ -5738,7 +5738,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f67a6d388e62064b8b0c4f4765ac6c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FunScriptPath: TestScript.funscript
+  FunscriptPath: TestScript.funscript
 --- !u!1 &562365840
 GameObject:
   m_ObjectHideFlags: 0
@@ -5749,6 +5749,7 @@ GameObject:
   m_Component:
   - component: {fileID: 562365842}
   - component: {fileID: 562365841}
+  - component: {fileID: 562365843}
   m_Layer: 0
   m_Name: Audio
   m_TagString: Untagged
@@ -5867,6 +5868,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &562365843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 562365840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4e88561c0ca4e639a6c83653b6897aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AudioFilePath: file:///E:/_Projects/Haptics/ExampleAudioFile.mp3
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -6109,7 +6123,13 @@ MonoBehaviour:
     width: 1920
     height: 540
   _UIDocument: {fileID: 1479024548}
-  _audioSource: {fileID: 562365841}
+  ColorCenter:
+    serializedVersion: 2
+    rgba: 4294967295
+  ColorOuter:
+    serializedVersion: 2
+    rgba: 4286611584
+  TimelineLength: 16
 --- !u!1 &1947432998
 GameObject:
   m_ObjectHideFlags: 0

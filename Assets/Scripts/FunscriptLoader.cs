@@ -1,16 +1,17 @@
 using System.IO;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(FunscriptRenderer))]
 public class FunscriptLoader : MonoBehaviour
 {
-    public string FunScriptPath;
+    public string FunscriptPath;
     private FunscriptRenderer _hapticsManager;
 
     [ContextMenu("Load funscript")]
     public void Load()
     {
-        string fullPath = Path.Combine(Application.streamingAssetsPath, FunScriptPath);
+        string fullPath = Path.Combine(Application.streamingAssetsPath, FunscriptPath);
         if (!File.Exists(fullPath))
         {
             Debug.LogError($"File not found {fullPath}.");
@@ -39,6 +40,6 @@ public class FunscriptLoader : MonoBehaviour
 
         _hapticsManager.Haptics.Add(haptics);
 
-        Debug.Log($"FunScript loaded. ({fullPath})");
+        Debug.Log($"Funscript loaded. ({fullPath})");
     }
 }
