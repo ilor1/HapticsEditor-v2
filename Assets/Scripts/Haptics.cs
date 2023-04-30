@@ -5,27 +5,27 @@ using UnityEngine;
 [Serializable]
 public struct Haptics
 {
-    public FunScript Funscript;
+    public Funscript Funscript;
     public LineRenderSettings LineRenderSettings;
 }
 
 [Serializable]
-public struct FunScript
+public struct Funscript
 {
-    public FunAction[] actions;
+    public Action[] actions;
     public bool inverted;
-    public FunMetaData metadata;
+    public Metadata metadata;
 }
 
 [Serializable]
-public struct FunAction
+public struct Action
 {
     public int at;
     public int pos;
 }
 
 [Serializable]
-public struct FunMetaData
+public struct Metadata
 {
     public string creator;
     public string description;
@@ -49,9 +49,9 @@ public struct LineRenderSettings
     public float LineWidth;
 }
 
-public class FunActionComparer : IComparer<FunAction>
+public class ActionComparer : IComparer<Action>
 {
-    public int Compare(FunAction a, FunAction b)
+    public int Compare(Action a, Action b)
     {
         if (a.at < b.at)
         {

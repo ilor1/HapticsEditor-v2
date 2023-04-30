@@ -1,11 +1,11 @@
 using System.IO;
 using UnityEngine;
 
-[RequireComponent(typeof(FunScriptRenderer))]
-public class FunScriptLoader : MonoBehaviour
+[RequireComponent(typeof(FunscriptRenderer))]
+public class FunscriptLoader : MonoBehaviour
 {
     public string FunScriptPath;
-    private FunScriptRenderer _hapticsManager;
+    private FunscriptRenderer _hapticsManager;
 
     [ContextMenu("Load funscript")]
     public void Load()
@@ -27,14 +27,14 @@ public class FunScriptLoader : MonoBehaviour
 
         var haptics = new Haptics
         {
-            Funscript = JsonUtility.FromJson<FunScript>(json),
+            Funscript = JsonUtility.FromJson<Funscript>(json),
             LineRenderSettings = lineRenderSettings
         };
 
         // Load haptics
         if (_hapticsManager == null)
         {
-            _hapticsManager = GetComponent<FunScriptRenderer>();
+            _hapticsManager = GetComponent<FunscriptRenderer>();
         }
 
         _hapticsManager.Haptics.Add(haptics);
