@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 public class FunscriptLoader : MonoBehaviour
 {
     public string FunscriptPath;
+    public int TrackIndex;
     private FunscriptRenderer _hapticsManager;
 
     [ContextMenu("Load funscript")]
@@ -38,7 +39,14 @@ public class FunscriptLoader : MonoBehaviour
             _hapticsManager = GetComponent<FunscriptRenderer>();
         }
 
-        _hapticsManager.Haptics.Add(haptics);
+        if (TrackIndex < 0 || TrackIndex >= _hapticsManager.Haptics.Count)
+        {
+            _hapticsManager.Haptics.Add(haptics);    
+        }
+        else
+        {
+            _hapticsManager.Haptics[TrackIndex] = haptics;
+        }
 
         Debug.Log($"Funscript loaded. ({fullPath})");
     }
