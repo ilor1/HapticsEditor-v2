@@ -1,4 +1,9 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI%20Toolkit/UI_Waveform/UI_Waveform.uss?fileID=7433441132597879392&amp;guid=20649b1d0175cc947addb93a4846f66c&amp;type=3#UI_Waveform" />
-    <ui:VisualElement style="flex-grow: 1; background-color: rgb(115, 115, 115); background-image: url(&apos;project://database/Assets/UI%20Toolkit/UI_Waveform/New%20Render%20Texture.renderTexture?fileID=8400000&amp;guid=c33ed3c64eadf8648819dff0ddc1ee31&amp;type=2#New Render Texture&apos;); -unity-background-image-tint-color: rgb(255, 255, 255);" />
-</ui:UXML>
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+>
+    
+</engine:UXML>

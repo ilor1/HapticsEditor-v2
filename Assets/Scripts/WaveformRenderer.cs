@@ -1,26 +1,43 @@
-﻿using Unity.Collections;
+﻿using System.Collections;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Unity.Jobs;
 
-public class WaveformRenderer : MonoBehaviour
+public class WaveformRenderer : UIBehaviour
 {
-    [Header("UI Panel")] public Rect Panel;
-    [SerializeField] private UIDocument _UIDocument;
-
-    [Header("Waveform")] public Color32 ColorCenter;
+    [Header("Waveform")]
+    public Color32 ColorCenter;
     public Color32 ColorOuter;
     public int TimelineLength = 16;
     private Texture2D _texture;
-    private VisualElement _waveformVisualElement;
+    private bool _uiGenerated = false;
+    private VisualElement _waveformContainer;
     private float[] _samples;
     private float _maxSample;
 
     private void Start()
     {
-        UpdatePanel();
+        StartCoroutine(Generate());
     }
+
+    protected override IEnumerator Generate()
+    {
+        yield return null; // fix race condition
+
+        // Create Root
+        var root = _document.rootVisualElement;
+        root.Clear();
+        root.styleSheets.Add(_styleSheet);
+        root.AddToClassList("root");
+
+        // Create container
+        _waveformContainer = Create("waveform-container");
+        root.Add(_waveformContainer);
+
+        _uiGenerated = true;
+    }
+
 
     private void Update()
     {
@@ -104,27 +121,16 @@ public class WaveformRenderer : MonoBehaviour
 
     private void GetTexture()
     {
-        //_waveformVisualElement = _UIDocument.rootVisualElement.Q<VisualElement>(UIConstants.WAVEFORM_CONTAINER);
-        _waveformVisualElement = _UIDocument.rootVisualElement;
-        if (_waveformVisualElement != null)
+        if (_waveformContainer != null)
         {
-            int width = (int)_waveformVisualElement.contentRect.width;
-            int height = (int)_waveformVisualElement.contentRect.height;
+            // TODO: contentRect vs resolvedStyle? 
+            int width = (int)_waveformContainer.contentRect.width;
+            int height = (int)_waveformContainer.contentRect.height;
             if (width < 0 || height < 0) return;
 
             //_texture = new Texture2D(width, height, TextureFormat.RGBA32, 0, true);
             _texture = new Texture2D(width, height);
-            _waveformVisualElement.style.backgroundImage = _texture;
+            _waveformContainer.style.backgroundImage = _texture;
         }
-    }
-
-    public void UpdatePanel()
-    {
-        // Set Panel Transform
-        _UIDocument.rootVisualElement.style.width = Panel.width;
-        _UIDocument.rootVisualElement.style.height = Panel.height;
-        _UIDocument.rootVisualElement.style.position = Position.Absolute;
-        _UIDocument.rootVisualElement.style.left = Panel.x;
-        _UIDocument.rootVisualElement.style.top = Panel.y;
     }
 }

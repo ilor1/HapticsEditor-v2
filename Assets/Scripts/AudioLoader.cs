@@ -15,7 +15,7 @@ public class AudioLoader : MonoBehaviour
     public float LineWidth = 0.1f;
     [FormerlySerializedAs("amplitude")] public float Amplitude = 1;
 
-    private LineRenderer _lineRenderer;
+    // private LineRenderer _lineRenderer;
     private AudioSource _audioSource;
     private UnityWebRequest _audioRequest;
     private float[] _rmsData;
@@ -23,7 +23,7 @@ public class AudioLoader : MonoBehaviour
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();
-        _lineRenderer = GetComponent<LineRenderer>();
+        //  _lineRenderer = GetComponent<LineRenderer>();
         StartCoroutine(GetAudioClip());
     }
 
@@ -90,6 +90,7 @@ public class AudioLoader : MonoBehaviour
             rms = Mathf.Sqrt(sum / channels);
             // Store or use the RMS value here
         }
-        Debug.Log($"OnAudioFilterRead: sample count: {data.Length} rms: {rms}");
+
+        // Debug.Log($"OnAudioFilterRead: sample count: {data.Length} rms: {rms}");
     }
 }

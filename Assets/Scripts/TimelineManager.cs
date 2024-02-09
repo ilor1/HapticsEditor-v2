@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Unity.Mathematics;
 using UnityEngine;
 
 public class TimelineManager : MonoBehaviour
@@ -14,6 +14,26 @@ public class TimelineManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(this);
+    }
+
+    private void OnValidate()
+    {
+        // Make sure TimeInMilliseconds is always positive
+        int lengthInMilliseconds = _audioSource != null && _audioSource.clip != null ? Mathf.RoundToInt(_audioSource.clip.length * 1000f) : 0;
+
+        // Loop to start
+        if (TimeInMilliseconds > lengthInMilliseconds)
+        {
+            TimeInMilliseconds -= lengthInMilliseconds;
+        }
+
+        // Loop to end
+        if (TimeInMilliseconds < 0)
+        {
+            TimeInMilliseconds = lengthInMilliseconds + TimeInMilliseconds;
+        }
+
+        TimeInMilliseconds = math.clamp(TimeInMilliseconds, 0, lengthInMilliseconds);
     }
 
     private void OnEnable()
@@ -59,7 +79,8 @@ public class TimelineManager : MonoBehaviour
         }
         else
         {
-            _audioSource.timeSamples = Mathf.RoundToInt(TimeInMilliseconds * _audioSource.clip.frequency * 0.001f);
+            // TimeInSeconds * SampleFrequency  
+            _audioSource.timeSamples = Mathf.RoundToInt(TimeInMilliseconds * 0.001f) * _audioSource.clip.frequency;
         }
     }
 }

@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class FunscriptRenderer : MonoBehaviour
+public class FunscriptRenderer : UIBehaviour
 {
-    [Header("UI Panel")] public Rect Panel;
-    [SerializeField] private UIDocument _UIDocument;
+    [Header("Haptics")]
+    public List<Haptics> Haptics = new List<Haptics>();
 
-    [Header("Haptics")] public List<Haptics> Haptics = new List<Haptics>();
-
+    private bool _uiGenerated = false;
+    private VisualElement _funscriptContainer;
     private List<LineDrawer> _lineDrawers = new List<LineDrawer>();
     private List<float2> _coords = new List<float2>();
 
@@ -23,33 +24,54 @@ public class FunscriptRenderer : MonoBehaviour
 
             return _actionComparer;
         }
-        set
-        {
-            _actionComparer = value;
-        }
+        set { _actionComparer = value; }
     }
 
     private ActionComparer _actionComparer;
-    
-    void Start()
+
+    private void Start()
     {
-        UpdatePanel();
+        // Generate UI
+        StartCoroutine(Generate());
+    }
+
+    protected override IEnumerator Generate()
+    {
+        yield return null; // fix race condition
+
+        // Create Root
+        var root = _document.rootVisualElement;
+        root.Clear();
+        root.styleSheets.Add(_styleSheet);
+        root.AddToClassList("root");
+
+        // Create container
+        _funscriptContainer = Create("funscript-container");
+        root.Add(_funscriptContainer);
+
+        _uiGenerated = true;
     }
 
     private void Update()
     {
+        // wait for the UI to be Generated
+        if (!_uiGenerated)
+        {
+            return;
+        }
+
         // Create LineDrawers
         while (_lineDrawers.Count < Haptics.Count)
         {
             var lineDrawer = new LineDrawer();
             _lineDrawers.Add(lineDrawer);
-            _UIDocument.rootVisualElement.Add(lineDrawer);
+            _funscriptContainer.Add(lineDrawer);
         }
 
         // Remove LineDrawers
         while (_lineDrawers.Count > Haptics.Count)
         {
-            _UIDocument.rootVisualElement.Remove(_lineDrawers[^1]);
+            _funscriptContainer.Remove(_lineDrawers[^1]);
             _lineDrawers.RemoveAt(_lineDrawers.Count - 1);
         }
 
@@ -63,16 +85,6 @@ public class FunscriptRenderer : MonoBehaviour
         }
     }
 
-    public void UpdatePanel()
-    {
-        // Set Panel Transform
-        _UIDocument.rootVisualElement.style.width = Panel.width;
-        _UIDocument.rootVisualElement.style.height = Panel.height;
-        _UIDocument.rootVisualElement.style.position = Position.Absolute;
-        _UIDocument.rootVisualElement.style.left = Panel.x;
-        _UIDocument.rootVisualElement.style.top = Panel.y;
-    }
-
     private float2[] ConvertActionsToCoords(Action[] actions)
     {
         _coords.Clear();
@@ -81,7 +93,10 @@ public class FunscriptRenderer : MonoBehaviour
         float2 coord = float2.zero;
         int lengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
         int timeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
-        float2 size = Panel.size;
+
+        // Get size from style 
+        var style = _funscriptContainer.resolvedStyle;
+        float2 size = new float2(style.width, style.height);
 
         // TODO: Only sort when points get added or removed
         Array.Sort(actions, ActionComparer);
@@ -124,7 +139,8 @@ public class FunscriptRenderer : MonoBehaviour
                     _coords.Add(coord);
                 }
 
-                coord.x = (actions[i - 1].at - timeInMilliseconds + lengthInMilliseconds * 0.5f) * (size.x / lengthInMilliseconds);
+                coord.x = (actions[i - 1].at - timeInMilliseconds + lengthInMilliseconds * 0.5f) *
+                          (size.x / lengthInMilliseconds);
                 coord.y = actions[i - 1].pos * -(size.y / 100);
                 _coords.Add(coord);
             }
@@ -137,7 +153,8 @@ public class FunscriptRenderer : MonoBehaviour
             // Draw value at the end of the screen, when the last point is beyond timeline end
             if (at > timeInMilliseconds + 0.5f * lengthInMilliseconds)
             {
-                float t = (timeInMilliseconds + 0.5f * lengthInMilliseconds - actions[i - 1].at) / (actions[i].at - actions[i - 1].at);
+                float t = (timeInMilliseconds + 0.5f * lengthInMilliseconds - actions[i - 1].at) /
+                          (actions[i].at - actions[i - 1].at);
                 coord.x = lengthInMilliseconds * (size.x / lengthInMilliseconds);
                 coord.y = math.lerp(actions[i - 1].pos, actions[i].pos, t) * -(size.y / 100);
                 _coords.Add(coord);
