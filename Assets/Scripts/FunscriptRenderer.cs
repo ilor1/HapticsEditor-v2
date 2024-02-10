@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
@@ -7,6 +6,9 @@ using UnityEngine.UIElements;
 
 public class FunscriptRenderer : UIBehaviour
 {
+    [SerializeField]
+    private MainUI _mainUI;
+
     [Header("Haptics")]
     public List<Haptics> Haptics = new List<Haptics>();
 
@@ -29,22 +31,19 @@ public class FunscriptRenderer : UIBehaviour
 
     private ActionComparer _actionComparer;
 
-    private void Start()
+
+    private void OnEnable()
     {
-        // Generate UI
-        StartCoroutine(Generate());
+        _mainUI.RootCreated += Generate;
     }
 
-    protected override IEnumerator Generate()
+    private void OnDisable()
     {
-        yield return null; // fix race condition
+        _mainUI.RootCreated -= Generate;
+    }
 
-        // Create Root
-        var root = _document.rootVisualElement;
-        root.Clear();
-        root.styleSheets.Add(_styleSheet);
-        root.AddToClassList("root");
-
+    private void Generate(VisualElement root)
+    {
         // Create container
         _funscriptContainer = Create("funscript-container");
         root.Add(_funscriptContainer);
@@ -94,10 +93,9 @@ public class FunscriptRenderer : UIBehaviour
         int lengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
         int timeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
 
-        // Get size from style 
-        var style = _funscriptContainer.resolvedStyle;
-        float2 size = new float2(style.width, style.height);
-
+        // Get size from container 
+        float2 size = new float2(_funscriptContainer.contentRect.width, _funscriptContainer.contentRect.height);
+        
         // TODO: Only sort when points get added or removed
         Array.Sort(actions, ActionComparer);
 

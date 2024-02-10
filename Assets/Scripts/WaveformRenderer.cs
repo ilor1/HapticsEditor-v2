@@ -3,11 +3,19 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Unity.Jobs;
 
 public class WaveformRenderer : UIBehaviour
 {
+    [SerializeField]
+    private MainUI _mainUI;
+
+    [SerializeField]
+    private AudioLoader _audioLoader;
+
     [Header("Waveform")]
     public Color32 ColorCenter;
+
     public Color32 ColorOuter;
     public int TimelineLength = 16;
     private Texture2D _texture;
@@ -16,21 +24,18 @@ public class WaveformRenderer : UIBehaviour
     private float[] _samples;
     private float _maxSample;
 
-    private void Start()
+    private void OnEnable()
     {
-        StartCoroutine(Generate());
+        _mainUI.RootCreated += Generate;
     }
 
-    protected override IEnumerator Generate()
+    private void OnDisable()
     {
-        yield return null; // fix race condition
+        _mainUI.RootCreated -= Generate;
+    }
 
-        // Create Root
-        var root = _document.rootVisualElement;
-        root.Clear();
-        root.styleSheets.Add(_styleSheet);
-        root.AddToClassList("root");
-
+    private void Generate(VisualElement root)
+    {
         // Create container
         _waveformContainer = Create("waveform-container");
         root.Add(_waveformContainer);
@@ -38,10 +43,29 @@ public class WaveformRenderer : UIBehaviour
         _uiGenerated = true;
     }
 
+    private bool GetTexture()
+    {
+        int width = Mathf.CeilToInt(_waveformContainer.contentRect.width);
+        int height = Mathf.CeilToInt(_waveformContainer.contentRect.height);
+
+        // make sure waveformContainer has been initialized properly
+        if (width <= 0 || height <= 0) return false;
+
+        if (_texture == null || _texture.width != width || _texture.height != height)
+        {
+            _texture = new Texture2D(width, height);
+            _waveformContainer.style.backgroundImage = _texture;
+        }
+
+        return true;
+    }
+
 
     private void Update()
     {
-        // var audioSource = AudioLoader.Instance.AudioSource;
+        // if (!_uiGenerated || !GetTexture()) return;
+        //
+        // var audioSource = _audioLoader._audioSource;
         // if (audioSource == null || audioSource.clip == null)
         // {
         //     return;
@@ -49,14 +73,7 @@ public class WaveformRenderer : UIBehaviour
         //
         // var clip = audioSource.clip;
         //
-        // // Update texture if it changes
-        // if (_texture == null || _waveformVisualElement == null)
-        // {
-        //     GetTexture();
-        //     return;
-        // }
-        //
-        // // get max sample (this might not be needed, but it allows us to normalize the values)
+        // // Get max sample. This might not be needed, but it allows us to normalize the values
         // if (_maxSample <= 0)
         // {
         //     float[] allSamples = new float[clip.channels * clip.samples];
@@ -73,21 +90,24 @@ public class WaveformRenderer : UIBehaviour
         //     samplesAllNative.Dispose();
         // }
         //
-        // // get data
+        // // Get audio position
         // int offset = audioSource.timeSamples - clip.frequency * TimelineLength / 2 >= 0
         //     ? audioSource.timeSamples - clip.frequency * TimelineLength / 2
         //     : audioSource.timeSamples - clip.frequency * TimelineLength / 2 + clip.samples;
         //
+        // // Get samples at audio position
         // _samples = new float[clip.frequency * TimelineLength * clip.channels];
         // clip.GetData(_samples, offset);
-        // var samplesNative = new NativeArray<float>(_samples, Allocator.TempJob);
         //
-        // // process samples
+        // // Initialize values
+        // var samplesNative = new NativeArray<float>(_samples, Allocator.TempJob);
         // int samplesPerPixel = (int)math.floor((clip.frequency * TimelineLength) / (float)_texture.width);
         // var leftHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
         // var rightHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
         // var leftRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
         // var rightRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
+        //
+        // // Process samples
         // new ProcessSamplesParallelJob
         // {
         //     Channels = clip.channels,
@@ -99,7 +119,6 @@ public class WaveformRenderer : UIBehaviour
         //     SamplesPerPixel = samplesPerPixel,
         //     MaxSampleValue = _maxSample
         // }.Schedule(_texture.width, 64).Complete();
-        // samplesNative.Dispose();
         //
         // // Get colors
         // var colors = _texture.GetRawTextureData<Color32>();
@@ -116,21 +135,9 @@ public class WaveformRenderer : UIBehaviour
         //     Offset = (int)(0.25f * _texture.height),
         //     Colors = colors
         // }.Schedule().Complete();
+        //
+        // // Apply
         // _texture.Apply();
-    }
-
-    private void GetTexture()
-    {
-        if (_waveformContainer != null)
-        {
-            // TODO: contentRect vs resolvedStyle? 
-            int width = (int)_waveformContainer.contentRect.width;
-            int height = (int)_waveformContainer.contentRect.height;
-            if (width < 0 || height < 0) return;
-
-            //_texture = new Texture2D(width, height, TextureFormat.RGBA32, 0, true);
-            _texture = new Texture2D(width, height);
-            _waveformContainer.style.backgroundImage = _texture;
-        }
+        // // Debug.Log($"WaveformRenderer: Applied Waveform Texture");
     }
 }

@@ -1,0 +1,8 @@
+- Menu bar
+- (performant and accurate!) Waveform renderer
+- Edit bindings
+- Input to modify funscripts
+- Patterns (with patterns creator)
+- Implement SimpleFileBrowser
+- Implement Intiface Central support
+
