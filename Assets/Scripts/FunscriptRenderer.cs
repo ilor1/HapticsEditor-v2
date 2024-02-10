@@ -31,15 +31,24 @@ public class FunscriptRenderer : UIBehaviour
 
     private ActionComparer _actionComparer;
 
-
     private void OnEnable()
     {
         _mainUI.RootCreated += Generate;
+        FunscriptLoader.FunscriptLoaded += SortFunscript;
     }
 
     private void OnDisable()
     {
         _mainUI.RootCreated -= Generate;
+        FunscriptLoader.FunscriptLoaded -= SortFunscript;
+    }
+
+    private void SortFunscript()
+    {
+        foreach (var haptic in Haptics)
+        {
+            Array.Sort(haptic.Funscript.actions, ActionComparer);
+        }
     }
 
     private void Generate(VisualElement root)
@@ -84,7 +93,7 @@ public class FunscriptRenderer : UIBehaviour
         }
     }
 
-    private float2[] ConvertActionsToCoords(Action[] actions)
+    private float2[] ConvertActionsToCoords(FunAction[] actions)
     {
         _coords.Clear();
 
@@ -95,9 +104,6 @@ public class FunscriptRenderer : UIBehaviour
 
         // Get size from container 
         float2 size = new float2(_funscriptContainer.contentRect.width, _funscriptContainer.contentRect.height);
-        
-        // TODO: Only sort when points get added or removed
-        Array.Sort(actions, ActionComparer);
 
         for (int i = 0; i < actions.Length; i++)
         {

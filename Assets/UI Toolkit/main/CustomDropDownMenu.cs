@@ -39,8 +39,6 @@ public class CustomDropDownMenu : VisualElement
 
     private void OnFocusOut(FocusOutEvent evt)
     {
-        Debug.Log("OnFocusOut");
-        //style.display = DisplayStyle.None;
         Toggle(_dropdownButton);
     }
 }

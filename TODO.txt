@@ -1,8 +1,7 @@
-- Menu bar
 - (performant and accurate!) Waveform renderer
 - Edit bindings
 - Input to modify funscripts
+--- remember to add the sorting to the funaction array
 - Patterns (with patterns creator)
-- Implement SimpleFileBrowser
 - Implement Intiface Central support
 

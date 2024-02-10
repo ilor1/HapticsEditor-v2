@@ -12,13 +12,13 @@ public struct Haptics
 [Serializable]
 public struct Funscript
 {
-    public Action[] actions;
+    public FunAction[] actions;
     public bool inverted;
     public Metadata metadata;
 }
 
 [Serializable]
-public struct Action
+public struct FunAction
 {
     public int at;
     public int pos;
@@ -49,9 +49,9 @@ public struct LineRenderSettings
     public float LineWidth;
 }
 
-public class ActionComparer : IComparer<Action>
+public class ActionComparer : IComparer<FunAction>
 {
-    public int Compare(Action a, Action b)
+    public int Compare(FunAction a, FunAction b)
     {
         if (a.at < b.at)
         {

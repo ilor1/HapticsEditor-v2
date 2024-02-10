@@ -9,22 +9,46 @@ public class AudioLoader : MonoBehaviour
     public static Action<AudioSource> ClipLoaded;
 
     [Header("Audio")]
-    public string AudioFilePath = "E:/_Projects/Haptics/ExampleAudioFile.mp3";
-    
+    private string _audioFilePath = "E:/_Projects/Haptics/ExampleAudioFile.mp3";
+
     private AudioSource _audioSource;
     private UnityWebRequest _audioRequest;
 
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();
+    }
+
+    private void OnEnable()
+    {
+        FileDropdownMenu.AudioPathLoaded += LoadAudio;
+    }
+
+    private void OnDisable()
+    {
+        FileDropdownMenu.AudioPathLoaded -= LoadAudio;
+    }
+
+    private void LoadAudio(string path)
+    {
+        _audioFilePath = path;
         StartCoroutine(GetAudioClip());
     }
 
     private IEnumerator GetAudioClip()
     {
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file:///" + AudioFilePath, AudioType.MPEG))
+        using (var www = UnityWebRequestMultimedia.GetAudioClip("file:///" + _audioFilePath, AudioType.MPEG))
         {
-            yield return www.SendWebRequest();
+            var operation = www.SendWebRequest();
+
+            // this prevents the audio loading from blocking
+            ((DownloadHandlerAudioClip)www.downloadHandler).streamAudio = true;
+            
+            while (!operation.isDone)
+            {
+                Debug.Log($"AudioLoader progress:{www.downloadProgress}");
+                yield return null;
+            }
 
             if (www.result != UnityWebRequest.Result.Success)
             {
@@ -33,11 +57,11 @@ public class AudioLoader : MonoBehaviour
             else
             {
                 _audioSource.clip = DownloadHandlerAudioClip.GetContent(www);
-                
+
                 // Send ClipLoaded event
                 ClipLoaded?.Invoke(_audioSource);
 
-                Debug.Log($"AudioLoader: {AudioFilePath} loaded.");
+                Debug.Log($"AudioLoader: {_audioFilePath} loaded.");
                 _audioSource.Play();
             }
         }

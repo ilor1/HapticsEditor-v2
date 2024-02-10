@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -6,6 +7,7 @@ public class LineDrawer : VisualElement
 {
     public Color StrokeColor { get; set; }
     public float2[] Coords { get; set; }
+    //public NativeList<float2> Coords = new NativeList<float2>(Allocator.Persistent);
     public float LineWidth { get; set; }
 
     public LineDrawer()

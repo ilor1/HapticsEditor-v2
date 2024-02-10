@@ -29,7 +29,8 @@ public class MenuBar : UIBehaviour
         // File Dropdown
         _fileDropdown = CreateDropdownMenu(root);
         _fileDropdown.Append("Load Audio", FileDropdownMenu.OnLoadAudioClick);
-        _fileDropdown.Append("Save", FileDropdownMenu.OnSaveClick);
+        _fileDropdown.Append("Load Funscript", FileDropdownMenu.OnLoadFunscriptClick);
+        _fileDropdown.Append("Save Funscript", FileDropdownMenu.OnSaveClick);
         _fileDropdown.Append("Exit", FileDropdownMenu.OnExitClick);
 
         var fileButton = Create<Button>("menu-button");

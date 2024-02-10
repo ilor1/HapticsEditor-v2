@@ -37,7 +37,7 @@ public class FunscriptCutPaste : MonoBehaviour
         }
 
         // filter out all actions with pos -1
-        Action[] filteredActions = Array.FindAll(actions, action => action.pos != -1);
+        FunAction[] filteredActions = Array.FindAll(actions, action => action.pos != -1);
 
         // apply
         haptics.Funscript.actions = filteredActions;

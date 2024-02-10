@@ -6271,8 +6271,8 @@ MonoBehaviour:
         range: 100
         version: 1.0
     LineRenderSettings:
-      StrokeColor: {r: 0.7250759, g: 0.7752193, b: 0.1334808, a: 1}
-      LineWidth: 5
+      StrokeColor: {r: 0.78431374, g: 0.2509804, b: 0.7529412, a: 1}
+      LineWidth: 4
 --- !u!114 &492903797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6285,7 +6285,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f67a6d388e62064b8b0c4f4765ac6c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FunscriptPath: Doctors Orders.funscript
   TrackIndex: 0
 --- !u!114 &492903798
 MonoBehaviour:
@@ -6459,7 +6458,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e88561c0ca4e639a6c83653b6897aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AudioFilePath: E:\Haptics\Files\_done\Doctors Orders.mp3
 --- !u!1 &927865631
 GameObject:
   m_ObjectHideFlags: 0
@@ -6556,6 +6554,7 @@ GameObject:
   - component: {fileID: 1611213301}
   - component: {fileID: 1611213299}
   - component: {fileID: 1611213300}
+  - component: {fileID: 1611213302}
   m_Layer: 0
   m_Name: main
   m_TagString: Untagged
@@ -6652,6 +6651,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainUI: {fileID: 1611213297}
+--- !u!114 &1611213302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611213295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6b8a165028b47b490baab45cdd48932, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1701923416
 GameObject:
   m_ObjectHideFlags: 0
