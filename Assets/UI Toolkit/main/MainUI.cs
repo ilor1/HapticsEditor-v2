@@ -38,6 +38,18 @@ public class MainUI : UIBehaviour
         root.styleSheets.Add(_styleSheet);
         root.AddToClassList("root");
 
+        var titleBar = Create("title-bar");
+        var menuBar = Create("menu-bar");
+        var toolBar = Create("tool-bar");
+        var funscriptContainer = Create("funscript-container");
+        var waveformContainer = Create("waveform-container");
+        
+        root.Add(titleBar);
+        root.Add(menuBar);
+        root.Add(toolBar);
+        root.Add(funscriptContainer);
+        root.Add(waveformContainer);
+        
         // Send event
         RootCreated?.Invoke(root);
     }

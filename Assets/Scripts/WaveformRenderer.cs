@@ -12,7 +12,6 @@ public class WaveformRenderer : UIBehaviour
     public Color32 RMSColor;
 
     public Color32 PeakColor;
-    public int TimelineLength = 16;
 
     [SerializeField]
     private Texture2D _texture;
@@ -36,6 +35,7 @@ public class WaveformRenderer : UIBehaviour
     private int _outputHeight = 512;
 
     private int _frequency;
+    private Color32[] _colors;
     private NativeArray<float> _samples;
     private NativeArray<float> _leftChannelPositivePeakSamples;
     private NativeArray<float> _leftChannelNegativePeakSamples;
@@ -59,9 +59,29 @@ public class WaveformRenderer : UIBehaviour
 
     private void Start()
     {
+        _colors = new Color32[_outputWidth * _outputHeight];
+
         _texture = new Texture2D(_outputWidth, _outputHeight, TextureFormat.RGBA32, false);
         _texture.filterMode = FilterMode.Bilinear;
-        
+        for (int x = 0; x < _outputWidth; x++)
+        {
+            for (int y = 0; y < _outputHeight; y++)
+            {
+                // Draw line in center
+                if (y == _texture.height / 2)
+                {
+                    _colors[y * _outputWidth + x] = PeakColor;
+                }
+                else
+                {
+                    _colors[y * _outputWidth + x] = Color.clear;
+                }
+            }
+        }
+
+        _texture.SetPixels32(_colors);
+        _texture.Apply();
+
 
         _leftChannelPositivePeakSamples = new NativeArray<float>(_outputWidth, Allocator.Persistent);
         _leftChannelNegativePeakSamples = new NativeArray<float>(_outputWidth, Allocator.Persistent);
@@ -75,16 +95,16 @@ public class WaveformRenderer : UIBehaviour
     private void Generate(VisualElement root)
     {
         // Create container
-        _waveformContainer = Create("waveform-container");
+        _waveformContainer = root.Query(className: "waveform-container");
 
         var leftChannel = Create("waveform");
         leftChannel.style.backgroundImage = _texture;
         _waveformContainer.Add(leftChannel);
-        
+
         var rightChannel = Create("waveform");
         rightChannel.style.backgroundImage = _texture;
         _waveformContainer.Add(rightChannel);
-        
+
         root.Add(_waveformContainer);
 
         //_uiGenerated = true;
@@ -185,55 +205,52 @@ public class WaveformRenderer : UIBehaviour
         {
             for (int y = 0; y < _texture.height; y++)
             {
+                Color32 color = Color.clear;
+
                 // Draw line in center
                 if (y == _texture.height / 2)
                 {
-                    _texture.SetPixel(x, y, PeakColor);
-                    continue;
+                    color = PeakColor;
                 }
-
-                float pixel = (y - _texture.height * 0.5f) / (_texture.height * 0.5f);
-
-                // negative samples
-                if (pixel < 0f)
+                else
                 {
-                    Color32 color = Color.clear;
+                    float pixel = (y - _texture.height * 0.5f) / (_texture.height * 0.5f);
 
-                    if (pixel >= _leftChannelNegativeRMSSamples[x] * _scale)
+                    // negative samples
+                    if (pixel < 0f)
                     {
-                        color = RMSColor;
+                        if (pixel >= _leftChannelNegativeRMSSamples[x] * _scale)
+                        {
+                            color = RMSColor;
+                        }
+                        else
+                        {
+                            float normalizedLeft = math.clamp(_leftChannelNegativePeakSamples[x] / _maxValue, -1f, 0f);
+                            if (pixel >= normalizedLeft * _scale) color = PeakColor;
+                        }
                     }
-                    else
+                    // positive samples 
+                    else if (pixel > 0f)
                     {
-                        float normalizedLeft = math.clamp(_leftChannelNegativePeakSamples[x] / _maxValue, -1f, 0f);
-                        if (pixel >= normalizedLeft * _scale) color = PeakColor;
+                        if (pixel <= _leftChannelPositiveRMSSamples[x] * _scale)
+                        {
+                            color = RMSColor;
+                        }
+                        else
+                        {
+                            float normalizedLeft = math.clamp(_leftChannelPositivePeakSamples[x] / _maxValue, 0f, 1f);
+                            if (pixel <= normalizedLeft * _scale) color = PeakColor;
+                        }
                     }
-
-                    // Set the color to the texture at the current pixel
-                    _texture.SetPixel(x, y, color);
                 }
-                // positive samples 
-                else if (pixel > 0f)
-                {
-                    Color32 color = Color.clear;
 
-                    if (pixel <= _leftChannelPositiveRMSSamples[x] * _scale)
-                    {
-                        color = RMSColor;
-                    }
-                    else
-                    {
-                        float normalizedLeft = math.clamp(_leftChannelPositivePeakSamples[x] / _maxValue, 0f, 1f);
-                        if (pixel <= normalizedLeft * _scale) color = PeakColor;
-                    }
-
-                    // Set the color to the texture at the current pixel
-                    _texture.SetPixel(x, y, color);
-                }
+                // Set the color to the texture at the current pixel
+                _colors[y * _outputWidth + x] = color;
             }
         }
 
         // Apply changes to the texture
+        _texture.SetPixels32(_colors);
         _texture.Apply();
     }
 

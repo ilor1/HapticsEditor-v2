@@ -51,8 +51,7 @@ public class FunscriptRenderer : UIBehaviour
     private void Generate(VisualElement root)
     {
         // Create container
-        _funscriptContainer = Create("funscript-container");
-        root.Add(_funscriptContainer);
+        _funscriptContainer = root.Query(className:"funscript-container");
 
         _uiGenerated = true;
     }

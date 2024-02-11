@@ -6709,10 +6709,9 @@ MonoBehaviour:
   PeakColor:
     serializedVersion: 2
     rgba: 4290789576
-  TimelineLength: 16
   _texture: {fileID: 0}
   _maxValue: 100
-  _scale: 1
+  _scale: 2.25
   _outputWidth: 1024
   _outputHeight: 256
 --- !u!1660057539 &9223372036854775807

@@ -15,8 +15,7 @@ public class ToolBar : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        var toolBar = Create("tool-bar");
-        root.Add(toolBar);
+        VisualElement toolBar = root.Query(className: "tool-bar");
 
         var snappingToggle = Create<Toggle>("tool-toggle");
         snappingToggle.text = "Snapping";

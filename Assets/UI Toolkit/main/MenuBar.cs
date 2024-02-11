@@ -18,8 +18,7 @@ public class MenuBar : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        var menuBar = Create("menu-bar");
-        root.Add(menuBar);
+        VisualElement menuBar = root.Query(className: "menu-bar");
 
         // File Dropdown
         _fileDropdown = CreateDropdownMenu(root);
@@ -32,8 +31,8 @@ public class MenuBar : UIBehaviour
         fileButton.text = "File";
         fileButton.clicked += () =>
         {
-            _fileDropdown.style.left = new StyleLength(10f); // menu-bar padding-left
-            _fileDropdown.style.top = new StyleLength(80f);
+            _fileDropdown.style.left = new StyleLength(0f); // menu-bar padding-left
+            _fileDropdown.style.top = new StyleLength(64f);
 
             // Toggle dropdown on click
             _fileDropdown.Toggle(fileButton);
@@ -49,8 +48,8 @@ public class MenuBar : UIBehaviour
         settingsButton.clicked += () =>
         {
             // menu-bar padding-left + fileButton padding-left + padding-right
-            _settingsDropdown.style.left = new StyleLength(fileButton.contentRect.width + 30);
-            _settingsDropdown.style.top = new StyleLength(80f);
+            _settingsDropdown.style.left = new StyleLength(fileButton.contentRect.width + 20);
+            _settingsDropdown.style.top = new StyleLength(64f);
 
             // Toggle dropdown on click
             _settingsDropdown.Toggle(settingsButton);
