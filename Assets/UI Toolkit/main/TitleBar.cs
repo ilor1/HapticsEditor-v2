@@ -3,20 +3,17 @@ using UnityEngine.UIElements;
 
 public class TitleBar : UIBehaviour
 {
-    [SerializeField]
-    private MainUI _mainUI;
-
     private Label _titleText;
 
     private void OnEnable()
     {
-        _mainUI.RootCreated += Generate;
+        MainUI.RootCreated += Generate;
         FileDropdownMenu.FunscriptPathLoaded += UpdateLabel;
     }
 
     private void OnDisable()
     {
-        _mainUI.RootCreated -= Generate;
+        MainUI.RootCreated -= Generate;
         FileDropdownMenu.FunscriptPathLoaded -= UpdateLabel;
     }
 

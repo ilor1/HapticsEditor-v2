@@ -1,24 +1,19 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
 
 public class MenuBar : UIBehaviour
 {
-    [SerializeField]
-    private MainUI _mainUI;
-
     private CustomDropDownMenu _fileDropdown;
     private CustomDropDownMenu _settingsDropdown;
 
     private void OnEnable()
     {
-        _mainUI.RootCreated += Generate;
+        MainUI.RootCreated += Generate;
     }
 
     private void OnDisable()
     {
-        _mainUI.RootCreated -= Generate;
+        MainUI.RootCreated -= Generate;
     }
 
     private void Generate(VisualElement root)

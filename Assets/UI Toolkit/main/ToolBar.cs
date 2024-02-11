@@ -3,17 +3,14 @@ using UnityEngine.UIElements;
 
 public class ToolBar : UIBehaviour
 {
-    [SerializeField]
-    private MainUI _mainUI;
-
     private void OnEnable()
     {
-        _mainUI.RootCreated += Generate;
+        MainUI.RootCreated += Generate;
     }
 
     private void OnDisable()
     {
-        _mainUI.RootCreated -= Generate;
+        MainUI.RootCreated -= Generate;
     }
 
     private void Generate(VisualElement root)

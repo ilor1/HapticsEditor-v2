@@ -335,7 +335,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 344b634e770d49edb55c02c09b7caf44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainUI: {fileID: 1611213297}
   Haptics:
   - Funscript:
       actions:
@@ -6624,7 +6623,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aae8a79940f1453ba21da58b80f49b7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainUI: {fileID: 1611213297}
 --- !u!114 &1611213300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6637,7 +6635,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a14c60fc83bc4b3cb0b79d88672510fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainUI: {fileID: 1611213297}
 --- !u!114 &1611213301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6650,7 +6647,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 849bbc34fd094f6a849f57952dce70b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainUI: {fileID: 1611213297}
 --- !u!114 &1611213302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6707,15 +6703,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5614dcd9f1133a498805f14e6a0da41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mainUI: {fileID: 1611213297}
-  _audioLoader: {fileID: 562365843}
-  ColorCenter:
+  RMSColor:
     serializedVersion: 2
-    rgba: 4294967295
-  ColorOuter:
+    rgba: 4284292961
+  PeakColor:
     serializedVersion: 2
-    rgba: 4286611584
+    rgba: 4290789576
   TimelineLength: 16
+  _texture: {fileID: 0}
+  _maxValue: 100
+  _scale: 1
+  _outputWidth: 1024
+  _outputHeight: 256
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

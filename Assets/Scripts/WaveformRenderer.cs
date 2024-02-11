@@ -1,47 +1,242 @@
-﻿using System.Collections;
+﻿using System;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
-using Unity.Jobs;
 
 public class WaveformRenderer : UIBehaviour
 {
-    [SerializeField]
-    private MainUI _mainUI;
-
-    [SerializeField]
-    private AudioLoader _audioLoader;
-
     [Header("Waveform")]
-    public Color32 ColorCenter;
+    public Color32 RMSColor;
 
-    public Color32 ColorOuter;
+    public Color32 PeakColor;
     public int TimelineLength = 16;
+
+    [SerializeField]
     private Texture2D _texture;
-    private bool _uiGenerated = false;
+
+
+    //private bool _uiGenerated = false;
     private VisualElement _waveformContainer;
-    private float[] _samples;
-    private float _maxSample;
+
+    // private float _maxSample;
+    [SerializeField]
+    private float _maxValue = 100f;
+
+    [FormerlySerializedAs("_multiplier")]
+    [SerializeField]
+    private float _scale = 5f;
+
+    [SerializeField]
+    private int _outputWidth = 1920;
+
+    [SerializeField]
+    private int _outputHeight = 512;
+
+    private int _frequency;
+    private NativeArray<float> _samples;
+    private NativeArray<float> _leftChannelPositivePeakSamples;
+    private NativeArray<float> _leftChannelNegativePeakSamples;
+    private NativeArray<float> _leftChannelPositiveRMSSamples;
+    private NativeArray<float> _leftChannelNegativeRMSSamples;
+
+
+    private NativeArray<float> _rightChannelPixels;
 
     private void OnEnable()
     {
-        _mainUI.RootCreated += Generate;
+        MainUI.RootCreated += Generate;
+        AudioLoader.ClipLoaded += OnAudioClipLoaded;
     }
 
     private void OnDisable()
     {
-        _mainUI.RootCreated -= Generate;
+        MainUI.RootCreated -= Generate;
+        AudioLoader.ClipLoaded -= OnAudioClipLoaded;
     }
+
+    private void Start()
+    {
+        _texture = new Texture2D(_outputWidth, _outputHeight, TextureFormat.RGBA32, false);
+        _texture.filterMode = FilterMode.Bilinear;
+        
+
+        _leftChannelPositivePeakSamples = new NativeArray<float>(_outputWidth, Allocator.Persistent);
+        _leftChannelNegativePeakSamples = new NativeArray<float>(_outputWidth, Allocator.Persistent);
+        _leftChannelPositiveRMSSamples = new NativeArray<float>(_outputWidth, Allocator.Persistent);
+        _leftChannelNegativeRMSSamples = new NativeArray<float>(_outputWidth, Allocator.Persistent);
+
+        _rightChannelPixels = new NativeArray<float>(_outputWidth, Allocator.Persistent);
+    }
+
 
     private void Generate(VisualElement root)
     {
         // Create container
         _waveformContainer = Create("waveform-container");
+
+        var leftChannel = Create("waveform");
+        leftChannel.style.backgroundImage = _texture;
+        _waveformContainer.Add(leftChannel);
+        
+        var rightChannel = Create("waveform");
+        rightChannel.style.backgroundImage = _texture;
+        _waveformContainer.Add(rightChannel);
+        
         root.Add(_waveformContainer);
 
-        _uiGenerated = true;
+        //_uiGenerated = true;
     }
+
+    private void OnAudioClipLoaded(AudioSource audioSource)
+    {
+        // Get clip
+        var clip = audioSource.clip;
+
+        // Get samples
+        var numSamples = clip.samples * clip.channels;
+        _samples = new NativeArray<float>(numSamples, Allocator.Persistent);
+        clip.GetData(_samples, 0);
+
+        // Get frequency
+        _frequency = clip.frequency;
+
+        ProcessSamples(0, 15000 * 2);
+    }
+
+    private void ProcessSamples(int startInMilliseconds, int endInMilliseconds)
+    {
+        // Calculate sample range for the given time range
+        int sampleStart = (int)math.round(_frequency * startInMilliseconds * 0.001f);
+        int sampleEnd = (int)math.round(_frequency * endInMilliseconds * 0.001f);
+
+        // Ensure the sampleEnd does not exceed the total number of samples
+        sampleEnd = math.min(sampleEnd, _samples.Length);
+
+        // Calculate the number of samples to process per pixel
+        float samplesPerPixel = (float)(sampleEnd - sampleStart) / _outputWidth;
+
+        // Loop through the samples
+        for (int pixelIndex = 0; pixelIndex < _outputWidth; pixelIndex++)
+        {
+            // Calculate the start and end sample indices for the current pixel
+            int startSampleIndex = (int)(sampleStart + pixelIndex * samplesPerPixel);
+            int endSampleIndex = (int)(startSampleIndex + samplesPerPixel);
+
+            // Wrap around if needed
+            startSampleIndex %= _samples.Length;
+            endSampleIndex %= _samples.Length;
+
+            // Accumulate samples over the range
+            float leftPosAccumulator = 0f;
+            float leftNegAccumulator = 0f;
+            float leftPosSumOfSquares = 0f;
+            float leftNegSumOfSquares = 0f;
+
+            float rightAccumulator = 0f;
+
+            for (int sampleIndex = startSampleIndex; sampleIndex < endSampleIndex; sampleIndex += 2)
+            {
+                // Left channel samples
+                if (_samples[sampleIndex] > 0)
+                {
+                    leftPosAccumulator += _samples[sampleIndex];
+                    leftPosSumOfSquares += _samples[sampleIndex] * _samples[sampleIndex];
+                }
+                else
+                {
+                    leftNegAccumulator += _samples[sampleIndex];
+                    leftNegSumOfSquares += _samples[sampleIndex] * _samples[sampleIndex];
+                }
+
+
+                // Right channel sample (assuming stereo audio)
+                rightAccumulator += _samples[sampleIndex + 1];
+            }
+
+            float numSamples = (endSampleIndex - startSampleIndex) * 0.5f;
+
+            // Left positive samples
+            _leftChannelPositivePeakSamples[pixelIndex] = leftPosAccumulator;
+            _leftChannelPositiveRMSSamples[pixelIndex] = math.sqrt(leftPosSumOfSquares / numSamples);
+
+            // Left negative samples
+            _leftChannelNegativePeakSamples[pixelIndex] = leftNegAccumulator;
+            _leftChannelNegativeRMSSamples[pixelIndex] = -math.sqrt(leftNegSumOfSquares / numSamples);
+
+
+            _rightChannelPixels[pixelIndex] = rightAccumulator;
+        }
+
+        RenderWaveform();
+    }
+
+
+    [ContextMenu("RenderWaveform")]
+    private void RenderWaveform()
+    {
+        float maxSample = 0;
+        // Create a new texture with the specified dimensions
+
+        // Loop through the pixels in the texture
+        for (int x = 0; x < _texture.width; x++)
+        {
+            for (int y = 0; y < _texture.height; y++)
+            {
+                // Draw line in center
+                if (y == _texture.height / 2)
+                {
+                    _texture.SetPixel(x, y, PeakColor);
+                    continue;
+                }
+
+                float pixel = (y - _texture.height * 0.5f) / (_texture.height * 0.5f);
+
+                // negative samples
+                if (pixel < 0f)
+                {
+                    Color32 color = Color.clear;
+
+                    if (pixel >= _leftChannelNegativeRMSSamples[x] * _scale)
+                    {
+                        color = RMSColor;
+                    }
+                    else
+                    {
+                        float normalizedLeft = math.clamp(_leftChannelNegativePeakSamples[x] / _maxValue, -1f, 0f);
+                        if (pixel >= normalizedLeft * _scale) color = PeakColor;
+                    }
+
+                    // Set the color to the texture at the current pixel
+                    _texture.SetPixel(x, y, color);
+                }
+                // positive samples 
+                else if (pixel > 0f)
+                {
+                    Color32 color = Color.clear;
+
+                    if (pixel <= _leftChannelPositiveRMSSamples[x] * _scale)
+                    {
+                        color = RMSColor;
+                    }
+                    else
+                    {
+                        float normalizedLeft = math.clamp(_leftChannelPositivePeakSamples[x] / _maxValue, 0f, 1f);
+                        if (pixel <= normalizedLeft * _scale) color = PeakColor;
+                    }
+
+                    // Set the color to the texture at the current pixel
+                    _texture.SetPixel(x, y, color);
+                }
+            }
+        }
+
+        // Apply changes to the texture
+        _texture.Apply();
+    }
+
 
     private bool GetTexture()
     {

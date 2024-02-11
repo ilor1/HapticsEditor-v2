@@ -6,9 +6,6 @@ using UnityEngine.UIElements;
 
 public class FunscriptRenderer : UIBehaviour
 {
-    [SerializeField]
-    private MainUI _mainUI;
-
     [Header("Haptics")]
     public List<Haptics> Haptics = new List<Haptics>();
 
@@ -33,13 +30,13 @@ public class FunscriptRenderer : UIBehaviour
 
     private void OnEnable()
     {
-        _mainUI.RootCreated += Generate;
+        MainUI.RootCreated += Generate;
         FunscriptLoader.FunscriptLoaded += SortFunscript;
     }
 
     private void OnDisable()
     {
-        _mainUI.RootCreated -= Generate;
+        MainUI.RootCreated -= Generate;
         FunscriptLoader.FunscriptLoaded -= SortFunscript;
     }
 
