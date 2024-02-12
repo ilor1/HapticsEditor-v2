@@ -6,8 +6,7 @@ using UnityEngine.UIElements;
 
 public class FunscriptRenderer : UIBehaviour
 {
-    [Header("Haptics")]
-    public List<Haptics> Haptics = new List<Haptics>();
+    [Header("Haptics")] public List<Haptics> Haptics = new List<Haptics>();
 
     private bool _uiGenerated = false;
     private VisualElement _funscriptContainer;
@@ -48,10 +47,46 @@ public class FunscriptRenderer : UIBehaviour
         }
     }
 
+    private VisualElement _verticalGrid;
+
     private void Generate(VisualElement root)
     {
         // Create container
-        _funscriptContainer = root.Query(className:"funscript-container");
+        _funscriptContainer = root.Query(className: "funscript-container");
+
+
+        // create grid
+        var horizontalGrid = Create("horizontal-grid");
+        _funscriptContainer.Add(horizontalGrid);
+
+        // vertical grid is animated
+        _verticalGrid = Create("vertical-grid");
+        _funscriptContainer.Add(_verticalGrid);
+
+        for (int i = 0; i < 31; i++)
+        {
+            if (i % 2 == 0){
+                _verticalGrid.Add(Create("vertical-line"));
+            }
+            else
+            {
+                _verticalGrid.Add(Create("vertical-line-thick"));
+            }
+        }
+
+        for (int i = 0; i < 21; i++)
+        {
+            if (i % 2 == 0){
+                horizontalGrid.Add(Create("horizontal-line-thick"));
+            }
+            else
+            {
+                horizontalGrid.Add(Create("horizontal-line"));
+            }
+        }
+
+        var redLine = Create("red-line");
+        _funscriptContainer.Add(redLine);
 
         _uiGenerated = true;
     }
@@ -62,6 +97,16 @@ public class FunscriptRenderer : UIBehaviour
         if (!_uiGenerated)
         {
             return;
+        }
+
+        // Animate vertical grid
+        if (_verticalGrid != null)
+        {
+            float offsetInMilliseconds = TimelineManager.Instance.TimeInMilliseconds % TimelineManager.Instance.LengthInMilliseconds;
+            float offsetInPixels = -offsetInMilliseconds * _verticalGrid.contentRect.width / TimelineManager.Instance.LengthInMilliseconds;
+
+            offsetInPixels %= _verticalGrid.contentRect.width / 30;
+            _verticalGrid.style.left = new StyleLength(offsetInPixels);
         }
 
         // Create LineDrawers
@@ -139,8 +184,7 @@ public class FunscriptRenderer : UIBehaviour
                     _coords.Add(coord);
                 }
 
-                coord.x = (actions[i - 1].at - timeInMilliseconds + lengthInMilliseconds * 0.5f) *
-                          (size.x / lengthInMilliseconds);
+                coord.x = (actions[i - 1].at - timeInMilliseconds + lengthInMilliseconds * 0.5f) * (size.x / lengthInMilliseconds);
                 coord.y = actions[i - 1].pos * -(size.y / 100);
                 _coords.Add(coord);
             }
@@ -153,8 +197,7 @@ public class FunscriptRenderer : UIBehaviour
             // Draw value at the end of the screen, when the last point is beyond timeline end
             if (at > timeInMilliseconds + 0.5f * lengthInMilliseconds)
             {
-                float t = (timeInMilliseconds + 0.5f * lengthInMilliseconds - actions[i - 1].at) /
-                          (actions[i].at - actions[i - 1].at);
+                float t = (timeInMilliseconds + 0.5f * lengthInMilliseconds - actions[i - 1].at) / (actions[i].at - actions[i - 1].at);
                 coord.x = lengthInMilliseconds * (size.x / lengthInMilliseconds);
                 coord.y = math.lerp(actions[i - 1].pos, actions[i].pos, t) * -(size.y / 100);
                 _coords.Add(coord);

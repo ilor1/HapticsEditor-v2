@@ -1,6 +1,8 @@
-- (performant and accurate!) Waveform renderer
 - Edit bindings
+- Scrub timeline
+- timecodes on timeline
 - Input to modify funscripts
+- zooming
 --- remember to add the sorting to the funaction array
 - Patterns (with patterns creator)
 - Implement Intiface Central support

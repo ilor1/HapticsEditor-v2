@@ -41,11 +41,11 @@ public struct GetColorsJob : IJob
                 Color32 color = clear;
 
                 // Left (top)
-                if ((y > leftRmsStartY && y < leftRmsEndY) || y == Height - Offset) color = ColorCenter;
+                if (y == Height - Offset || (y > leftRmsStartY && y < leftRmsEndY)) color = ColorCenter;
                 else if (y > leftHighStartY && y < leftHighEndY) color = ColorOuter;
 
                 // Right (bottom)
-                else if ((y > rightRmsStartY && y < rightRmsEndY) || y == Offset) color = ColorCenter;
+                else if (y == Offset || (y > rightRmsStartY && y < rightRmsEndY)) color = ColorCenter;
                 else if (y > rightHighStartY && y < rightHighEndY) color = ColorOuter;
 
                 Colors[x + y * Width] = color;

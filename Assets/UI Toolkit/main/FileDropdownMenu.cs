@@ -16,6 +16,9 @@ public class FileDropdownMenu : MonoBehaviour
     private const string WAV_EXT = ".wav";
     private const string FUNSCRIPT_EXT = ".funscript";
 
+    private string _funscriptPath;
+    private string _audioPath;
+
     private void Awake()
     {
         if (Singleton == null)
@@ -40,7 +43,14 @@ public class FileDropdownMenu : MonoBehaviour
 
     public static void OnSaveClick()
     {
-        Debug.Log("OnSaveClick");
+        // No path, no funscript
+        if (string.IsNullOrEmpty(Singleton._funscriptPath))
+        {
+            return;
+        }
+
+        // Save
+        FunscriptSaver.Singleton.Save(Singleton._funscriptPath);
     }
 
     public static void OnExitClick()
@@ -86,10 +96,10 @@ public class FileDropdownMenu : MonoBehaviour
             // Load funscript with matching name automatically
             string dir = Path.GetDirectoryName(result);
             string filename = Path.GetFileNameWithoutExtension(result);
-            string funscriptPath = Path.Combine(dir!, filename) + ".funscript";
-            if (File.Exists(funscriptPath))
+            _funscriptPath = Path.Combine(dir!, filename) + ".funscript";
+            if (File.Exists(_funscriptPath))
             {
-                FunscriptPathLoaded?.Invoke(funscriptPath);
+                FunscriptPathLoaded?.Invoke(_funscriptPath);
             }
             else
             {

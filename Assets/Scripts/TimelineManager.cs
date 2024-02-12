@@ -1,20 +1,23 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Jobs;
+﻿using System;
 using Unity.Mathematics;
 using UnityEngine;
 
 public class TimelineManager : MonoBehaviour
 {
     public static TimelineManager Instance;
+
+    public static Action ZoomLevelChanged; 
+    
     public bool IsPlaying;
     public int TimeInMilliseconds;
     public int LengthInMilliseconds = 15000;
-
+    public float LengthInSeconds { get; private set; }
     private int _timeSamples;
     private AudioSource _audioSource;
 
     private bool _clipLoaded = false;
+
+    private int _prevLengthInMilliseconds;
 
     private void Awake()
     {
@@ -62,12 +65,19 @@ public class TimelineManager : MonoBehaviour
 
     private void Update()
     {
+        if (_prevLengthInMilliseconds != LengthInMilliseconds)
+        {
+            _prevLengthInMilliseconds = LengthInMilliseconds;
+            LengthInSeconds = LengthInMilliseconds * 0.001f;
+            ZoomLevelChanged?.Invoke();
+        }
+        
         if (!_clipLoaded)
         {
             TimeInMilliseconds = 0;
             return;
         }
-
+        
         // Play/Pause
         if (IsPlaying != _audioSource.isPlaying)
         {
@@ -88,47 +98,11 @@ public class TimelineManager : MonoBehaviour
         }
         else
         {
-            int timeSamples = (int)(math.round(TimeInMilliseconds * 0.001f) * _audioSource.clip.frequency);
+            int timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
             if (_audioSource.timeSamples != timeSamples)
             {
-                _audioSource.timeSamples = (int)(math.round(TimeInMilliseconds * 0.001f) * _audioSource.clip.frequency);
+                _audioSource.timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
             }
         }
     }
 }
-
-// [BurstCompile]
-// public struct GetTimeInMillisecondsJob : IJob
-// {
-//     [ReadOnly]
-//     public int TimeSamples;
-//
-//     [ReadOnly]
-//     public int Frequency;
-//
-//     [WriteOnly]
-//     public NativeArray<int> TimeInMilliseconds;
-//     
-//     public void Execute()
-//     {
-//         TimeInMilliseconds[0] = (int)math.round(TimeSamples / (Frequency * 0.001f));
-//     }
-// }
-//
-// [BurstCompile]
-// public struct GetTimeSamples : IJob
-// {
-//     [ReadOnly]
-//     public int TimeInMilliseconds;
-//
-//     [ReadOnly]
-//     public int Frequency;
-//
-//     [WriteOnly]
-//     public NativeArray<int> TimeSamples;
-//     
-//     public void Execute()
-//     {
-//         TimeSamples[0] = (int)(math.round(TimeInMilliseconds * 0.001f) * Frequency);
-//     }
-// }

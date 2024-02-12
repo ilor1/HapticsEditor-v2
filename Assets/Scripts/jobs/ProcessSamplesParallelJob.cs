@@ -6,6 +6,7 @@ using Unity.Mathematics;
 [BurstCompile]
 public struct ProcessSamplesParallelJob : IJobParallelFor
 {
+    [ReadOnly] public int Time;
     [ReadOnly] public int SamplesPerPixel;
     [ReadOnly] public NativeArray<float> Samples;
     [ReadOnly] public int Channels;
@@ -33,8 +34,16 @@ public struct ProcessSamplesParallelJob : IJobParallelFor
             float leftSample = 0;
             float rightSample = 0;
 
-            leftSample = math.abs(Samples[i * Channels]) / MaxSampleValue;
-            rightSample = math.abs(Samples[i * Channels + 1]) / MaxSampleValue;
+            int arrayLength = Samples.Length;
+            int leftIndex = (Time + i) * Channels;
+            leftIndex = (leftIndex % arrayLength + arrayLength) % arrayLength;
+
+            int rightIndex = (Time + i) * Channels + 1;
+            rightIndex = (rightIndex % arrayLength + arrayLength) % arrayLength;
+
+            // leftSample = math.abs(Samples[(Time + i) * Channels]) / MaxSampleValue;
+            leftSample = math.abs(Samples[leftIndex]) / MaxSampleValue;
+            rightSample = math.abs(Samples[rightIndex]) / MaxSampleValue;
 
             // Get highest sample values
             leftHighestSample = leftSample > leftHighestSample ? leftSample : leftHighestSample;
