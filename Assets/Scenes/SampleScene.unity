@@ -301,6 +301,7 @@ GameObject:
   - component: {fileID: 492903797}
   - component: {fileID: 492903799}
   - component: {fileID: 492903798}
+  - component: {fileID: 492903800}
   m_Layer: 5
   m_Name: FunscriptManager
   m_TagString: Untagged
@@ -377,8 +378,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b04c062369a4562a582cacebcc81ef0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FunscriptPath: Doctors Orders.funscript
-  TrackIndex: 0
+--- !u!114 &492903800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492903792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dba0b151a72a42ada0a13b02da89ca57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireAction:
+    m_Name: Fire
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 5de8eff2-23b2-4ad6-a0be-aa4ae501c577
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  lookAction:
+    m_Name: Look
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: d7707ca8-0e76-4263-99b9-cfd0988fa580
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  gameplayActions:
+    m_Name: Gameplay Actions
+    m_Id: 4d820cb6-0051-462b-bf90-509fed754e95
+    m_Asset: {fileID: 0}
+    m_Actions: []
+    m_Bindings: []
 --- !u!1 &562365840
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,7 +623,6 @@ MonoBehaviour:
   IsPlaying: 0
   TimeInMilliseconds: 0
   LengthInMilliseconds: 15000
-  LengthInSeconds: 15
 --- !u!4 &1247646093
 Transform:
   m_ObjectHideFlags: 0

@@ -20,24 +20,28 @@ public class FunscriptCutPaste : MonoBehaviour
 
         var haptics = _hapticsManager.Haptics[TrackIndex];
         var actions = haptics.Funscript.actions;
-      
-        for (int i = 0; i < actions.Length; i++)
+
+        for (int i = 0; i < actions.Count; i++)
         {
             // clear actions from the moved actions will take
             if (ActionShouldBeCleared(actions[i].at, AmountToMoveInMilliseconds, StartTimeInMilliseconds, EndTimeInMilliseconds))
             {
-                actions[i].pos = -1;
+                var action = actions[i];
+                action.pos = -1;
+                actions[i] = action;
             }
-            
+
             // move
             else if (ActionShouldBeMoved(actions[i].at, StartTimeInMilliseconds, EndTimeInMilliseconds))
             {
-                actions[i].at += AmountToMoveInMilliseconds;
+                var action = actions[i];
+                action.at += AmountToMoveInMilliseconds;
+                actions[i] = action;
             }
         }
 
         // filter out all actions with pos -1
-        FunAction[] filteredActions = Array.FindAll(actions, action => action.pos != -1);
+        var filteredActions = actions.FindAll(action => action.pos != -1);
 
         // apply
         haptics.Funscript.actions = filteredActions;

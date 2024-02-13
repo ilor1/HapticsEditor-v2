@@ -46,6 +46,7 @@ public class FileDropdownMenu : MonoBehaviour
         // No path, no funscript
         if (string.IsNullOrEmpty(Singleton._funscriptPath))
         {
+            Debug.Log( $"FileDropDownMenu: funscript save path is null");
             return;
         }
 
@@ -121,6 +122,8 @@ public class FileDropdownMenu : MonoBehaviour
         {
             string result = FileBrowser.Result[0];
             Debug.Log($"FileBrowser: loaded path: ({result})");
+            
+            _funscriptPath = result;
 
             // Load or Create funscript
             FunscriptPathLoaded?.Invoke(result);

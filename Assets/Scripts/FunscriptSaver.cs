@@ -64,9 +64,6 @@ public class FunscriptSaver : MonoBehaviour
 
         var funscript = new Funscript
         {
-            actions = new FunAction[]
-            {
-            },
             inverted = false,
             metadata = metadata
         };

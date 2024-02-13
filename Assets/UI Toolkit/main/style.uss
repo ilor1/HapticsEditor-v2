@@ -122,7 +122,7 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    opacity: 1;
+    opacity: 1;   
 }
 
 .vertical-grid {

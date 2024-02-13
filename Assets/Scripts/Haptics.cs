@@ -12,16 +12,23 @@ public struct Haptics
 [Serializable]
 public struct Funscript
 {
-    public FunAction[] actions;
+    //public FunAction[] actions;
+    public List<FunAction> actions;
     public bool inverted;
     public Metadata metadata;
 }
 
 [Serializable]
-public struct FunAction
+public struct FunAction: IComparable<FunAction>
 {
     public int at;
     public int pos;
+    public int CompareTo(FunAction other)
+    {
+        // Compare based on Value1, and if equal, compare based on Value2
+        int value1Comparison = at.CompareTo(other.at);
+        return (value1Comparison != 0) ? value1Comparison : pos.CompareTo(other.pos);
+    }
 }
 
 [Serializable]

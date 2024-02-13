@@ -6,6 +6,8 @@ using UnityEngine.UIElements;
 
 public class FunscriptRenderer : UIBehaviour
 {
+    public static FunscriptRenderer Singleton;
+
     [Header("Haptics")] public List<Haptics> Haptics = new List<Haptics>();
 
     private bool _uiGenerated = false;
@@ -27,6 +29,13 @@ public class FunscriptRenderer : UIBehaviour
 
     private ActionComparer _actionComparer;
 
+
+    private void Awake()
+    {
+        if (Singleton == null) Singleton = this;
+        else if (Singleton != this) Destroy(this);
+    }
+
     private void OnEnable()
     {
         MainUI.RootCreated += Generate;
@@ -39,11 +48,12 @@ public class FunscriptRenderer : UIBehaviour
         FunscriptLoader.FunscriptLoaded -= SortFunscript;
     }
 
-    private void SortFunscript()
+    public void SortFunscript()
     {
         foreach (var haptic in Haptics)
         {
-            Array.Sort(haptic.Funscript.actions, ActionComparer);
+            haptic.Funscript.actions.Sort();
+            //Array.Sort(haptic.Funscript.actions, ActionComparer);
         }
     }
 
@@ -54,38 +64,50 @@ public class FunscriptRenderer : UIBehaviour
         // Create container
         _funscriptContainer = root.Query(className: "funscript-container");
 
-
         // create grid
         var horizontalGrid = Create("horizontal-grid");
+        horizontalGrid.pickingMode = PickingMode.Ignore;
         _funscriptContainer.Add(horizontalGrid);
 
         // vertical grid is animated
         _verticalGrid = Create("vertical-grid");
+        _verticalGrid.pickingMode = PickingMode.Ignore;
         _funscriptContainer.Add(_verticalGrid);
 
         for (int i = 0; i < 31; i++)
         {
-            if (i % 2 == 0){
-                _verticalGrid.Add(Create("vertical-line"));
+            if (i % 2 == 0)
+            {
+                var line = Create("vertical-line");
+                line.pickingMode = PickingMode.Ignore;
+                _verticalGrid.Add(line);
             }
             else
             {
-                _verticalGrid.Add(Create("vertical-line-thick"));
+                var line = Create("vertical-line-thick");
+                line.pickingMode = PickingMode.Ignore;
+                _verticalGrid.Add(line);
             }
         }
 
         for (int i = 0; i < 21; i++)
         {
-            if (i % 2 == 0){
-                horizontalGrid.Add(Create("horizontal-line-thick"));
+            if (i % 2 == 0)
+            {
+                var line = Create("horizontal-line-thick");
+                line.pickingMode = PickingMode.Ignore;
+                horizontalGrid.Add(line);
             }
             else
             {
-                horizontalGrid.Add(Create("horizontal-line"));
+                var line = Create("horizontal-line");
+                line.pickingMode = PickingMode.Ignore;
+                horizontalGrid.Add(line);
             }
         }
 
         var redLine = Create("red-line");
+        redLine.pickingMode = PickingMode.Ignore;
         _funscriptContainer.Add(redLine);
 
         _uiGenerated = true;
@@ -134,7 +156,7 @@ public class FunscriptRenderer : UIBehaviour
         }
     }
 
-    private float2[] ConvertActionsToCoords(FunAction[] actions)
+    private float2[] ConvertActionsToCoords(List<FunAction> actions)
     {
         _coords.Clear();
 
@@ -146,7 +168,7 @@ public class FunscriptRenderer : UIBehaviour
         // Get size from container 
         float2 size = new float2(_funscriptContainer.contentRect.width, _funscriptContainer.contentRect.height);
 
-        for (int i = 0; i < actions.Length; i++)
+        for (int i = 0; i < actions.Count; i++)
         {
             float at = actions[i].at;
             float pos = actions[i].pos;
@@ -155,7 +177,7 @@ public class FunscriptRenderer : UIBehaviour
             if (at < timeInMilliseconds - 0.5f * lengthInMilliseconds)
             {
                 // if the last point is before the timeline start, draw a flat line
-                if (i == actions.Length - 1)
+                if (i == actions.Count - 1)
                 {
                     coord.y = pos * -(size.y / 100);
                     coord.x = 0;
@@ -195,7 +217,7 @@ public class FunscriptRenderer : UIBehaviour
             _coords.Add(coord);
 
             // Draw value at the end of the screen, when the last point is beyond timeline end
-            if (at > timeInMilliseconds + 0.5f * lengthInMilliseconds)
+            if (i > 0 && at > timeInMilliseconds + 0.5f * lengthInMilliseconds)
             {
                 float t = (timeInMilliseconds + 0.5f * lengthInMilliseconds - actions[i - 1].at) / (actions[i].at - actions[i - 1].at);
                 coord.x = lengthInMilliseconds * (size.x / lengthInMilliseconds);
@@ -205,7 +227,7 @@ public class FunscriptRenderer : UIBehaviour
             }
 
             // Draw value at the end of the screen, when the last point is inside timeline end
-            if (i == actions.Length - 1 && at < timeInMilliseconds + 0.5f * lengthInMilliseconds)
+            if (i == actions.Count - 1 && at < timeInMilliseconds + 0.5f * lengthInMilliseconds)
             {
                 // Add point to the end
                 coord.x = lengthInMilliseconds * (size.x / lengthInMilliseconds);
