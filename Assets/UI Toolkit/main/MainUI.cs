@@ -43,12 +43,14 @@ public class MainUI : UIBehaviour
         var toolBar = Create("tool-bar");
         var funscriptContainer = Create("funscript-container");
         var waveformContainer = Create("waveform-container");
+        var timeline = Create("timeline");
         
         root.Add(titleBar);
         root.Add(menuBar);
         root.Add(toolBar);
         root.Add(funscriptContainer);
         root.Add(waveformContainer);
+        root.Add(timeline);
         
         // Send event
         RootCreated?.Invoke(root);

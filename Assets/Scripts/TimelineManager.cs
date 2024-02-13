@@ -6,12 +6,14 @@ public class TimelineManager : MonoBehaviour
 {
     public static TimelineManager Instance;
 
-    public static Action ZoomLevelChanged; 
-    
+    public static Action ZoomLevelChanged;
+
     public bool IsPlaying;
     public int TimeInMilliseconds;
+    public float TimeInSeconds => TimeInMilliseconds * 0.001f;
+
     public int LengthInMilliseconds = 15000;
-    public float LengthInSeconds { get; private set; }
+    public float LengthInSeconds => LengthInMilliseconds * 0.001f;
     private int _timeSamples;
     private AudioSource _audioSource;
 
@@ -68,16 +70,15 @@ public class TimelineManager : MonoBehaviour
         if (_prevLengthInMilliseconds != LengthInMilliseconds)
         {
             _prevLengthInMilliseconds = LengthInMilliseconds;
-            LengthInSeconds = LengthInMilliseconds * 0.001f;
             ZoomLevelChanged?.Invoke();
         }
-        
+
         if (!_clipLoaded)
         {
             TimeInMilliseconds = 0;
             return;
         }
-        
+
         // Play/Pause
         if (IsPlaying != _audioSource.isPlaying)
         {
@@ -103,6 +104,30 @@ public class TimelineManager : MonoBehaviour
             {
                 _audioSource.timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
             }
+        }
+    }
+
+    public void SetTimeInMilliseconds(int timeInMilliseconds)
+    {
+        if (IsPlaying)
+        {
+            _audioSource.timeSamples = (int)math.round(timeInMilliseconds * _audioSource.clip.frequency * 0.001f);
+        }
+        else
+        {
+            TimeInMilliseconds = timeInMilliseconds;
+        }
+    }
+
+    public void SetTimeInSeconds(float timeInSeconds)
+    {
+        if (IsPlaying)
+        {
+            _audioSource.timeSamples = (int)math.round(timeInSeconds * _audioSource.clip.frequency);
+        }
+        else
+        {
+            TimeInMilliseconds = (int)math.round(timeInSeconds * 1000f);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -33,7 +35,7 @@ public class FunscriptMouseInput : MonoBehaviour
         _funscriptContainer.RegisterCallback<ClickEvent>(OnLeftClick);
         _funscriptContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
     }
-
+    
     private void OnLeftClick(ClickEvent evt)
     {
         // Get coords

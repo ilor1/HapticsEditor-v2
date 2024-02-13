@@ -39,8 +39,6 @@ public class WaveformRenderer : UIBehaviour
         TimelineManager.ZoomLevelChanged -= OnZoomLevelChanged;
     }
 
-
-
     private void ClearWaveforms()
     {
         _texture = new Texture2D(_outputWidth, _outputHeight, TextureFormat.RGBA32, false);
@@ -72,13 +70,13 @@ public class WaveformRenderer : UIBehaviour
         if (!_clipLoaded) return;
         _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
     }
-    
+
     private void OnRootCreated(VisualElement root)
     {
         StartCoroutine(Generate(root));
     }
 
-    IEnumerator Generate(VisualElement root)
+    private IEnumerator Generate(VisualElement root)
     {
         yield return null;
 
@@ -96,8 +94,6 @@ public class WaveformRenderer : UIBehaviour
 
         var redLine = Create("red-line");
         _waveformContainer.Add(redLine);
-        
-        root.Add(_waveformContainer);
     }
 
 
@@ -115,7 +111,7 @@ public class WaveformRenderer : UIBehaviour
     private void Update()
     {
         if (!_clipLoaded) return;
-        
+
         RenderWaveform();
     }
 
