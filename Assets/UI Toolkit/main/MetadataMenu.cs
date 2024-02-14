@@ -90,11 +90,13 @@ public class MetadataMenu : UIBehaviour
 
     private void OnCancel()
     {
+        // Close without saving
         _root.Remove(_popup);
     }
 
     private void OnSave()
     {
+        // Save and close
         SaveMetaData();
         _root.Remove(_popup);
     }
@@ -143,14 +145,6 @@ public class MetadataMenu : UIBehaviour
 
         LoadMetaData();
         root.Add(_popup);
-    }
-
-    public void Close(VisualElement root)
-    {
-        // TODO Create close button?
-        
-        SaveMetaData();
-        root.Remove(_popup);
     }
 
     private void LoadMetaData()

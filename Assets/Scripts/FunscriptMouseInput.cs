@@ -1,23 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 public class FunscriptMouseInput : MonoBehaviour
 {
-    private InputAction _targetPrevModifier;
-    // public InputActionMap gameplayActions;
-
     private VisualElement _funscriptContainer;
-
-    private void Start()
-    {
-        _targetPrevModifier = InputSystem.actions.FindAction("TargetPrevModifier");
-    }
 
     private void OnEnable()
     {
@@ -105,7 +92,7 @@ public class FunscriptMouseInput : MonoBehaviour
         var relativeCoords = GetRelativeCoords(coords, target.contentRect);
         int at = GetAtValue(relativeCoords);
 
-        bool targetPrevModifier = _targetPrevModifier.ReadValue<float>() > 0.5f;
+        bool targetPrevModifier = Input.GetKey(InputManager.Singleton.Controls.TargetPreviousModifier);
         int index = targetPrevModifier ? GetPreviousFunActionIndex(at) : GetNextFunActionIndex(at);
         if (index != -1)
         {

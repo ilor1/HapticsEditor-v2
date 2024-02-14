@@ -102,7 +102,7 @@ public class WaveformRenderer : UIBehaviour
         _audioSource = audioSource;
         _clip = _audioSource.clip;
 
-        _samples = new NativeArray<float>(_clip.samples, Allocator.Persistent);
+        _samples = new NativeArray<float>(_clip.samples*_clip.channels, Allocator.Persistent);
         _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
 
         _clipLoaded = true;

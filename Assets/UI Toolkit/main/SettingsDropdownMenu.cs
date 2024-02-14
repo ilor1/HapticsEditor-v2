@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.UIElements;
 
 public static class SettingsDropdownMenu
 {
     public static void OnEditBindingsClick()
     {
-        Debug.Log("OnEditBindingsClick");
+        BindingsMenu.Singleton.Open();
     }
 }
