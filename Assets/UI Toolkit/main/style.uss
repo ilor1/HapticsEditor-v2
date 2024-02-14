@@ -234,17 +234,32 @@
     background-color: #262626;
     border-width: 3px;
     border-color: #3e3e42;
+    border-radius: 10px;
+
+}
+
+.metadata-buttons {
+    margin-top: 20px;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.metadata-buttons .unity-button {
+    background-color: #414141;
 }
 
 .metadata-field {
     flex-direction: row;
     width: 100%;
+    justify-content: flex-end;
 }
+
 .metadata-container .unity-base-field {
-    flex-grow: 1;
+    width: 70%;
 }
 
 .metadata-container .unity-base-text-field__input {
-    background-color: #2b2b2b;
+    background-color: #1c1c1c;
     width: 100%;
 }

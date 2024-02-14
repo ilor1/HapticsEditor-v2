@@ -1,11 +1,10 @@
-﻿using Unity.VisualScripting;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 
 public class MetadataMenu : UIBehaviour
 {
     public static MetadataMenu Singleton;
 
+    private VisualElement _root;
     private VisualElement _popup;
     private VisualElement _container;
 
@@ -41,13 +40,10 @@ public class MetadataMenu : UIBehaviour
 
     private void Generate(VisualElement root)
     {
+        _root = root;
         _popup = Create("metadata-popup");
         _container = Create("metadata-container");
-
-        // Assuming you have TextField elements with the following names in your UXML
-        // You may need to adjust the names based on your UXML structure
-
-
+        
         _creatorField = CreateInputTextField("Creator", _container);
         _descriptionField = CreateInputTextField("Description", _container);
         _durationField =  CreateInputIntegerField("Duration", _container);
@@ -77,7 +73,30 @@ public class MetadataMenu : UIBehaviour
         _rangeField.RegisterValueChangedCallback(evt => _data.range = evt.newValue);
         _versionField.RegisterValueChangedCallback(evt => _data.version = evt.newValue);
 
+        var metadataButtons = Create("metadata-buttons");
+        var saveButton = Create<Button>();
+        saveButton.clicked += OnSave;
+        saveButton.text = "Save";
+        metadataButtons.Add(saveButton);
+        
+        var cancelButton = Create<Button>();
+        cancelButton.text = "Cancel";
+        cancelButton.clicked += OnCancel;
+        metadataButtons.Add(cancelButton);
+        
+        _container.Add(metadataButtons);
         _popup.Add(_container);
+    }
+
+    private void OnCancel()
+    {
+        _root.Remove(_popup);
+    }
+
+    private void OnSave()
+    {
+        SaveMetaData();
+        _root.Remove(_popup);
     }
 
     private TextField CreateInputTextField(string title, VisualElement parent)
