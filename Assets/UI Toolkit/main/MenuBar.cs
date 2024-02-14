@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using Unity.Android.Gradle.Manifest;
+using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
 
 public class MenuBar : UIBehaviour
@@ -66,11 +67,8 @@ public class MenuBar : UIBehaviour
 
         var metadataButton = Create<Button>("menu-button");
         metadataButton.text = "Metadata";
-        metadataButton.clicked += () =>
-        {
-            // Open Metadata window
-        };
-        metadataButton.SetEnabled(false); // enabled only when a file is loaded
+        metadataButton.clicked += () => { MetadataMenu.Singleton.Open(root); };
+        //metadataButton.SetEnabled(false); // enabled only when a file is loaded
         menuBar.Add(metadataButton);
     }
 

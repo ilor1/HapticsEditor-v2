@@ -1,7 +1,5 @@
+- findout why waveforms lose sync towards the end...
 - Edit bindings
-- Scrub timeline
-- timecodes on timeline
-- Input to modify funscripts
 - zooming
 --- remember to add the sorting to the funaction array
 - Patterns (with patterns creator)
