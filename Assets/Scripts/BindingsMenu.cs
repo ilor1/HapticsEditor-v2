@@ -16,6 +16,7 @@ public class BindingsMenu : UIBehaviour
     private bool _isListeningForKey = false;
     private ControlName _currentControlName;
 
+ 
     private void Awake()
     {
         if (Singleton == null)
@@ -79,7 +80,7 @@ public class BindingsMenu : UIBehaviour
         if (!_isListeningForKey) return;
 
         Debug.Log("BindingsMenu: Listening for key...");
-        
+
         // Go through each KeyCode to find which was pressed
         foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode)))
         {
@@ -105,11 +106,29 @@ public class BindingsMenu : UIBehaviour
         // Modify the Bindings struct based on the control name
         switch (controlName)
         {
-            case ControlName.Play:
-                _controls.Play = pressedKey;
+            case ControlName.TogglePlay:
+                _controls.TogglePlay = pressedKey;
                 break;
-            case ControlName.FastForward:
-                _controls.FastForward = pressedKey;
+            case ControlName.SkipForward:
+                _controls.SkipForward = pressedKey;
+                break;
+            case ControlName.SkipBack:
+                _controls.SkipBack = pressedKey;
+                break;
+            case ControlName.IncreaseSpeed:
+                _controls.IncreaseSpeed = pressedKey;
+                break;
+            case ControlName.DecreaseSpeed:
+                _controls.DecreaseSpeed = pressedKey;
+                break;
+            case ControlName.ZoomIn:
+                _controls.ZoomIn = pressedKey;
+                break;
+            case ControlName.ZoomOut:
+                _controls.ZoomOut = pressedKey;
+                break;
+            case ControlName.Reset:
+                _controls.Reset = pressedKey;
                 break;
             case ControlName.TargetPreviousModifier:
                 _controls.TargetPreviousModifier = pressedKey;
@@ -142,6 +161,8 @@ public class BindingsMenu : UIBehaviour
     {
         // Close without saving
         _root.Remove(_popup);
+
+        InputManager.InputBlocked = false;
     }
 
     private void OnSave()
@@ -150,10 +171,15 @@ public class BindingsMenu : UIBehaviour
         InputManager.Singleton.Controls = _controls;
         InputManager.Singleton.SaveBindings();
         _root.Remove(_popup);
+
+        InputManager.InputBlocked = false;
     }
 
     public void Open()
     {
+        // Mark BindingsMenu open so we block keypresses
+        InputManager.InputBlocked = true;
+        
         // Get copy of actual controls
         _controls = InputManager.Singleton.Controls;
         _root.Add(_popup);

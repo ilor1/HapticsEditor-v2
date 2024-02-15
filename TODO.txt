@@ -1,7 +1,16 @@
-- findout why waveforms lose sync towards the end...
-- Edit bindings
 - zooming
---- remember to add the sorting to the funaction array
+- playback controls
+-- play/stop
+-- jump back/forward (timeline.length*0.5f)
+-- playback speed increase/decrease 0.25-4x
+- linear-mode
+- step-mode
+- time till prev/next funaction
+- line cursor to see the position on waveform
 - Patterns (with patterns creator)
+--- remember to add the sorting to the funaction array
 - Implement Intiface Central support
-
+- day/night toggle
+- uss cleanup
+- performance optimization
+- cut&paste portion of funscript

@@ -579,6 +579,7 @@ GameObject:
   - component: {fileID: 1247646093}
   - component: {fileID: 1247646092}
   - component: {fileID: 1247646094}
+  - component: {fileID: 1247646095}
   m_Layer: 0
   m_Name: TimelineManager
   m_TagString: Untagged
@@ -628,6 +629,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a50c33c51f04a13a091780df907fbaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1247646095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247646091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0fbd5cfadb1ce441986bff3786d3dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1566223044
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,8 +687,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Controls:
-    Play: 32
-    TargetPreviousModifier: 267
+    TogglePlay: 32
+    SkipForward: 100
+    SkipBack: 97
+    IncreaseSpeed: 119
+    DecreaseSpeed: 115
+    ZoomIn: 280
+    ZoomOut: 281
+    Reset: 114
+    TargetPreviousModifier: 308
 --- !u!114 &1566223047
 MonoBehaviour:
   m_ObjectHideFlags: 0

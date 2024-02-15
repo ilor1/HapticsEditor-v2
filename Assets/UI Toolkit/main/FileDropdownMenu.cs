@@ -67,6 +67,8 @@ public class FileDropdownMenu : MonoBehaviour
 
     private static void BrowseAudio()
     {
+        InputManager.InputBlocked = true;
+        
         // https://github.com/yasirkula/UnitySimpleFileBrowser#example-code
         FileBrowser.SetFilters(true, new FileBrowser.Filter("Audio", MP3_EXT, WAV_EXT));
         FileBrowser.SetDefaultFilter(MP3_EXT);
@@ -75,6 +77,8 @@ public class FileDropdownMenu : MonoBehaviour
 
     private static void BrowseFunscript()
     {
+        InputManager.InputBlocked = true;
+        
         FileBrowser.SetFilters(true, new FileBrowser.Filter("Funscript", FUNSCRIPT_EXT));
         FileBrowser.SetDefaultFilter(FUNSCRIPT_EXT);
         Singleton.StartCoroutine(Singleton.ShowLoadFunscriptDialogCoroutine());
@@ -111,6 +115,8 @@ public class FileDropdownMenu : MonoBehaviour
         {
             // cancel
         }
+        
+        InputManager.InputBlocked = false;
     }
 
     private IEnumerator ShowLoadFunscriptDialogCoroutine()

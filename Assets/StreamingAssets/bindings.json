@@ -1,4 +1,11 @@
 {
-    "FastForward": 275,
+    "TogglePlay": 32,
+    "SkipForward": 100,
+    "SkipBack": 97,
+    "IncreaseSpeed": 119,
+    "DecreaseSpeed": 115,
+    "ZoomIn": 280,
+    "ZoomOut": 281,
+    "Reset": 114,
     "TargetPreviousModifier": 308
 }

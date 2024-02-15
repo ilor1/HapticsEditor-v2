@@ -1,6 +1,12 @@
 ﻿public enum ControlName
 {
-    Play,
-    FastForward,
+    TogglePlay,
+    SkipForward,
+    SkipBack,
+    IncreaseSpeed,
+    DecreaseSpeed,
+    ZoomIn,
+    ZoomOut,
+    Reset,
     TargetPreviousModifier
 }

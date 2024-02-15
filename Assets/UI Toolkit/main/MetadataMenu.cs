@@ -92,6 +92,8 @@ public class MetadataMenu : UIBehaviour
     {
         // Close without saving
         _root.Remove(_popup);
+        
+        InputManager.InputBlocked = false;
     }
 
     private void OnSave()
@@ -99,6 +101,8 @@ public class MetadataMenu : UIBehaviour
         // Save and close
         SaveMetaData();
         _root.Remove(_popup);
+        
+        InputManager.InputBlocked = false;
     }
 
     private TextField CreateInputTextField(string title, VisualElement parent)
@@ -136,6 +140,8 @@ public class MetadataMenu : UIBehaviour
         // No funscript loaded -> return
         if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return;
 
+        InputManager.InputBlocked = true;
+        
         // Initialize when opened the first time
         if (!_initialized)
         {
