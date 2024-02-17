@@ -7,5 +7,9 @@
     "ZoomIn": 280,
     "ZoomOut": 281,
     "Reset": 114,
-    "TargetPreviousModifier": 308
+    "TargetPreviousModifier": 308,
+    "NextPattern": 101,
+    "PreviousPattern": 113,
+    "ToggleSnapping": 49,
+    "TogglePatternMode": 50
 }

@@ -16,7 +16,7 @@ public class BindingsMenu : UIBehaviour
     private bool _isListeningForKey = false;
     private ControlName _currentControlName;
 
- 
+
     private void Awake()
     {
         if (Singleton == null)
@@ -115,11 +115,11 @@ public class BindingsMenu : UIBehaviour
             case ControlName.SkipBack:
                 _controls.SkipBack = pressedKey;
                 break;
-            case ControlName.IncreaseSpeed:
-                _controls.IncreaseSpeed = pressedKey;
-                break;
             case ControlName.DecreaseSpeed:
                 _controls.DecreaseSpeed = pressedKey;
+                break;
+            case ControlName.IncreaseSpeed:
+                _controls.IncreaseSpeed = pressedKey;
                 break;
             case ControlName.ZoomIn:
                 _controls.ZoomIn = pressedKey;
@@ -132,6 +132,18 @@ public class BindingsMenu : UIBehaviour
                 break;
             case ControlName.TargetPreviousModifier:
                 _controls.TargetPreviousModifier = pressedKey;
+                break;
+            case ControlName.PreviousPattern:
+                _controls.PreviousPattern = pressedKey;
+                break;
+            case ControlName.NextPattern:
+                _controls.NextPattern = pressedKey;
+                break;
+            case ControlName.ToggleSnapping:
+                _controls.ToggleSnapping = pressedKey;
+                break;
+            case ControlName.TogglePatternMode:
+                _controls.TogglePatternMode = pressedKey;
                 break;
             // Add more cases for other controls
 
@@ -179,7 +191,7 @@ public class BindingsMenu : UIBehaviour
     {
         // Mark BindingsMenu open so we block keypresses
         InputManager.InputBlocked = true;
-        
+
         // Get copy of actual controls
         _controls = InputManager.Singleton.Controls;
         _root.Add(_popup);

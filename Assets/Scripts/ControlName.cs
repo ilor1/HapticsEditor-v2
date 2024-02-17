@@ -3,10 +3,14 @@
     TogglePlay,
     SkipForward,
     SkipBack,
-    IncreaseSpeed,
     DecreaseSpeed,
+    IncreaseSpeed,
     ZoomIn,
     ZoomOut,
     Reset,
-    TargetPreviousModifier
+    TargetPreviousModifier,
+    PreviousPattern,
+    NextPattern,
+    ToggleSnapping,
+    TogglePatternMode
 }

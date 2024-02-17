@@ -1,8 +1,3 @@
-- zooming
-- playback controls
--- play/stop
--- jump back/forward (timeline.length*0.5f)
--- playback speed increase/decrease 0.25-4x
 - linear-mode
 - step-mode
 - time till prev/next funaction

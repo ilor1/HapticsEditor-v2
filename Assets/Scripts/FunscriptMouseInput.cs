@@ -1,10 +1,23 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class FunscriptMouseInput : MonoBehaviour
 {
+    public static FunscriptMouseInput Singleton;
+
     private VisualElement _funscriptContainer;
+
+    public bool Snapping { get; set; }
+
+
+
+    private void Awake()
+    {
+        if (Singleton == null) Singleton = this;
+        else if (Singleton != this) Destroy(this);
+    }
 
     private void OnEnable()
     {
@@ -22,7 +35,7 @@ public class FunscriptMouseInput : MonoBehaviour
         _funscriptContainer.RegisterCallback<ClickEvent>(OnLeftClick);
         _funscriptContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
     }
-    
+
     private void OnLeftClick(ClickEvent evt)
     {
         // Get coords
@@ -37,11 +50,11 @@ public class FunscriptMouseInput : MonoBehaviour
         int at = GetAtValue(relativeCoords);
         if (at < 0)
         {
-            Debug.Log("FunscriptMouseInput: Can't add points to negative time");
+            Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
         }
 
-        int pos = GetPosValue(relativeCoords);
+        int pos = GetPosValue(relativeCoords, Snapping);
 
         var funaction = new FunAction
         {
@@ -51,7 +64,7 @@ public class FunscriptMouseInput : MonoBehaviour
 
         if (FunscriptRenderer.Singleton.Haptics.Count <= 0)
         {
-            Debug.Log("FunscriptMouseInput: No haptic script loaded");
+            Debug.LogWarning("FunscriptMouseInput: No haptic script loaded");
             return;
         }
 
@@ -74,9 +87,17 @@ public class FunscriptMouseInput : MonoBehaviour
         return at;
     }
 
-    private int GetPosValue(Vector2 relativeCoords)
+    private int GetPosValue(Vector2 relativeCoords, bool snapping)
     {
-        return (int)math.round(100 * relativeCoords.y);
+        float value = 100 * relativeCoords.y;
+        if (snapping)
+        {
+            return (int)(math.round(value / 5f) * 5);
+        }
+        else
+        {
+            return (int)math.round(value);
+        }
     }
 
     private void OnRightClick(PointerDownEvent evt)

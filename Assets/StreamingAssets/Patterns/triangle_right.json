@@ -1,0 +1,17 @@
+{
+  "name": "Triangle Right",
+  "actions": [
+    {
+      "at": 0,
+      "pos": 0
+    },
+    {
+      "at": 999,
+      "pos": 100
+    },
+    {
+      "at": 1000,
+      "pos": 0
+    }
+  ]
+}

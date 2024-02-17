@@ -14,8 +14,7 @@ public class InputManager : MonoBehaviour
     // 4. Access it using InputManager.Singleton.Controls.YourBind
     // - it gets added to bindings.json through the runtime binding system
     // - you should still add all bindings in the inspector to have default values (if json doesn't exist)
-
-
+    
     public static bool InputBlocked = false;
     
     private void Awake()
