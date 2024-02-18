@@ -34,42 +34,42 @@ public class PlaybackControls : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.TogglePlay))
+        if (InputManager.Singleton.GetKeyDown(ControlName.TogglePlay)) //
         {
             TogglePlay();
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.SkipForward))
+        if (InputManager.Singleton.GetKeyDown(ControlName.SkipForward))
         {
             SkipForward();
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.SkipBack))
+        if (InputManager.Singleton.GetKeyDown(ControlName.SkipBack))
         {
             SkipBack();
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.IncreaseSpeed))
+        if (InputManager.Singleton.GetKeyDown(ControlName.IncreaseSpeed))
         {
             IncreaseSpeed();
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.DecreaseSpeed))
+        if (InputManager.Singleton.GetKeyDown(ControlName.DecreaseSpeed))
         {
             DecreaseSpeed();
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.ZoomIn))
+        if (InputManager.Singleton.GetKeyDown(ControlName.ZoomIn))
         {
             ZoomIn();
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.ZoomOut))
+        if (InputManager.Singleton.GetKeyDown(ControlName.ZoomOut))
         {
             ZoomOut();
         }
 
-        if (Input.GetKeyDown(InputManager.Singleton.Controls.Reset))
+        if (InputManager.Singleton.GetKeyDown(ControlName.Reset))
         {
             Reset();
         }

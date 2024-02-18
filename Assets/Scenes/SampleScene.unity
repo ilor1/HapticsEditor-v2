@@ -687,7 +687,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 256015dc0f0ce2c49a1129c09ad466b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _activePatternIndex: 0
+  _activePatternIndex: 1
 --- !u!114 &1355533381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -701,10 +701,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RepeatAmount: 5
-  Spacing: 1000
+  Spacing: 1
   ScaleX: 1
-  ScaleY: 1
-  InvertY: 0
+  ScaleY: 0.5
+  InvertY: 1
   InvertX: 0
 --- !u!1 &1566223044
 GameObject:

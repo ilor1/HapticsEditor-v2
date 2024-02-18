@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
 public class BindingsMenu : UIBehaviour
@@ -11,11 +11,11 @@ public class BindingsMenu : UIBehaviour
     private VisualElement _popup;
     private VisualElement _container;
 
-    private Bindings _controls;
-
     private bool _isListeningForKey = false;
     private ControlName _currentControlName;
 
+    private Dictionary<ControlName, Button> _buttonDictionary = new Dictionary<ControlName, Button>();
+    private Dictionary<ControlName, KeyCode> _keyCodeDictionary = new Dictionary<ControlName, KeyCode>();
 
     private void Awake()
     {
@@ -53,6 +53,8 @@ public class BindingsMenu : UIBehaviour
             var button = CreateInputButton(controlName, _container);
             button.focusable = false;
             button.clicked += () => { StartListeningForKey(controlName); };
+
+            _buttonDictionary.Add(controlName, button);
         }
 
         var bindingsButtons = Create("bindings-buttons");
@@ -103,56 +105,24 @@ public class BindingsMenu : UIBehaviour
 
     private void SetBindingKey(ControlName controlName, KeyCode pressedKey)
     {
-        // Modify the Bindings struct based on the control name
-        switch (controlName)
-        {
-            case ControlName.TogglePlay:
-                _controls.TogglePlay = pressedKey;
-                break;
-            case ControlName.SkipForward:
-                _controls.SkipForward = pressedKey;
-                break;
-            case ControlName.SkipBack:
-                _controls.SkipBack = pressedKey;
-                break;
-            case ControlName.DecreaseSpeed:
-                _controls.DecreaseSpeed = pressedKey;
-                break;
-            case ControlName.IncreaseSpeed:
-                _controls.IncreaseSpeed = pressedKey;
-                break;
-            case ControlName.ZoomIn:
-                _controls.ZoomIn = pressedKey;
-                break;
-            case ControlName.ZoomOut:
-                _controls.ZoomOut = pressedKey;
-                break;
-            case ControlName.Reset:
-                _controls.Reset = pressedKey;
-                break;
-            case ControlName.TargetPreviousModifier:
-                _controls.TargetPreviousModifier = pressedKey;
-                break;
-            case ControlName.PreviousPattern:
-                _controls.PreviousPattern = pressedKey;
-                break;
-            case ControlName.NextPattern:
-                _controls.NextPattern = pressedKey;
-                break;
-            case ControlName.ToggleSnapping:
-                _controls.ToggleSnapping = pressedKey;
-                break;
-            case ControlName.TogglePatternMode:
-                _controls.TogglePatternMode = pressedKey;
-                break;
-            // Add more cases for other controls
-
-            default:
-                Debug.LogWarning("BindingsMenu: Unhandled control name: " + controlName);
-                break;
-        }
+        _keyCodeDictionary[controlName] = pressedKey;
+        UpdateBindingButtons();
     }
 
+    private void UpdateBindingButtons()
+    {
+        foreach (var kvp in _buttonDictionary)
+        {
+            if (_keyCodeDictionary.TryGetValue(kvp.Key, out var value))
+            {
+                kvp.Value.text = value.ToString();
+            }
+            else
+            {
+                kvp.Value.text = "None";
+            }
+        }
+    }
 
     private Button CreateInputButton(ControlName controlName, VisualElement parent)
     {
@@ -180,7 +150,7 @@ public class BindingsMenu : UIBehaviour
     private void OnSave()
     {
         // Save and close
-        InputManager.Singleton.Controls = _controls;
+        InputManager.Singleton.SetKeyboardControls(_keyCodeDictionary);
         InputManager.Singleton.SaveBindings();
         _root.Remove(_popup);
 
@@ -193,7 +163,8 @@ public class BindingsMenu : UIBehaviour
         InputManager.InputBlocked = true;
 
         // Get copy of actual controls
-        _controls = InputManager.Singleton.Controls;
+        _keyCodeDictionary = InputManager.Singleton.GetKeyboardControls();
+        UpdateBindingButtons();
         _root.Add(_popup);
     }
 }

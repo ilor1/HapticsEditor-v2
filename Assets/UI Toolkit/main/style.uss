@@ -79,10 +79,75 @@
     border-bottom-width: 3px;
     border-color: #3e3e42;
     -unity-text-align: middle-left;
+    align-content: center;
+    align-items: center;
 }
 
-.tool-toggle {
-    padding: 4px 10px;
+.tool-bar-item {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 0;
+    height: 30px;
+    width: auto;
+    flex-direction: row;
+    font-size: 12px;
+}
+
+.tool-bar-item > Label {
+    margin: 0 5px 0 0;
+    padding: 0;    
+}
+
+.tool-bar-item > Toggle {
+    margin: 0;
+    padding: 0;
+}
+.tool-bar-item > Slider {
+    width: 100px;
+    margin: 0;
+    padding: 0;
+}
+
+.tool-bar-item > IntegerField {
+    margin: 0;
+    padding: 0;
+}
+
+.tool-bar-item > FloatField {
+    margin: 0;
+    padding: 0;
+}
+
+
+.tool-bar .unity-button {
+    height: 30px;
+    background-color: #3e3e42;
+    border-radius: 5px;
+    border-color: dimgray;
+}
+
+.tool-bar .unity-toggle__checkmark {
+    height: 100%;
+    width: 30px;
+    background-color: #3e3e42;
+    border-radius: 5px;
+    border-color: dimgray;
+    -unity-background-image-tint-color: white;
+}
+
+.tool-bar .unity-base-text-field {
+    height: 30px;
+    min-width: 30px;
+}
+
+.tool-bar #unity-text-input {
+    height: 100%;
+    width: 100%;
+    border-radius: 5px;
+    border-color: dimgray;
+    padding: 0;
+    background-color: #3e3e42;
+    -unity-text-align: middle-center;
 }
 
 .loading-bar {
@@ -286,8 +351,11 @@
     border-radius: 10px;
 }
 
-.bindings-buttons .unity-button {
-    background-color: #414141;
+.bindings-container .unity-button {
+    height: 30px;
+    width: 60px;
+    background-color: #3e3e42;
+    border-radius: 5px;
 }
 
 .bindings-buttons {
@@ -304,7 +372,6 @@
 }
 
 .pattern-container {
-    background-color: rgba(255, 0, 0, 0.25);
     position: absolute;
     width: 100%;
     height: 100%;

@@ -8,13 +8,19 @@ public class PatternManager : MonoBehaviour
     public static PatternManager Singleton;
 
     public bool PatternMode { get; set; }
+    public int RepeatAmount { get; set; }
+    public int Spacing { get; set; }
+    public float ScaleX { get; set; }
+    public float ScaleY { get; set; }
+    public bool InvertY { get; set; }
+    public bool InvertX { get; set; }
 
     public Pattern ActivePattern => _patterns[_activePatternIndex];
 
 
     private readonly string _patternsFolder = $"{Application.streamingAssetsPath}/Patterns";
     private List<Pattern> _patterns = new List<Pattern>();
-    [SerializeField] private int _activePatternIndex = 0;
+    private int _activePatternIndex = 0;
     private const string FUNSCRIPT_EXT = ".funscript";
     private const string JSON_EXT = ".json";
 
@@ -29,7 +35,7 @@ public class PatternManager : MonoBehaviour
     {
         LoadPatterns();
     }
-
+   
     private void LoadPatterns()
     {
         _patterns.Clear();
@@ -57,6 +63,12 @@ public class PatternManager : MonoBehaviour
         {
             Debug.LogWarning($"PatternManager: Directory does not exist: ({_patternsFolder})");
         }
+    }
+
+    public void NextPattern()
+    {
+        _activePatternIndex++;
+        if (_activePatternIndex > _patterns.Count - 1) _activePatternIndex = 0;
     }
 }
 

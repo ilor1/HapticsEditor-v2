@@ -113,7 +113,7 @@ public class FunscriptMouseInput : MonoBehaviour
         var relativeCoords = GetRelativeCoords(coords, target.contentRect);
         int at = GetAtValue(relativeCoords);
 
-        bool targetPrevModifier = Input.GetKey(InputManager.Singleton.Controls.TargetPreviousModifier);
+        bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
         int index = targetPrevModifier ? GetPreviousFunActionIndex(at) : GetNextFunActionIndex(at);
         if (index != -1)
         {
