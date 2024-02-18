@@ -21,7 +21,7 @@ public enum ControlName
     ZoomOut,
     Reset,
     TargetPreviousModifier,
-    NextPattern,
+    ChangeModeOrPattern,
     TogglePatternMode,
     ToggleSnapping
 }

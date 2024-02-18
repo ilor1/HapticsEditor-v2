@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 
 public class FunscriptSaver : MonoBehaviour
@@ -12,6 +13,31 @@ public class FunscriptSaver : MonoBehaviour
         else if (Singleton != this) Destroy(this);
     }
 
+    private void OnEnable()
+    {
+        TitleBar.TitleBarCreated += LoadOrCreateTemporaryFunscript;
+    }
+
+    private void OnDisable()
+    {
+        TitleBar.TitleBarCreated -= LoadOrCreateTemporaryFunscript;
+    }
+
+    private void LoadOrCreateTemporaryFunscript()
+    {
+        if (FunscriptRenderer.Singleton.Haptics.Count > 0) return;
+
+        string path = $"{Application.streamingAssetsPath}/new funscript.funscript";
+
+        // First try loading...
+        bool loadSuccess = FunscriptLoader.Singleton.TryLoadFunscript(path);
+
+        if (!loadSuccess)
+        {
+            Save(path);
+        }
+    }
+
     public void Save(string funscriptPath)
     {
         if (_hapticsManager == null)
@@ -19,17 +45,17 @@ public class FunscriptSaver : MonoBehaviour
             _hapticsManager = GetComponent<FunscriptRenderer>();
         }
 
+        // Initialize new haptics for saving, if needed
         bool createNewFile = _hapticsManager.Haptics.Count <= 0;
-
-        // Initialize new haptics for saving
         if (createNewFile)
         {
+            FileDropdownMenu.Singleton.FunscriptPath = funscriptPath;
             _hapticsManager.Haptics.Add(CreateNewHaptics(funscriptPath));
         }
 
+        // Save
         string json = JsonUtility.ToJson(_hapticsManager.Haptics[0].Funscript);
         File.WriteAllText(funscriptPath, json);
-
         Debug.Log($"FunscriptSaver: Funscript saved. ({funscriptPath})");
 
         // Load the newly created haptic, so it gets updated to the titlebar

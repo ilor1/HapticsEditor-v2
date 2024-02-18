@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using SimpleFileBrowser;
 using UnityEngine;
+using UnityEngine.Serialization;
 using File = UnityEngine.Windows.File;
 
 public class FileDropdownMenu : MonoBehaviour
@@ -16,7 +17,7 @@ public class FileDropdownMenu : MonoBehaviour
     private const string WAV_EXT = ".wav";
     private const string FUNSCRIPT_EXT = ".funscript";
 
-    private string _funscriptPath;
+    public string FunscriptPath;
     private string _audioPath;
 
     private void Awake()
@@ -44,14 +45,14 @@ public class FileDropdownMenu : MonoBehaviour
     public static void OnSaveClick()
     {
         // No path, no funscript
-        if (string.IsNullOrEmpty(Singleton._funscriptPath))
+        if (string.IsNullOrEmpty(Singleton.FunscriptPath))
         {
-            Debug.Log( $"FileDropDownMenu: funscript save path is null");
+            Debug.Log($"FileDropDownMenu: funscript save path is null");
             return;
         }
 
         // Save
-        FunscriptSaver.Singleton.Save(Singleton._funscriptPath);
+        FunscriptSaver.Singleton.Save(Singleton.FunscriptPath);
     }
 
     public static void OnExitClick()
@@ -68,7 +69,7 @@ public class FileDropdownMenu : MonoBehaviour
     private static void BrowseAudio()
     {
         InputManager.InputBlocked = true;
-        
+
         // https://github.com/yasirkula/UnitySimpleFileBrowser#example-code
         FileBrowser.SetFilters(true, new FileBrowser.Filter("Audio", MP3_EXT, WAV_EXT));
         FileBrowser.SetDefaultFilter(MP3_EXT);
@@ -78,7 +79,7 @@ public class FileDropdownMenu : MonoBehaviour
     private static void BrowseFunscript()
     {
         InputManager.InputBlocked = true;
-        
+
         FileBrowser.SetFilters(true, new FileBrowser.Filter("Funscript", FUNSCRIPT_EXT));
         FileBrowser.SetDefaultFilter(FUNSCRIPT_EXT);
         Singleton.StartCoroutine(Singleton.ShowLoadFunscriptDialogCoroutine());
@@ -101,10 +102,10 @@ public class FileDropdownMenu : MonoBehaviour
             // Load funscript with matching name automatically
             string dir = Path.GetDirectoryName(result);
             string filename = Path.GetFileNameWithoutExtension(result);
-            _funscriptPath = Path.Combine(dir!, filename) + ".funscript";
-            if (File.Exists(_funscriptPath))
+            FunscriptPath = Path.Combine(dir!, filename) + ".funscript";
+            if (File.Exists(FunscriptPath))
             {
-                FunscriptPathLoaded?.Invoke(_funscriptPath);
+                FunscriptPathLoaded?.Invoke(FunscriptPath);
             }
             else
             {
@@ -115,7 +116,7 @@ public class FileDropdownMenu : MonoBehaviour
         {
             // cancel
         }
-        
+
         InputManager.InputBlocked = false;
     }
 
@@ -128,8 +129,8 @@ public class FileDropdownMenu : MonoBehaviour
         {
             string result = FileBrowser.Result[0];
             Debug.Log($"FileBrowser: loaded path: ({result})");
-            
-            _funscriptPath = result;
+
+            FunscriptPath = result;
 
             // Load or Create funscript
             FunscriptPathLoaded?.Invoke(result);

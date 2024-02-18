@@ -32,6 +32,19 @@ public class FunscriptLoader : MonoBehaviour
         FileDropdownMenu.FunscriptPathLoaded -= LoadFunscript;
     }
 
+    public bool TryLoadFunscript(string path)
+    {
+        if (File.Exists(path))
+        {
+            LoadFunscript(path);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     private void LoadFunscript(string path)
     {
         string json = File.ReadAllText(path);

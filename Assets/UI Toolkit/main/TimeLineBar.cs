@@ -7,32 +7,21 @@ using UnityEngine.UIElements;
 public class TimeLineBar : UIBehaviour
 {
     private VisualElement _timeline;
-    private bool _clipLoaded = false;
     private VisualElement _fill;
     private Label _label;
     private float _clipLength;
-    private string _clipLengthString;
     private bool _isDragging = false;
+    private bool _initialized = false;
 
+    private const string TIME_FORMAT = @"hh\:mm\:ss\.f";
     private void OnEnable()
     {
         MainUI.RootCreated += Generate;
-        AudioLoader.ClipLoaded += OnClipLoaded;
     }
 
     private void OnDisable()
     {
         MainUI.RootCreated -= Generate;
-        AudioLoader.ClipLoaded -= OnClipLoaded;
-    }
-
-    private void OnClipLoaded(AudioSource audioSource)
-    {
-        _clipLength = audioSource.clip.length;
-
-        TimeSpan timeSpan = TimeSpan.FromSeconds(_clipLength);
-        _clipLengthString = timeSpan.ToString(@"hh\:mm\:ss\.f");
-        _clipLoaded = true;
     }
 
     private void Generate(VisualElement root)
@@ -52,21 +41,27 @@ public class TimeLineBar : UIBehaviour
         _timeline.RegisterCallback<PointerDownEvent>(OnPointerDown);
         _timeline.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _timeline.RegisterCallback<PointerUpEvent>(OnPointerUp);
-    }
 
+        _initialized = true;
+    }
 
     private void Update()
     {
-        if (!_clipLoaded) return;
-
+        if (!_initialized) return;
+        
         // Update fill
-        float percentage = (float)TimelineManager.Instance.TimeInSeconds / _clipLength;
+        float lengthInSeconds = TimelineManager.Instance.GetClipLengthInMilliseconds() * 0.001f;
+
+        float percentage = (float)TimelineManager.Instance.TimeInSeconds / lengthInSeconds;
         _fill.style.width = Length.Percent(percentage * 100f);
 
+        TimeSpan lengthTimeSpan = TimeSpan.FromSeconds(lengthInSeconds);
+        var clipLengthString = lengthTimeSpan.ToString(TIME_FORMAT);
+
         // Update label
-        TimeSpan timeSpan = TimeSpan.FromSeconds(TimelineManager.Instance.TimeInSeconds);
-        string formattedTime = timeSpan.ToString(@"hh\:mm\:ss\.f");
-        _label.text = $"{formattedTime}/{_clipLengthString}";
+        TimeSpan currentTimeSpan = TimeSpan.FromSeconds(TimelineManager.Instance.TimeInSeconds);
+        string formattedTime = currentTimeSpan.ToString(TIME_FORMAT);
+        _label.text = $"{formattedTime}/{clipLengthString}";
     }
 
     private void OnPointerDown(PointerDownEvent evt)

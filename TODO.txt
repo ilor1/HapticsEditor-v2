@@ -1,7 +1,5 @@
-- linear-mode
-- step-mode
-- time till prev/next funaction
-- line cursor to see the position on waveform
+- mark file name as changed when funscript has been modified
+- mark file name as not changed after save
 - Patterns (with patterns creator)
 --- remember to add the sorting to the funaction array
 - Implement Intiface Central support

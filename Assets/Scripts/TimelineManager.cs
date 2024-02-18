@@ -11,15 +11,31 @@ public class TimelineManager : MonoBehaviour
     public bool IsPlaying;
     public int TimeInMilliseconds;
     public float TimeInSeconds => TimeInMilliseconds * 0.001f;
-
     public int LengthInMilliseconds = 15000;
     public float LengthInSeconds => LengthInMilliseconds * 0.001f;
+
     private int _timeSamples;
     private AudioSource _audioSource;
-
-    private bool _clipLoaded = false;
-
     private int _prevLengthInMilliseconds;
+
+    public int GetClipLengthInMilliseconds()
+    {
+        if (_audioSource != null)
+        {
+            return (int)math.round(_audioSource.clip.length * 1000f);
+        }
+        else if (FunscriptRenderer.Singleton.Haptics.Count > 0)
+        {
+            var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+            if (actions.Count == 0) return 1;
+
+            return actions[^1].at;
+        }
+        else
+        {
+            return 1;
+        }
+    }
 
     private void Awake()
     {
@@ -62,7 +78,6 @@ public class TimelineManager : MonoBehaviour
     private void OnClipLoaded(AudioSource src)
     {
         _audioSource = src;
-        _clipLoaded = true;
     }
 
     private void Update()
@@ -73,14 +88,8 @@ public class TimelineManager : MonoBehaviour
             ZoomLevelChanged?.Invoke();
         }
 
-        if (!_clipLoaded)
-        {
-            TimeInMilliseconds = 0;
-            return;
-        }
-
         // Play/Pause
-        if (IsPlaying != _audioSource.isPlaying)
+        if (_audioSource != null && IsPlaying != _audioSource.isPlaying)
         {
             if (IsPlaying)
             {
@@ -95,21 +104,32 @@ public class TimelineManager : MonoBehaviour
         // Update Timeline while playing. Scrub timeline while paused 
         if (IsPlaying)
         {
-            TimeInMilliseconds = (int)math.round(_audioSource.timeSamples / (_audioSource.clip.frequency * 0.001f));
+            if (_audioSource != null)
+            {
+                TimeInMilliseconds = (int)math.round(_audioSource.timeSamples / (_audioSource.clip.frequency * 0.001f));
+            }
+            else
+            {
+                TimeInMilliseconds += (int)math.round(Time.deltaTime * 1000f);
+                TimeInMilliseconds %= GetClipLengthInMilliseconds();
+            }
         }
         else
         {
-            int timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
-            if (_audioSource.timeSamples != timeSamples)
+            if (_audioSource != null)
             {
-                _audioSource.timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
+                int timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
+                if (_audioSource.timeSamples != timeSamples)
+                {
+                    _audioSource.timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
+                }
             }
         }
     }
 
     public void SetTimeInMilliseconds(int timeInMilliseconds)
     {
-        if (IsPlaying)
+        if (IsPlaying && _audioSource != null)
         {
             _audioSource.timeSamples = (int)math.round(timeInMilliseconds * _audioSource.clip.frequency * 0.001f);
         }
@@ -121,7 +141,7 @@ public class TimelineManager : MonoBehaviour
 
     public void SetTimeInSeconds(float timeInSeconds)
     {
-        if (IsPlaying)
+        if (IsPlaying && _audioSource != null)
         {
             _audioSource.timeSamples = (int)math.round(timeInSeconds * _audioSource.clip.frequency);
         }

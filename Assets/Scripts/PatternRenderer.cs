@@ -46,13 +46,12 @@ public class PatternRenderer : UIBehaviour
     {
         if (PatternManager.Singleton.InvertY)
         {
-            _mouseRelativePosition = new Vector2(0.5f, 1f);    
+            _mouseRelativePosition = new Vector2(0.5f, 1f);
         }
         else
         {
             _mouseRelativePosition = new Vector2(0.5f, 0f);
         }
-        
     }
 
     private void OnMouseMove(MouseMoveEvent evt)
@@ -67,6 +66,7 @@ public class PatternRenderer : UIBehaviour
 
         // Offset the pattern by mouse position
         int mouseAt = (int)math.round(_mouseRelativePosition.x * TimelineManager.Instance.LengthInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
+        mouseAt += TimelineManager.Instance.TimeInMilliseconds;
         int mousePos = math.clamp((int)math.round(_mouseRelativePosition.y * 100), 0, 100);
 
         // TODO: stamping the pattern to the current funscript.
@@ -98,7 +98,7 @@ public class PatternRenderer : UIBehaviour
             funaction.at += mouseAt;
 
             // stop rendering when outside current timeline length
-            if (funaction.at > TimelineManager.Instance.LengthInMilliseconds) break;
+            if (funaction.at > TimelineManager.Instance.TimeInMilliseconds + 0.5f * TimelineManager.Instance.LengthInMilliseconds) break;
 
             // scale 
             funaction.pos = (int)math.round(funaction.pos * PatternManager.Singleton.ScaleY);

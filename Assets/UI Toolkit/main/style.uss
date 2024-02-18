@@ -80,7 +80,7 @@
     border-color: #3e3e42;
     -unity-text-align: middle-left;
     align-content: center;
-    align-items: center;
+    align-items: center;    
 }
 
 .tool-bar-item {
@@ -95,13 +95,14 @@
 
 .tool-bar-item > Label {
     margin: 0 5px 0 0;
-    padding: 0;    
+    padding: 0;
 }
 
 .tool-bar-item > Toggle {
     margin: 0;
     padding: 0;
 }
+
 .tool-bar-item > Slider {
     width: 100px;
     margin: 0;
@@ -235,6 +236,27 @@
     position: absolute;
     left: 50%;
     right: 50%;
+}
+
+.line-cursor-vertical {
+    margin-top: 94px;
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.line-cursor-horizontal {
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 1);
+    margin: 0;
+    padding: 0;
+}
+
+.line-cursor-label {
+    position: absolute;
 }
 
 .waveform-container {

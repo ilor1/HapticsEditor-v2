@@ -67,9 +67,16 @@ public class ToolBar : UIBehaviour
             _patternToggle.value = !_patternToggle.value;
         }
 
-        if (InputManager.Singleton.GetKeyDown(ControlName.NextPattern))
+        if (InputManager.Singleton.GetKeyDown(ControlName.ChangeModeOrPattern))
         {
-            OnNextPattern();
+            if (_patternToggle.value)
+            {
+                OnNextPattern();
+            }
+            else
+            {
+                _stepToggle.value = !_stepToggle.value;
+            }
         }
     }
 
@@ -170,7 +177,7 @@ public class ToolBar : UIBehaviour
 
     private void OnStepModeChanged(ChangeEvent<bool> evt)
     {
-        //throw new System.NotImplementedException();
+        FunscriptMouseInput.Singleton.StepMode = evt.newValue;
     }
 
     private void OnNextPattern()

@@ -3,14 +3,16 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class FunscriptMouseInput : MonoBehaviour
+public class FunscriptMouseInput : UIBehaviour
 {
     public static FunscriptMouseInput Singleton;
 
     private VisualElement _funscriptContainer;
+ 
 
     public bool Snapping { get; set; }
 
+    public bool StepMode { get; set; }
 
 
     private void Awake()
@@ -62,10 +64,15 @@ public class FunscriptMouseInput : MonoBehaviour
             pos = pos
         };
 
-        if (FunscriptRenderer.Singleton.Haptics.Count <= 0)
+        // On StepMode add an FunAction to create a step 
+        if (StepMode)
         {
-            Debug.LogWarning("FunscriptMouseInput: No haptic script loaded");
-            return;
+            int at0 = at - 1;
+            int pos0 = GetPosAtTime(at0);
+            if (pos0 != -1)
+            {
+                FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Add(new FunAction { at = at0, pos = pos0 });
+            }
         }
 
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Add(funaction);
@@ -98,6 +105,23 @@ public class FunscriptMouseInput : MonoBehaviour
         {
             return (int)math.round(value);
         }
+    }
+
+    private int GetPosAtTime(int at)
+    {
+        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+
+        if (actions.Count == 0) return -1;
+
+        for (int i = actions.Count - 1; i >= 0; i--)
+        {
+            if (at > actions[i].at)
+            {
+                return actions[i].pos;
+            }
+        }
+
+        return -1;
     }
 
     private void OnRightClick(PointerDownEvent evt)

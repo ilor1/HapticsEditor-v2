@@ -288,6 +288,74 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
+--- !u!1 &432475337
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 432475340}
+  - component: {fileID: 432475339}
+  - component: {fileID: 432475338}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &432475338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 432475337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
+--- !u!114 &432475339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 432475337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 0
+  m_DragThreshold: 10
+--- !u!4 &432475340
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 432475337}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &492903792
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,7 +755,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 256015dc0f0ce2c49a1129c09ad466b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _activePatternIndex: 1
 --- !u!114 &1355533381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -700,12 +767,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c9afdf1d3564e47b946c19f03197a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RepeatAmount: 5
-  Spacing: 1
-  ScaleX: 1
-  ScaleY: 0.5
-  InvertY: 1
-  InvertX: 0
 --- !u!1 &1566223044
 GameObject:
   m_ObjectHideFlags: 0
@@ -751,20 +812,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5b5ecfcbcd677c46a39fe259fb99a25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Controls:
-    TogglePlay: 32
-    SkipForward: 100
-    SkipBack: 97
-    DecreaseSpeed: 115
-    IncreaseSpeed: 119
-    ZoomIn: 280
-    ZoomOut: 281
-    Reset: 114
-    TargetPreviousModifier: 308
-    PreviousPattern: 101
-    NextPattern: 113
-    ToggleSnapping: 49
-    TogglePatternMode: 50
 --- !u!114 &1566223047
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -898,6 +945,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6b8a165028b47b490baab45cdd48932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FunscriptPath: 
 --- !u!114 &1611213303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -968,3 +1016,4 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 927865632}
   - {fileID: 307899536}
+  - {fileID: 432475340}
