@@ -36,6 +36,12 @@ public class TimelineManager : MonoBehaviour
             return 1;
         }
     }
+    
+    public float GetClipLengthInSeconds()
+    {
+        return GetClipLengthInMilliseconds() * 0.001f;
+    }
+    
 
     private void Awake()
     {

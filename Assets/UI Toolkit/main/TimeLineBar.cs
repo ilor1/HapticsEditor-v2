@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,11 +8,11 @@ public class TimeLineBar : UIBehaviour
     private VisualElement _timeline;
     private VisualElement _fill;
     private Label _label;
-    private float _clipLength;
     private bool _isDragging = false;
     private bool _initialized = false;
 
     private const string TIME_FORMAT = @"hh\:mm\:ss\.f";
+
     private void OnEnable()
     {
         MainUI.RootCreated += Generate;
@@ -48,7 +47,7 @@ public class TimeLineBar : UIBehaviour
     private void Update()
     {
         if (!_initialized) return;
-        
+
         // Update fill
         float lengthInSeconds = TimelineManager.Instance.GetClipLengthInMilliseconds() * 0.001f;
 
@@ -68,7 +67,7 @@ public class TimeLineBar : UIBehaviour
     {
         _isDragging = true;
         var relativeCoords = GetRelativeCoords(evt.localPosition, _timeline.contentRect);
-        TimelineManager.Instance.SetTimeInSeconds(relativeCoords.x * _clipLength);
+        TimelineManager.Instance.SetTimeInSeconds(relativeCoords.x * TimelineManager.Instance.GetClipLengthInSeconds());
     }
 
     private void OnPointerMove(PointerMoveEvent evt)
@@ -76,7 +75,7 @@ public class TimeLineBar : UIBehaviour
         if (_isDragging)
         {
             var relativeCoords = GetRelativeCoords(evt.localPosition, _timeline.contentRect);
-            TimelineManager.Instance.SetTimeInSeconds(relativeCoords.x * _clipLength);
+            TimelineManager.Instance.SetTimeInSeconds(relativeCoords.x * TimelineManager.Instance.GetClipLengthInSeconds());
         }
     }
 
