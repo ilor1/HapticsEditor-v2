@@ -1,8 +1,7 @@
+- Implement Intiface Central support
 - mark file name as changed when funscript has been modified
 - mark file name as not changed after save
-- Patterns (with patterns creator)
---- remember to add the sorting to the funaction array
-- Implement Intiface Central support
+- Patterns creator
 - day/night toggle
 - uss cleanup
 - performance optimization

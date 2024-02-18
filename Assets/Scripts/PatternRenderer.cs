@@ -34,7 +34,7 @@ public class PatternRenderer : UIBehaviour
         // Pattern settings
         _pattern = Create<LineDrawer>();
         _pattern.LineWidth = 4f;
-        ColorUtility.TryParseHtmlString("#C840C0", out Color color);
+        ColorUtility.TryParseHtmlString("#4d54b2", out Color color);
         _pattern.StrokeColor = color;
         _patternContainer.Add(_pattern);
 
@@ -65,12 +65,8 @@ public class PatternRenderer : UIBehaviour
         var funactions = PatternManager.Singleton.ActivePattern.actions;
 
         // Offset the pattern by mouse position
-        int mouseAt = (int)math.round(_mouseRelativePosition.x * TimelineManager.Instance.LengthInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
-        mouseAt += TimelineManager.Instance.TimeInMilliseconds;
-        int mousePos = math.clamp((int)math.round(_mouseRelativePosition.y * 100), 0, 100);
-
-        // TODO: stamping the pattern to the current funscript.
-        // TODO: For the stamping do another function that actually gets all the repeated funactions, and not just the portion required for rendering 
+        int mouseAt = GetAtValue(_mouseRelativePosition);
+        int mousePos = GetPosValue(_mouseRelativePosition, FunscriptMouseInput.Singleton.Snapping);
 
         _funActions.Clear();
 
@@ -163,5 +159,25 @@ public class PatternRenderer : UIBehaviour
         relativeCoords.x = math.clamp(relativeCoords.x, 0f, 1f);
         relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);
         return relativeCoords;
+    }
+    
+    private int GetAtValue(Vector2 relativeCoords)
+    {
+        float x0 = TimelineManager.Instance.TimeInMilliseconds - 0.5f * TimelineManager.Instance.LengthInMilliseconds;
+        int at = (int)math.round(x0 + relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds);
+        return at;
+    }
+    
+    private int GetPosValue(Vector2 relativeCoords, bool snapping)
+    {
+        float value = 100 * relativeCoords.y;
+        if (snapping)
+        {
+            return (int)(math.round(value / 5f) * 5);
+        }
+        else
+        {
+            return (int)math.round(value);
+        }
     }
 }

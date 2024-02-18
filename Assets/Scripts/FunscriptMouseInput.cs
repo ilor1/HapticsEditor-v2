@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,12 +9,14 @@ public class FunscriptMouseInput : UIBehaviour
     public static FunscriptMouseInput Singleton;
 
     private VisualElement _funscriptContainer;
- 
+
 
     public bool Snapping { get; set; }
 
     public bool StepMode { get; set; }
 
+
+    private List<FunAction> _patternActions = new List<FunAction>();
 
     private void Awake()
     {
@@ -48,6 +51,95 @@ public class FunscriptMouseInput : UIBehaviour
         var relativeCoords = GetRelativeCoords(coords, target.contentRect);
         // Debug.Log($"FunscriptMouseInput: funscript-container clicked (coords:{coords}, relativeCoords{relativeCoords})");
 
+        // PatternMode, not in default mode
+        if (PatternManager.Singleton.PatternMode)
+        {
+            AddPattern(relativeCoords);
+        }
+        else
+        {
+            AddFunAction(relativeCoords);
+        }
+
+
+        FunscriptRenderer.Singleton.SortFunscript();
+    }
+
+    private void AddPattern(Vector2 relativeCoords)
+    {
+        _patternActions.Clear();
+        
+        // Get the active pattern
+        var funactions = PatternManager.Singleton.ActivePattern.actions;
+
+        // Offset the pattern by mouse position
+        int mouseAt = (int)math.round(relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
+        mouseAt += TimelineManager.Instance.TimeInMilliseconds;
+        int mousePos = GetPosValue(relativeCoords, Snapping);
+
+        int repeatCounter = 0;
+
+        for (int i = 0; i < funactions.Length; i++)
+        {
+            var funaction = funactions[i];
+
+            // invert
+            if (PatternManager.Singleton.InvertX)
+            {
+                funaction.at = funactions[^1].at - funactions[funactions.Length - 1 - i].at;
+                funaction.pos = funactions[funactions.Length - 1 - i].pos;
+            }
+
+            // repeat
+            funaction.at += repeatCounter * (funactions[^1].at + PatternManager.Singleton.Spacing);
+
+            // scale
+            funaction.at = (int)math.round(funaction.at * PatternManager.Singleton.ScaleX);
+
+            // mouse offset
+            funaction.at += mouseAt;
+
+            // scale 
+            funaction.pos = (int)math.round(funaction.pos * PatternManager.Singleton.ScaleY);
+
+            // invert
+            funaction.pos = PatternManager.Singleton.InvertY ? -funaction.pos : funaction.pos;
+
+            // mouse offset
+            funaction.pos += mousePos;
+
+            // clamp
+            funaction.pos = math.clamp(funaction.pos, 0, 100);
+
+            _patternActions.Add(funaction);
+
+            // repeat until Timeline end
+            if (i == funactions.Length - 1 && repeatCounter < PatternManager.Singleton.RepeatAmount)
+            {
+                i = -1;
+                repeatCounter++;
+            }
+        }
+
+        // Remove funactions that get overridden by the pattern
+        int at0 = _patternActions[0].at;
+        int at1 = _patternActions[^1].at;
+        for (int i = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count - 1; i >= 0; i--)
+        {
+            // break early
+            if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at < at0) break;
+            
+            if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at >= at0 && FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at <= at1)
+            {
+                FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.RemoveAt(i);
+            }
+        }
+        
+        FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.AddRange(_patternActions);
+    }
+
+    private void AddFunAction(Vector2 relativeCoords)
+    {
         // Add Action
         int at = GetAtValue(relativeCoords);
         if (at < 0)
@@ -76,7 +168,6 @@ public class FunscriptMouseInput : UIBehaviour
         }
 
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Add(funaction);
-        FunscriptRenderer.Singleton.SortFunscript();
     }
 
     private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)

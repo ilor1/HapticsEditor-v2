@@ -108,12 +108,12 @@ public class ToolBar : UIBehaviour
         PatternManager.Singleton.RepeatAmount = 3;
         _repeatField.value = 3;
 
-        _spacingContainer = CreateItem("Spacing:", out _spacingField, 1, 10000);
+        _spacingContainer = CreateItem("Spacing:", out _spacingField, 1, 7500);
         _spacingField.RegisterValueChangedCallback(OnSpacingChanged);
         PatternManager.Singleton.Spacing = 1000;
         _spacingField.value = 1000;
 
-        _scaleXContainer = CreateItem("X:", out _scaleXField, 0.1f, 30f);
+        _scaleXContainer = CreateItem("X:", out _scaleXField, 0.25f, 25f);
         _scaleXField.RegisterValueChangedCallback(OnScaleXChanged);
         PatternManager.Singleton.ScaleX = 1f;
         _scaleXField.value = 1f;
@@ -123,7 +123,7 @@ public class ToolBar : UIBehaviour
         PatternManager.Singleton.InvertX = false;
         _invertXToggle.value = false;
 
-        _scaleYContainer = CreateItem("Y:", out _scaleYField, 0f, 4f);
+        _scaleYContainer = CreateItem("Y:", out _scaleYField, 0f, 2f);
         _scaleYField.RegisterValueChangedCallback(OnScaleYChanged);
         PatternManager.Singleton.ScaleY = 1f;
         _scaleYField.value = 1f;
