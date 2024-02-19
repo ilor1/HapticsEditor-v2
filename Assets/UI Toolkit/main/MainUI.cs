@@ -61,6 +61,10 @@ public class MainUI : UIBehaviour
         _timeLabel.focusable = false;
         _timeLabel.pickingMode = PickingMode.Ignore;
 
+        var timelineLengthLabel = Create<Label>("timeline-length-label");
+        timelineLengthLabel.focusable = false;
+        timelineLengthLabel.pickingMode = PickingMode.Ignore;
+        timeline.Add(timelineLengthLabel);
 
         root.Add(titleBar);
         root.Add(menuBar);

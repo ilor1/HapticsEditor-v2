@@ -301,6 +301,12 @@
     -unity-text-align: middle-right;
 }
 
+.timeline-length-label {
+    position: absolute;
+    right:0;
+    -unity-text-align: middle-right;
+}
+
 .metadata-popup {
     width: 100%;
     height: 100%;

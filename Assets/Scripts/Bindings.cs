@@ -23,7 +23,10 @@ public enum ControlName
     TargetPreviousModifier,
     ChangeModeOrPattern,
     TogglePatternMode,
-    ToggleSnapping
+    ToggleSnapping,
+    PatternScaleX,
+    PatternRepeat,
+    PatternSpacing
 }
 
 [Serializable]

@@ -39,6 +39,7 @@ public class FunscriptMouseInput : UIBehaviour
         VisualElement _funscriptContainer = root.Query(className: "funscript-container");
         _funscriptContainer.RegisterCallback<ClickEvent>(OnLeftClick);
         _funscriptContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
+        _funscriptContainer.RegisterCallback<WheelEvent>(OnScrollWheel);
     }
 
     private void OnLeftClick(ClickEvent evt)
@@ -50,7 +51,7 @@ public class FunscriptMouseInput : UIBehaviour
 
         var relativeCoords = GetRelativeCoords(coords, target.contentRect);
         // Debug.Log($"FunscriptMouseInput: funscript-container clicked (coords:{coords}, relativeCoords{relativeCoords})");
-
+       
         // PatternMode, not in default mode
         if (PatternManager.Singleton.PatternMode)
         {
@@ -65,16 +66,65 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptRenderer.Singleton.SortFunscript();
     }
 
+
+    private void OnScrollWheel(WheelEvent evt)
+    {
+        if (InputManager.Singleton.GetKey(ControlName.PatternRepeat))
+        {
+            // Adjust pattern repeat
+            int amount = PatternManager.Singleton.RepeatAmount;
+            if (evt.delta.y < 0) amount++;
+            if (evt.delta.y > 0) amount--;
+
+            ToolBar.Singleton.SetRepeat(amount);
+        }
+        else if (InputManager.Singleton.GetKey(ControlName.PatternScaleX))
+        {
+            // Adjust pattern length
+            float amount = PatternManager.Singleton.ScaleX;
+            if (evt.delta.y < 0) amount += 0.1f;
+            if (evt.delta.y > 0) amount -= 0.1f;
+            ToolBar.Singleton.SetScaleX(amount);
+        }
+        else if (InputManager.Singleton.GetKey(ControlName.PatternSpacing))
+        {
+            // Adjust pattern spacing
+            int amount = PatternManager.Singleton.Spacing;
+            if (evt.delta.y < 0) amount += 50;
+            if (evt.delta.y > 0) amount -= 50;
+            ToolBar.Singleton.SetSpacing(amount);
+        }
+        else
+        {
+            // Adjust pattern height
+            float amount = PatternManager.Singleton.ScaleY;
+            if (evt.delta.y < 0) amount += 0.05f;
+            if (evt.delta.y > 0) amount -= 0.05f;
+            ToolBar.Singleton.SetScaleY(amount);
+        }
+
+        evt.StopPropagation();
+    }
+
+
     private void AddPattern(Vector2 relativeCoords)
     {
         _patternActions.Clear();
-        
+
         // Get the active pattern
         var funactions = PatternManager.Singleton.ActivePattern.actions;
-
+       
+        
+        int mouseAt = GetAtValue(relativeCoords);
+        if (mouseAt < 0)
+        {
+            //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
+            return;
+        }
+        
         // Offset the pattern by mouse position
-        int mouseAt = (int)math.round(relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
-        mouseAt += TimelineManager.Instance.TimeInMilliseconds;
+        // int mouseAt = (int)math.round(relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
+        // mouseAt += TimelineManager.Instance.TimeInMilliseconds;
         int mousePos = GetPosValue(relativeCoords, Snapping);
 
         int repeatCounter = 0;
@@ -128,13 +178,13 @@ public class FunscriptMouseInput : UIBehaviour
         {
             // break early
             if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at < at0) break;
-            
+
             if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at >= at0 && FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at <= at1)
             {
                 FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.RemoveAt(i);
             }
         }
-        
+
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.AddRange(_patternActions);
     }
 
@@ -144,7 +194,7 @@ public class FunscriptMouseInput : UIBehaviour
         int at = GetAtValue(relativeCoords);
         if (at < 0)
         {
-            Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
+            //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
         }
 

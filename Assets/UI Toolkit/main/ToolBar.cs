@@ -1,9 +1,12 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ToolBar : UIBehaviour
 {
+    public static ToolBar Singleton;
+
     private bool _isInitialized = false;
 
     private VisualElement _toolBar;
@@ -38,6 +41,12 @@ public class ToolBar : UIBehaviour
 
     private VisualElement _invertYContainer;
     private Toggle _invertYToggle;
+
+    private void Awake()
+    {
+        if (Singleton == null) Singleton = this;
+        else if (Singleton != this) Destroy(this);
+    }
 
     private void OnEnable()
     {
@@ -105,28 +114,28 @@ public class ToolBar : UIBehaviour
 
         _repeatContainer = CreateItem("Repeat:", out _repeatField);
         _repeatField.RegisterValueChangedCallback(OnRepeatChanged);
-        PatternManager.Singleton.RepeatAmount = 3;
-        _repeatField.value = 3;
+        PatternManager.Singleton.RepeatAmount = PatternManager.Singleton.RepeatAmountDefault;
+        _repeatField.value = PatternManager.Singleton.RepeatAmountDefault;
 
-        _spacingContainer = CreateItem("Spacing:", out _spacingField, 1, 7500);
+        _spacingContainer = CreateItem("Spacing:", out _spacingField, PatternManager.Singleton.SpacingMin, PatternManager.Singleton.SpacingMax);
         _spacingField.RegisterValueChangedCallback(OnSpacingChanged);
-        PatternManager.Singleton.Spacing = 1000;
-        _spacingField.value = 1000;
+        PatternManager.Singleton.Spacing = PatternManager.Singleton.SpacingDefault;
+        _spacingField.value = PatternManager.Singleton.SpacingDefault;
 
-        _scaleXContainer = CreateItem("X:", out _scaleXField, 0.25f, 25f);
+        _scaleXContainer = CreateItem("X:", out _scaleXField, PatternManager.Singleton.ScaleXMin, PatternManager.Singleton.ScaleXMax);
         _scaleXField.RegisterValueChangedCallback(OnScaleXChanged);
-        PatternManager.Singleton.ScaleX = 1f;
-        _scaleXField.value = 1f;
+        PatternManager.Singleton.ScaleX = PatternManager.Singleton.ScaleXDefault;
+        _scaleXField.value = PatternManager.Singleton.ScaleXDefault;
 
         _invertXContainer = CreateItem("Invert:", out _invertXToggle);
         _invertXToggle.RegisterValueChangedCallback(OnInvertXChanged);
         PatternManager.Singleton.InvertX = false;
         _invertXToggle.value = false;
 
-        _scaleYContainer = CreateItem("Y:", out _scaleYField, 0f, 2f);
+        _scaleYContainer = CreateItem("Y:", out _scaleYField, PatternManager.Singleton.ScaleYMin, PatternManager.Singleton.ScaleYMax);
         _scaleYField.RegisterValueChangedCallback(OnScaleYChanged);
-        PatternManager.Singleton.ScaleY = 1f;
-        _scaleYField.value = 1f;
+        PatternManager.Singleton.ScaleY = PatternManager.Singleton.ScaleYDefault;
+        _scaleYField.value = PatternManager.Singleton.ScaleYDefault;
 
         _invertYContainer = CreateItem("Invert:", out _invertYToggle);
         _invertYToggle.RegisterValueChangedCallback(OnInvertYChanged);
@@ -187,8 +196,13 @@ public class ToolBar : UIBehaviour
 
     private void OnRepeatChanged(ChangeEvent<int> evt)
     {
+        SetRepeat(evt.newValue);
+    }
+
+    public void SetRepeat(int value)
+    {
         // validate value
-        int value = math.clamp(evt.newValue, 0, 100);
+        value = math.clamp(value, PatternManager.Singleton.RepeatAmountMin, PatternManager.Singleton.RepeatAmountMax);
         _repeatField.SetValueWithoutNotify(value);
 
         // set value
@@ -197,19 +211,30 @@ public class ToolBar : UIBehaviour
 
     private void OnSpacingChanged(ChangeEvent<float> evt)
     {
+        SetSpacing(evt.newValue);
+    }
+
+    public void SetSpacing(float value)
+    {
         // validate value
-        int value = (int)math.clamp(evt.newValue, 1, 10000);
-        _spacingField.SetValueWithoutNotify(value);
+        int intValue = (int)math.clamp(value, PatternManager.Singleton.SpacingMin, PatternManager.Singleton.SpacingMax);
+        _spacingField.SetValueWithoutNotify(intValue);
 
         // set value
-        PatternManager.Singleton.Spacing = value;
+        PatternManager.Singleton.Spacing = intValue;
     }
+
 
     private void OnScaleXChanged(ChangeEvent<float> evt)
     {
+        SetScaleX(evt.newValue);
+    }
+
+    public void SetScaleX(float value)
+    {
         // validate value
-        float value = math.clamp(evt.newValue, 0.1f, 30f);
-        value = (float)System.Math.Round(value, 2);
+        value = math.clamp(value, PatternManager.Singleton.ScaleXMin, PatternManager.Singleton.ScaleXMax);
+        value = (float)Math.Round(value, 2);
         _scaleXField.SetValueWithoutNotify(value);
 
         // set value
@@ -223,8 +248,13 @@ public class ToolBar : UIBehaviour
 
     private void OnScaleYChanged(ChangeEvent<float> evt)
     {
+        SetScaleY(evt.newValue);
+    }
+    
+    public void SetScaleY(float value)
+    {
         // validate value
-        float value = math.clamp(evt.newValue, 0f, 4f);
+        value = math.clamp(value, PatternManager.Singleton.ScaleYMin, PatternManager.Singleton.ScaleYMax);
         value = (float)System.Math.Round(value, 2);
         _scaleYField.SetValueWithoutNotify(value);
 

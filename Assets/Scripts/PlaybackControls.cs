@@ -1,6 +1,7 @@
 using System;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlaybackControls : MonoBehaviour
 {
@@ -12,14 +13,24 @@ public class PlaybackControls : MonoBehaviour
     private const int _minZoom = 15000 / 8;
     private const int _maxZoom = 15000 * 8;
 
+    private Label _timelineLength;
+
     private void OnEnable()
     {
         AudioLoader.ClipLoaded += OnClipLoaded;
+        MainUI.RootCreated += OnRootCreated;
     }
 
     private void OnDisable()
     {
         AudioLoader.ClipLoaded -= OnClipLoaded;
+        MainUI.RootCreated -= OnRootCreated;
+    }
+
+    private void OnRootCreated(VisualElement root)
+    {
+        _timelineLength = (Label)root.Query(className: "timeline-length-label");
+        _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}s";
     }
 
     private void OnClipLoaded(AudioSource audioSource)
@@ -62,11 +73,13 @@ public class PlaybackControls : MonoBehaviour
         if (InputManager.Singleton.GetKeyDown(ControlName.ZoomIn))
         {
             ZoomIn();
+            _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}";
         }
 
         if (InputManager.Singleton.GetKeyDown(ControlName.ZoomOut))
         {
             ZoomOut();
+            _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}";
         }
 
         if (InputManager.Singleton.GetKeyDown(ControlName.Reset))

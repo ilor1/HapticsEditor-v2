@@ -9,9 +9,27 @@ public class PatternManager : MonoBehaviour
 
     public bool PatternMode { get; set; }
     public int RepeatAmount { get; set; }
+    public readonly int RepeatAmountDefault = 3;
+    public readonly int RepeatAmountMin = 0;
+    public readonly int RepeatAmountMax = 100;
+    
+    
     public int Spacing { get; set; }
+    public readonly int SpacingDefault = 1;
+    public readonly int SpacingMin = 1;
+    public readonly int SpacingMax = 7500;
+    
+    
     public float ScaleX { get; set; }
+    public readonly float ScaleXDefault = 1f;
+    public readonly float ScaleXMin = 0.25f;
+    public readonly float ScaleXMax = 10f;
+    
     public float ScaleY { get; set; }
+    public readonly float ScaleYDefault = 1f;
+    public readonly float ScaleYMin = 0f;
+    public readonly float ScaleYMax = 2f;
+    
     public bool InvertY { get; set; }
     public bool InvertX { get; set; }
 

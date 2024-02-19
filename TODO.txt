@@ -1,3 +1,6 @@
+- Implement new bindings
+-- zoom
+-- pattern scale, inverts, 
 - Implement Intiface Central support
 - mark file name as changed when funscript has been modified
 - mark file name as not changed after save
