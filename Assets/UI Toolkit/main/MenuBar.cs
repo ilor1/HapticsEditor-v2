@@ -68,8 +68,21 @@ public class MenuBar : UIBehaviour
         var metadataButton = Create<Button>("menu-button");
         metadataButton.text = "Metadata";
         metadataButton.clicked += () => { MetadataMenu.Singleton.Open(root); };
-        //metadataButton.SetEnabled(false); // enabled only when a file is loaded
         menuBar.Add(metadataButton);
+
+        var intifaceContainer = Create("intiface-container");
+        var intifaceLabel = Create<Label>();
+        intifaceLabel.text = "Intiface Central:";
+        var intifaceToggle = Create<Toggle>();
+        intifaceToggle.RegisterValueChangedCallback(OnIntifaceToggle);
+        intifaceContainer.Add(intifaceToggle);
+        intifaceContainer.Add(intifaceLabel);
+        menuBar.Add(intifaceContainer);
+    }
+
+    private void OnIntifaceToggle(ChangeEvent<bool> evt)
+    {
+        IntifaceManager.Singleton.enabled = evt.newValue;
     }
 
     private CustomDropDownMenu CreateDropdownMenu(VisualElement root)

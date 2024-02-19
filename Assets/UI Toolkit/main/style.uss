@@ -70,6 +70,18 @@
     opacity: 1;
 }
 
+.intiface-container {
+    width: 100%;
+    flex-direction: row-reverse;
+}
+
+.intiface-container > Label {
+    
+}
+.intiface-container > Toggle >{
+    
+}
+
 .tool-bar {
     height: 60px;
     width: 100%;
@@ -127,9 +139,9 @@
     border-color: dimgray;
 }
 
-.tool-bar .unity-toggle__checkmark {
-    height: 100%;
-    width: 30px;
+.unity-toggle__checkmark {
+    height: 20px;
+    width: 20px;
     background-color: #3e3e42;
     border-radius: 5px;
     border-color: dimgray;

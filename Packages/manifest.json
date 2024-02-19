@@ -1,10 +1,23 @@
 {
+  "scopedRegistries": [
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.nonpolynomial.buttplug-unity"
+      ]
+    }
+  ],
   "dependencies": {
+    "com.nonpolynomial.buttplug-unity": "3.0.0",
+    "com.unity.ai.navigation": "2.0.0",
     "com.unity.collab-proxy": "2.2.0",
     "com.unity.entities": "1.2.0-pre.6",
     "com.unity.entities.graphics": "1.2.0-pre.6",
+    "com.unity.feature.development": "1.0.2",
     "com.unity.ide.rider": "3.0.27",
     "com.unity.ide.visualstudio": "2.0.22",
+    "com.unity.ide.vscode": "1.2.5",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.render-pipelines.universal": "17.0.2",
     "com.unity.test-framework": "1.4.3",

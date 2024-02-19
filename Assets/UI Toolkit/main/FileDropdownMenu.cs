@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using SimpleFileBrowser;
 using UnityEngine;
-using UnityEngine.Serialization;
 using File = UnityEngine.Windows.File;
 
 public class FileDropdownMenu : MonoBehaviour
@@ -57,8 +56,17 @@ public class FileDropdownMenu : MonoBehaviour
 
     public static void OnExitClick()
     {
-        // TODO: popup
-        // TODO: wait for intiface connection to close
+        Singleton.StartCoroutine(Singleton.ExitIE());
+    }
+
+    private IEnumerator ExitIE()
+    {
+        // Shutdown Intiface first, otherwise Unity app stops responding
+        IntifaceManager.Singleton.enabled = false;
+
+        // Wait a moment
+        yield return new WaitForSeconds(0.5f);
+
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
