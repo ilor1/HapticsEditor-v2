@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using SimpleFileBrowser;
 using UnityEngine;
-using File = UnityEngine.Windows.File;
 
 public class FileDropdownMenu : MonoBehaviour
 {
