@@ -88,12 +88,12 @@ public class WaveformRenderer : UIBehaviour
 
         ClearWaveforms();
 
-        var leftChannel = Create("waveform");
-        leftChannel.style.backgroundImage = _texture;
-        _waveformContainer.Add(leftChannel);
+        var waveform = Create("waveform");
+        waveform.style.backgroundImage = _texture;
+        _waveformContainer.Add(waveform);
 
         var redLine = Create("red-line");
-        _waveformContainer.Add(redLine);
+        waveform.Add(redLine);
     }
 
 

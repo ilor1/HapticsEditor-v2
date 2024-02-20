@@ -15,7 +15,7 @@ public class FileDropdownMenu : MonoBehaviour
     private const string WAV_EXT = ".wav";
     private const string FUNSCRIPT_EXT = ".funscript";
 
-    public string FunscriptPath;
+    [HideInInspector] public string FunscriptPath;
     private string _audioPath;
 
     private void Awake()

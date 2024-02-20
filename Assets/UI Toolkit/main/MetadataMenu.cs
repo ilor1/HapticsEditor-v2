@@ -9,7 +9,9 @@ public class MetadataMenu : UIBehaviour
     private VisualElement _container;
 
     private Metadata _data;
+    private bool _inverted;
 
+    private Toggle _invertedField;
     private TextField _creatorField;
     private TextField _descriptionField;
     private IntegerField _durationField;
@@ -56,6 +58,7 @@ public class MetadataMenu : UIBehaviour
         _typeField = CreateInputTextField("Type", _container);
         _videoUrlField = CreateInputTextField("Video-URL", _container);
         _rangeField = CreateInputIntegerField("Range", _container);
+        _invertedField = CreateInputToggleField("Inverted", _container);
         _versionField = CreateInputTextField("Version", _container);
 
         // Subscribe to value change events if needed
@@ -71,6 +74,7 @@ public class MetadataMenu : UIBehaviour
         _typeField.RegisterValueChangedCallback(evt => _data.type = evt.newValue);
         _videoUrlField.RegisterValueChangedCallback(evt => _data.video_url = evt.newValue);
         _rangeField.RegisterValueChangedCallback(evt => _data.range = evt.newValue);
+        _invertedField.RegisterValueChangedCallback(evt => _inverted = evt.newValue);
         _versionField.RegisterValueChangedCallback(evt => _data.version = evt.newValue);
 
         var metadataButtons = Create("metadata-buttons");
@@ -104,7 +108,7 @@ public class MetadataMenu : UIBehaviour
         
         InputManager.InputBlocked = false;
     }
-
+    
     private TextField CreateInputTextField(string title, VisualElement parent)
     {
         var container = Create("metadata-field");
@@ -134,6 +138,21 @@ public class MetadataMenu : UIBehaviour
 
         return inputField;
     }
+    
+    private Toggle CreateInputToggleField(string title, VisualElement parent)
+    {
+        var container = Create("metadata-field");
+        var label = Create<Label>();
+        label.text = title;
+
+        var inputField = Create<Toggle>();
+        container.Add(label);
+        container.Add(inputField);
+
+        parent.Add(container);
+
+        return inputField;
+    }
 
     public void Open(VisualElement root)
     {
@@ -156,9 +175,11 @@ public class MetadataMenu : UIBehaviour
     private void LoadMetaData()
     {
         // Read data
+        _inverted = FunscriptRenderer.Singleton.Haptics[0].Funscript.inverted;
         _data = FunscriptRenderer.Singleton.Haptics[0].Funscript.metadata;
 
         // Set data
+        _invertedField.value = _inverted;
         _creatorField.value = _data.creator;
         _descriptionField.value = _data.description;
         _durationField.value = _data.duration;
@@ -178,6 +199,7 @@ public class MetadataMenu : UIBehaviour
     {
         var haptics = FunscriptRenderer.Singleton.Haptics[0];
         haptics.Funscript.metadata = _data;
+        haptics.Funscript.inverted = _inverted;
         FunscriptRenderer.Singleton.Haptics[0] = haptics;
     }
 }

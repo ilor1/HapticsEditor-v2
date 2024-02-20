@@ -36,7 +36,7 @@ public class FunscriptMouseInput : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        VisualElement _funscriptContainer = root.Query(className: "funscript-container");
+        VisualElement _funscriptContainer = root.Query(className: "funscript-haptic-container");
         _funscriptContainer.RegisterCallback<ClickEvent>(OnLeftClick);
         _funscriptContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
         _funscriptContainer.RegisterCallback<WheelEvent>(OnScrollWheel);

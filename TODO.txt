@@ -1,9 +1,9 @@
-- Implement new bindings
--- zoom
--- pattern scale, inverts, 
-- Implement Intiface Central support
 - mark file name as changed when funscript has been modified
 - mark file name as not changed after save
+- check that all keybindings fit the edit window (change to scrollview)
+- add Settings > SaveOptions (window):
+--- cleanup excess points on save (three consecutive points with same pos -> remove the middle point)
+--- add points at certain intervals on save to avoid any timeouts
 - Patterns creator
 - day/night toggle
 - uss cleanup

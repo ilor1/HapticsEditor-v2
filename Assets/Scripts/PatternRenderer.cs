@@ -37,8 +37,9 @@ public class PatternRenderer : UIBehaviour
         ColorUtility.TryParseHtmlString("#4d54b2", out Color color);
         _pattern.StrokeColor = color;
         _patternContainer.Add(_pattern);
+        //_pattern.AddToClassList("funscript-line");
 
-        _funscriptContainer = root.Query(className: "funscript-container");
+        _funscriptContainer = root.Query(className: "funscript-haptic-container");
         _isInitialized = true;
     }
 
@@ -160,14 +161,14 @@ public class PatternRenderer : UIBehaviour
         relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);
         return relativeCoords;
     }
-    
+
     private int GetAtValue(Vector2 relativeCoords)
     {
         float x0 = TimelineManager.Instance.TimeInMilliseconds - 0.5f * TimelineManager.Instance.LengthInMilliseconds;
         int at = (int)math.round(x0 + relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds);
         return at;
     }
-    
+
     private int GetPosValue(Vector2 relativeCoords, bool snapping)
     {
         float value = 100 * relativeCoords.y;

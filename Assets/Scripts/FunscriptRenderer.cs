@@ -13,7 +13,6 @@ public class FunscriptRenderer : UIBehaviour
     private bool _uiGenerated = false;
     private VisualElement _funscriptContainer;
     private List<LineDrawer> _lineDrawers = new List<LineDrawer>();
-    private List<float2> _coords = new List<float2>();
 
     public ActionComparer ActionComparer
     {
@@ -39,21 +38,25 @@ public class FunscriptRenderer : UIBehaviour
     private void OnEnable()
     {
         MainUI.RootCreated += Generate;
-        FunscriptLoader.FunscriptLoaded += SortFunscript;
+        FunscriptLoader.FunscriptLoaded += OnFunscriptLoaded;
     }
 
     private void OnDisable()
     {
         MainUI.RootCreated -= Generate;
-        FunscriptLoader.FunscriptLoaded -= SortFunscript;
+        FunscriptLoader.FunscriptLoaded -= OnFunscriptLoaded;
     }
 
+    public void OnFunscriptLoaded(string path)
+    {
+        SortFunscript();
+    }
+    
     public void SortFunscript()
     {
         foreach (var haptic in Haptics)
         {
             haptic.Funscript.actions.Sort();
-            //Array.Sort(haptic.Funscript.actions, ActionComparer);
         }
     }
 
@@ -62,7 +65,7 @@ public class FunscriptRenderer : UIBehaviour
     private void Generate(VisualElement root)
     {
         // Create container
-        _funscriptContainer = root.Query(className: "funscript-container");
+        _funscriptContainer = root.Query(className: "funscript-haptic-container");
 
         // create grid
         var horizontalGrid = Create("horizontal-grid");
@@ -70,27 +73,27 @@ public class FunscriptRenderer : UIBehaviour
         _funscriptContainer.Add(horizontalGrid);
 
         // vertical grid is animated
-        _verticalGrid = Create("vertical-grid");
-        _verticalGrid.pickingMode = PickingMode.Ignore;
-        _funscriptContainer.Add(_verticalGrid);
+        // _verticalGrid = Create("vertical-grid");
+        // _verticalGrid.pickingMode = PickingMode.Ignore;
+        // _funscriptContainer.Add(_verticalGrid);
+        //
+        // for (int i = 0; i < 31; i++)
+        // {
+        //     if (i % 2 == 0)
+        //     {
+        //         var line = Create("vertical-line");
+        //         line.pickingMode = PickingMode.Ignore;
+        //         _verticalGrid.Add(line);
+        //     }
+        //     else
+        //     {
+        //         var line = Create("vertical-line-thick");
+        //         line.pickingMode = PickingMode.Ignore;
+        //         _verticalGrid.Add(line);
+        //     }
+        // }
 
-        for (int i = 0; i < 31; i++)
-        {
-            if (i % 2 == 0)
-            {
-                var line = Create("vertical-line");
-                line.pickingMode = PickingMode.Ignore;
-                _verticalGrid.Add(line);
-            }
-            else
-            {
-                var line = Create("vertical-line-thick");
-                line.pickingMode = PickingMode.Ignore;
-                _verticalGrid.Add(line);
-            }
-        }
-
-        for (int i = 0; i < 21; i++)
+        for (int i = 0; i < 11; i++)
         {
             if (i % 2 == 0)
             {
@@ -122,19 +125,20 @@ public class FunscriptRenderer : UIBehaviour
         }
 
         // Animate vertical grid
-        if (_verticalGrid != null)
-        {
-            float offsetInMilliseconds = TimelineManager.Instance.TimeInMilliseconds % TimelineManager.Instance.LengthInMilliseconds;
-            float offsetInPixels = -offsetInMilliseconds * _verticalGrid.contentRect.width / TimelineManager.Instance.LengthInMilliseconds;
-
-            offsetInPixels %= _verticalGrid.contentRect.width / 30;
-            _verticalGrid.style.left = new StyleLength(offsetInPixels);
-        }
+        // if (_verticalGrid != null)
+        // {
+        //     float offsetInMilliseconds = TimelineManager.Instance.TimeInMilliseconds % TimelineManager.Instance.LengthInMilliseconds;
+        //     float offsetInPixels = -offsetInMilliseconds * _verticalGrid.contentRect.width / TimelineManager.Instance.LengthInMilliseconds;
+        //
+        //     offsetInPixels %= _verticalGrid.contentRect.width / 30;
+        //     _verticalGrid.style.left = new StyleLength(offsetInPixels);
+        // }
 
         // Create LineDrawers
         while (_lineDrawers.Count < Haptics.Count)
         {
             var lineDrawer = new LineDrawer();
+           // lineDrawer.AddToClassList("funscript-line");
             _lineDrawers.Add(lineDrawer);
             _funscriptContainer.Add(lineDrawer);
         }

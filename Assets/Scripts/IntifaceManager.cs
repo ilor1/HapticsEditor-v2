@@ -15,7 +15,7 @@ public class IntifaceManager : MonoBehaviour
     private List<ButtplugClientDevice> _devices { get; } = new List<ButtplugClientDevice>();
 
     private float _timeSinceLastUpdate = 0f;
-    private const float _updateInterval = 0.33f;
+    private const float _updateInterval = 0f;//0.33f;
 
     private void Awake()
     {

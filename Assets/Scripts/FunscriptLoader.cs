@@ -8,7 +8,7 @@ public class FunscriptLoader : MonoBehaviour
 {
     public static FunscriptLoader Singleton;
 
-    public static Action FunscriptLoaded;
+    public static Action<string> FunscriptLoaded;
     
     
     [Tooltip("TrackIndex allows loading multiple funscripts")]
@@ -47,6 +47,8 @@ public class FunscriptLoader : MonoBehaviour
 
     private void LoadFunscript(string path)
     {
+        FileDropdownMenu.Singleton.FunscriptPath = path;
+        
         string json = File.ReadAllText(path);
 
         Color color;
@@ -88,6 +90,6 @@ public class FunscriptLoader : MonoBehaviour
         }
 
         Debug.Log($"FunscriptLoader: Funscript loaded. ({path})");
-        FunscriptLoaded?.Invoke();
+        FunscriptLoaded?.Invoke(path);
     }
 }

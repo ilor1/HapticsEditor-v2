@@ -76,10 +76,11 @@
 }
 
 .intiface-container > Label {
-    
+
 }
-.intiface-container > Toggle >{
-    
+
+.intiface-container > Toggle > {
+
 }
 
 .tool-bar {
@@ -92,7 +93,7 @@
     border-color: #3e3e42;
     -unity-text-align: middle-left;
     align-content: center;
-    align-items: center;    
+    align-items: center;
 }
 
 .tool-bar-item {
@@ -183,15 +184,38 @@
 }
 
 .funscript-container {
+    flex-direction: row;
     width: 100%;
     height: 50%;
-    padding-top: 20px;
-    padding-bottom: 20px;
     background-color: #262626;
     align-content: flex-end;
     justify-content: flex-end;
-    border-bottom-width: 3px;
-    border-color: #3e3e42;
+    overflow: hidden;
+}
+
+.funscript-values-container {
+    padding-top: 4px;
+    padding-bottom: 6px;
+    width: 50px;
+    height: 100%;
+    flex-direction: column;
+    -unity-text-align: middle-right;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.funscript-haptic-container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
+    height: 100%;
+}
+
+.funscript-line {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
 .horizontal-grid {
@@ -230,21 +254,23 @@
 }
 
 .horizontal-line-thick {
-    height: 2px;
+    height: 1px;
     width: 100%;
-    background-color: #222222;
+    background-color: #333333;
 }
 
 .horizontal-line {
-    height: 2px;
+    height: 1px;
     width: 100%;
-    background-color: #222222;
+    background-color: #333333;
 }
 
 .red-line {
+    margin: 0;
+    padding: 0;
     height: 100%;
-    width: 4px;
-    background-color: mediumvioletred;
+    width: 1px;
+    background-color: red;
     position: absolute;
     left: 50%;
     right: 50%;
@@ -269,6 +295,8 @@
 
 .line-cursor-label {
     position: absolute;
+    align-self: flex-end;
+    padding-right: 7px;
 }
 
 .waveform-container {
@@ -278,11 +306,15 @@
     border-bottom-width: 3px;
     border-color: #3e3e42;
     align-self: flex-start;
+    flex-direction: row;
+}
+
+.waveform-labels {
+    width: 50px;
+    height: 100%;
 }
 
 .waveform {
-    margin-top: 10px;
-    margin-bottom: 10px;
     width: 100%;
     height: 100%;
 }
@@ -315,7 +347,7 @@
 
 .timeline-length-label {
     position: absolute;
-    right:0;
+    right: 0;
     -unity-text-align: middle-right;
 }
 
@@ -329,7 +361,7 @@
 }
 
 .metadata-container {
-    padding: 20px;
+    padding: 40px;
     position: relative;
     align-self: center;
     bottom: auto;
@@ -343,10 +375,16 @@
 }
 
 .metadata-buttons {
-    margin-top: 20px;
+    margin-top: 40px;
     justify-content: center;
     flex-direction: row;
     width: 100%;
+}
+
+.metadata-buttons > Button {
+    width: 150px;
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
 .metadata-buttons .unity-button {
@@ -360,7 +398,7 @@
 }
 
 .metadata-container .unity-base-field {
-    width: 70%;
+    width: 260px;
 }
 
 .metadata-container .unity-base-text-field__input {
@@ -378,7 +416,7 @@
 }
 
 .bindings-container {
-    padding: 20px;
+    padding: 40px;
     position: relative;
     align-self: center;
     bottom: auto;
@@ -393,7 +431,7 @@
 
 .bindings-container .unity-button {
     height: 30px;
-    width: 60px;
+    width: 120px;
     background-color: #3e3e42;
     border-radius: 5px;
 }
@@ -419,4 +457,46 @@
     justify-content: flex-end;
     padding-top: 20px;
     padding-bottom: 20px;
+    overflow: hidden;
+}
+
+.timemarkers-container {
+    width: 100%;
+    height: 50px;
+    flex-direction: row;
+    background-color: #262626;
+}
+
+.timemarkers-left {
+    width: 50px;
+    height: 100%;
+}
+
+.timemarkers {
+    width: 100%;
+    height: 100%;
+}
+
+.timemarker {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    -unity-text-align: middle-center;
+    justify-content: center;
+    align-content: center;
+}
+
+.timemarker > Label {
+    background-color: #262626;
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+
+.timemarker-line {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background-color: #333333;
 }

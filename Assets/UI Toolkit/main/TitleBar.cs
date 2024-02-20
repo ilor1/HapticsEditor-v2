@@ -11,13 +11,13 @@ public class TitleBar : UIBehaviour
     private void OnEnable()
     {
         MainUI.RootCreated += Generate;
-        FileDropdownMenu.FunscriptPathLoaded += UpdateLabel;
+        FunscriptLoader.FunscriptLoaded += UpdateLabel;
     }
 
     private void OnDisable()
     {
         MainUI.RootCreated -= Generate;
-        FileDropdownMenu.FunscriptPathLoaded -= UpdateLabel;
+        FunscriptLoader.FunscriptLoaded -= UpdateLabel;
     }
 
     private void Generate(VisualElement root)
