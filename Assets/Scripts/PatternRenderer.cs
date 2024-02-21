@@ -73,6 +73,7 @@ public class PatternRenderer : UIBehaviour
 
         int repeatCounter = 0;
 
+        bool endingReached = false;
 
         for (int i = 0; i < funactions.Length; i++)
         {
@@ -95,7 +96,18 @@ public class PatternRenderer : UIBehaviour
             funaction.at += mouseAt;
 
             // stop rendering when outside current timeline length
-            if (funaction.at > TimelineManager.Instance.TimeInMilliseconds + 0.5f * TimelineManager.Instance.LengthInMilliseconds) break;
+            if (funaction.at > TimelineManager.Instance.TimeInMilliseconds + 0.5f * TimelineManager.Instance.LengthInMilliseconds)
+            {
+                if (endingReached)
+                {
+                    break;
+                }
+                else
+                {
+                    // render one more point outside the timeline
+                    endingReached = true;
+                }
+            }
 
             // scale 
             funaction.pos = (int)math.round(funaction.pos * PatternManager.Singleton.ScaleY);
