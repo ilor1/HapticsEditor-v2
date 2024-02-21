@@ -51,7 +51,7 @@ public class FunscriptMouseInput : UIBehaviour
 
         var relativeCoords = GetRelativeCoords(coords, target.contentRect);
         // Debug.Log($"FunscriptMouseInput: funscript-container clicked (coords:{coords}, relativeCoords{relativeCoords})");
-       
+
         // PatternMode, not in default mode
         if (PatternManager.Singleton.PatternMode)
         {
@@ -62,8 +62,8 @@ public class FunscriptMouseInput : UIBehaviour
             AddFunAction(relativeCoords);
         }
 
-
         FunscriptRenderer.Singleton.SortFunscript();
+        FunscriptRenderer.Singleton.CleanupExcessPoints();
     }
 
 
@@ -113,15 +113,15 @@ public class FunscriptMouseInput : UIBehaviour
 
         // Get the active pattern
         var funactions = PatternManager.Singleton.ActivePattern.actions;
-       
-        
+
+
         int mouseAt = GetAtValue(relativeCoords);
         if (mouseAt < 0)
         {
             //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
         }
-        
+
         // Offset the pattern by mouse position
         // int mouseAt = (int)math.round(relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
         // mouseAt += TimelineManager.Instance.TimeInMilliseconds;
@@ -186,6 +186,7 @@ public class FunscriptMouseInput : UIBehaviour
         }
 
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.AddRange(_patternActions);
+        TitleBar.MarkLabelDirty();
     }
 
     private void AddFunAction(Vector2 relativeCoords)
@@ -218,6 +219,7 @@ public class FunscriptMouseInput : UIBehaviour
         }
 
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Add(funaction);
+        TitleBar.MarkLabelDirty();
     }
 
     private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)

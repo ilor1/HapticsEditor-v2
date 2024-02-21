@@ -182,7 +182,7 @@ public class MetadataMenu : UIBehaviour
         _invertedField.value = _inverted;
         _creatorField.value = _data.creator;
         _descriptionField.value = _data.description;
-        _durationField.value = _data.duration;
+        _durationField.value = TimelineManager.Instance.LengthInMilliseconds;
         _licenseField.value = _data.license;
         _notesField.value = _data.notes;
         _performersField.value = string.Join(",", _data.performers);
@@ -201,5 +201,6 @@ public class MetadataMenu : UIBehaviour
         haptics.Funscript.metadata = _data;
         haptics.Funscript.inverted = _inverted;
         FunscriptRenderer.Singleton.Haptics[0] = haptics;
+        TitleBar.MarkLabelDirty();
     }
 }

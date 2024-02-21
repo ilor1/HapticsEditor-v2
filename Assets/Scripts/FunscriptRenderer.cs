@@ -50,13 +50,31 @@ public class FunscriptRenderer : UIBehaviour
     public void OnFunscriptLoaded(string path)
     {
         SortFunscript();
+        CleanupExcessPoints();
     }
-    
+
     public void SortFunscript()
     {
         foreach (var haptic in Haptics)
         {
             haptic.Funscript.actions.Sort();
+        }
+    }
+
+    public void CleanupExcessPoints()
+    {
+        foreach (var haptic in Haptics)
+        {
+            if (haptic.Funscript.actions.Count < 3) continue;
+            for (int i = haptic.Funscript.actions.Count - 3; i >= 0; i--)
+            {
+                // if three consecutive pos values are the same, remove the excess middle one.
+                if (haptic.Funscript.actions[i].pos == haptic.Funscript.actions[i + 1].pos 
+                    && haptic.Funscript.actions[i].pos == haptic.Funscript.actions[i + 2].pos)
+                {
+                    haptic.Funscript.actions.RemoveAt(i + 1);
+                }
+            }
         }
     }
 
@@ -138,7 +156,7 @@ public class FunscriptRenderer : UIBehaviour
         while (_lineDrawers.Count < Haptics.Count)
         {
             var lineDrawer = new LineDrawer();
-           // lineDrawer.AddToClassList("funscript-line");
+            // lineDrawer.AddToClassList("funscript-line");
             _lineDrawers.Add(lineDrawer);
             _funscriptContainer.Add(lineDrawer);
         }
