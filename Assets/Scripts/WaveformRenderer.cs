@@ -102,7 +102,7 @@ public class WaveformRenderer : UIBehaviour
         _audioSource = audioSource;
         _clip = _audioSource.clip;
 
-        _samples = new NativeArray<float>(_clip.samples*_clip.channels, Allocator.Persistent);
+        _samples = new NativeArray<float>(_clip.samples * _clip.channels, Allocator.Persistent);
         _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
 
         _clipLoaded = true;
@@ -158,10 +158,21 @@ public class WaveformRenderer : UIBehaviour
             Channels = _clip.channels,
             MaxSampleValue = _maxSample
         }.Schedule(_texture.width, 64).Complete();
+        // new ProcessSamplesParallelBatchJob
+        // {
+        //     Time = time,
+        //     Samples = _samples,
+        //     Channels = _clip.channels,
+        //     MaxSampleValue = _maxSample,
+        //     LeftHighestSamples = leftHighestValues,
+        //     RightHighestSamples = rightHighestValues,
+        //     LeftRms = leftRmsValues,
+        //     RightRms = rightRmsValues
+        // }.Schedule(_texture.width, GetSamplesPerPixel()).Complete();
 
         // Get colors
         var colors = _texture.GetRawTextureData<Color32>();
-        new GetColorsJob
+        new GetColorsParallelJob()
         {
             ColorCenter = RMSColor,
             ColorOuter = PeakColor,
@@ -173,7 +184,7 @@ public class WaveformRenderer : UIBehaviour
             Width = _texture.width,
             Offset = (int)math.round(_texture.height / 4f),
             Colors = colors
-        }.Schedule().Complete();
+        }.Schedule(colors.Length, 64).Complete();
 
         // Apply
         _texture.Apply();

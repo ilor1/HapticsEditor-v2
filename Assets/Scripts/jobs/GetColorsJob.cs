@@ -1,10 +1,11 @@
-﻿using Unity.Burst;
+﻿// Renders both left and right channel to one texture
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
 [BurstCompile]
-public struct GetColorsJob : IJob
+public struct GetColorsParallelJob : IJobParallelFor
 {
     [ReadOnly] public Color32 ColorCenter;
     [ReadOnly] public Color32 ColorOuter;
@@ -19,37 +20,64 @@ public struct GetColorsJob : IJob
     [WriteOnly] public NativeArray<Color32> Colors;
 
     [BurstCompile]
-    public void Execute()
+    public void Execute(int colorIndex)
     {
+        int x = colorIndex % Width;
+        int y = colorIndex / Width;
+
         int height = Height / 2;
-
-        for (int x = 0; x < Width; x++)
+        int leftChannelOffset = Offset * 2;
+        Color32 clear = new Color32(0, 0, 0, 0);
+        
+        // fill below with clears (won't have to do the more complex checks)
+        int rightHighStartY = (int)((0.5f - RightHighestValues[x]) * height);
+        if (y < rightHighStartY)
         {
-            int leftHighStartY = (int)((0.5f - LeftHighestValues[x]) * height + Offset * 2);
-            int leftHighEndY = (int)((0.5f + LeftHighestValues[x]) * height + Offset * 2);
-            int leftRmsStartY = (int)((0.5f - LeftRmsValues[x]) * height + Offset * 2);
-            int leftRmsEndY = (int)((0.5f + LeftRmsValues[x]) * height + Offset * 2);
+            Colors[colorIndex] = clear;
+            return;
+        }
 
-            int rightHighStartY = (int)((0.5f - RightHighestValues[x]) * height);
-            int rightHighEndY = (int)((0.5f + RightHighestValues[x]) * height);
-            int rightRmsStartY = (int)((0.5f - RightRmsValues[x]) * height);
-            int rightRmsEndY = (int)((0.5f + RightRmsValues[x]) * height);
+        // fill between with clears (won't have to do the more complex checks)
+        int leftHighStartY = (int)((0.5f - LeftHighestValues[x]) * height + leftChannelOffset);
+        int rightHighEndY = (int)((0.5f + RightHighestValues[x]) * height);
+        if (y > rightHighEndY && y < leftHighStartY)
+        {
+            Colors[colorIndex] = clear;
+            return;
+        }
 
-            Color32 clear = new Color32(0, 0, 0, 0);
-            for (int y = 0; y < Height; y++)
-            {
-                Color32 color = clear;
+        // fill above with clears (won't have to do the more complex checks)
+        int leftHighEndY = (int)((0.5f + LeftHighestValues[x]) * height + leftChannelOffset);
+        while (y > leftHighEndY && y < Height)
+        {
+            Colors[colorIndex] = clear;
+            return;
+        }
 
-                // Left (top)
-                if (y == Height - Offset || (y > leftRmsStartY && y < leftRmsEndY)) color = ColorCenter;
-                else if (y > leftHighStartY && y < leftHighEndY) color = ColorOuter;
+        // fill center lines
+        bool centerLine = y == Height - Offset || y == Offset;
+        if (centerLine)
+        {
+            Colors[colorIndex] = ColorCenter;
+            return;
+        }
 
-                // Right (bottom)
-                else if (y == Offset || (y > rightRmsStartY && y < rightRmsEndY)) color = ColorCenter;
-                else if (y > rightHighStartY && y < rightHighEndY) color = ColorOuter;
+        int leftRmsStartY = (int)((0.5f - LeftRmsValues[x]) * height + leftChannelOffset);
+        int leftRmsEndY = (int)((0.5f + LeftRmsValues[x]) * height + leftChannelOffset);
 
-                Colors[x + y * Width] = color;
-            }
+        int rightRmsStartY = (int)((0.5f - RightRmsValues[x]) * height);
+        int rightRmsEndY = (int)((0.5f + RightRmsValues[x]) * height);
+
+        bool rightChannelRms = y >= rightRmsStartY && y <= rightRmsEndY;
+        bool leftChannelRms = y >= leftRmsStartY && y <= leftRmsEndY;
+        
+        if (leftChannelRms || rightChannelRms)
+        {
+            Colors[colorIndex] = ColorCenter;
+        }
+        else
+        {
+            Colors[colorIndex] = ColorOuter;
         }
     }
 }
