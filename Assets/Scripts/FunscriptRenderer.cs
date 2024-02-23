@@ -173,6 +173,8 @@ public class FunscriptRenderer : UIBehaviour
         {
             _lineDrawers[i].StrokeColor = Haptics[i].LineRenderSettings.StrokeColor;
             _lineDrawers[i].LineWidth = Haptics[i].LineRenderSettings.LineWidth;
+            _lineDrawers[i].LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
+            _lineDrawers[i].TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
             _lineDrawers[i].RenderFunActions(Haptics[i].Funscript.actions);
         }
     }

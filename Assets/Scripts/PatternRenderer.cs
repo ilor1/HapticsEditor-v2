@@ -134,6 +134,8 @@ public class PatternRenderer : UIBehaviour
         }
 
         // Redraw the line
+        _pattern.LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
+        _pattern.TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
         _pattern.RenderFunActions(_funActions);
     }
 
@@ -151,11 +153,15 @@ public class PatternRenderer : UIBehaviour
             {
                 // Start rendering pattern on top of funscriptContainer    
                 _funscriptContainer.Add(_patternContainer);
+                _funscriptContainer.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
+                _funscriptContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
             }
             else
             {
                 // Stop rendering pattern on top of funscriptContainer    
                 _funscriptContainer.Remove(_patternContainer);
+                _funscriptContainer.UnregisterCallback<PointerEnterEvent>(OnPointerEnter);
+                _funscriptContainer.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
             }
         }
 
@@ -165,9 +171,20 @@ public class PatternRenderer : UIBehaviour
         Render();
     }
 
+    private void OnPointerLeave(PointerLeaveEvent evt)
+    {
+        _patternContainer.style.display = DisplayStyle.None;
+    }
+
+    private void OnPointerEnter(PointerEnterEvent evt)
+    {
+        _patternContainer.style.display = DisplayStyle.Flex;
+    }
+
+
     private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)
     {
-        float paddingBottom = 20;
+        float paddingBottom = 0;
         var relativeCoords = new Vector2(coords.x / contentRect.width, 1f - (coords.y - paddingBottom) / (contentRect.height));
         relativeCoords.x = math.clamp(relativeCoords.x, 0f, 1f);
         relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);

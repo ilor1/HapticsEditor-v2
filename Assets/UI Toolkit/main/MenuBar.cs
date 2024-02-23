@@ -59,7 +59,7 @@ public class MenuBar : UIBehaviour
         patternsButton.text = "Patterns";
         patternsButton.clicked += () =>
         {
-            // Open Patterns window
+            PatternCreatorMenu.Singleton.Open();
         };
         menuBar.Add(patternsButton);
 
