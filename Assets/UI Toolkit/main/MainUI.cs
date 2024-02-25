@@ -84,9 +84,13 @@ public class MainUI : UIBehaviour
         funscriptValuesContainer.Add(label10);
         funscriptValuesContainer.Add(label0);
 
+        var containerRight = Create("align-right");
+        _funscriptContainer.Add(containerRight);
+        
         _funscriptHapticContainer = Create("funscript-haptic-container");
         _funscriptContainer.Add(funscriptValuesContainer);
-        _funscriptContainer.Add(_funscriptHapticContainer);
+        _funscriptContainer.Add(containerRight);
+        containerRight.Add(_funscriptHapticContainer);
 
         var timemarkersContainer = Create("timemarkers-container");
         var timemarkersLeft = Create("timemarkers-left");

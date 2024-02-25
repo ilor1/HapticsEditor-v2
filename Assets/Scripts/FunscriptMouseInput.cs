@@ -10,6 +10,10 @@ public class FunscriptMouseInput : UIBehaviour
 
     private VisualElement _funscriptContainer;
 
+    public static int MouseAt;
+    public static int MousePos;
+
+    private Vector2 _mouseRelativePosition;
 
     public bool Snapping { get; set; }
 
@@ -36,20 +40,44 @@ public class FunscriptMouseInput : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        VisualElement _funscriptContainer = root.Query(className: "funscript-haptic-container");
+        _funscriptContainer = root.Query(className: "funscript-haptic-container");
         _funscriptContainer.RegisterCallback<ClickEvent>(OnLeftClick);
         _funscriptContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
         _funscriptContainer.RegisterCallback<WheelEvent>(OnScrollWheel);
+
+        _funscriptContainer.RegisterCallback<MouseMoveEvent>(OnMouseMove);
+        _funscriptContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
     }
 
-    private void OnLeftClick(ClickEvent evt)
+    private void OnMouseLeave(MouseLeaveEvent evt)
+    {
+        if (PatternManager.Singleton.InvertY)
+        {
+            _mouseRelativePosition = new Vector2(0.5f, 1f);
+            MouseAt = GetAtValue(_mouseRelativePosition);
+            MousePos = GetPosValue(_mouseRelativePosition, Snapping);
+        }
+        else
+        {
+            _mouseRelativePosition = new Vector2(0.5f, 0f);
+            MouseAt = GetAtValue(_mouseRelativePosition);
+            MousePos = GetPosValue(_mouseRelativePosition, Snapping);
+        }
+    }
+
+    private void OnMouseMove(MouseMoveEvent evt)
+    {
+        _mouseRelativePosition = GetRelativeCoords(evt.localMousePosition, _funscriptContainer);
+        MouseAt = GetAtValue(_mouseRelativePosition);
+        MousePos = GetPosValue(_mouseRelativePosition, Snapping);
+    }
+
+
+    public void OnLeftClick(ClickEvent evt)
     {
         // Get coords
         VisualElement target = evt.target as VisualElement;
-        var coords = evt.localPosition;
-        coords.y -= target.resolvedStyle.paddingTop;
-
-        var relativeCoords = GetRelativeCoords(coords, target.contentRect);
+        var relativeCoords = GetRelativeCoords(evt.localPosition, target);
         // Debug.Log($"FunscriptMouseInput: funscript-container clicked (coords:{coords}, relativeCoords{relativeCoords})");
 
         // PatternMode, not in default mode
@@ -115,17 +143,12 @@ public class FunscriptMouseInput : UIBehaviour
         var funactions = PatternManager.Singleton.ActivePattern.actions;
 
 
-        int mouseAt = GetAtValue(relativeCoords);
-        if (mouseAt < 0)
+        if (MouseAt < 0)
         {
             //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
         }
-
-        // Offset the pattern by mouse position
-        // int mouseAt = (int)math.round(relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
-        // mouseAt += TimelineManager.Instance.TimeInMilliseconds;
-        int mousePos = GetPosValue(relativeCoords, Snapping);
+      
 
         int repeatCounter = 0;
 
@@ -147,7 +170,7 @@ public class FunscriptMouseInput : UIBehaviour
             funaction.at = (int)math.round(funaction.at * PatternManager.Singleton.ScaleX);
 
             // mouse offset
-            funaction.at += mouseAt;
+            funaction.at += MouseAt;
 
             // scale 
             funaction.pos = (int)math.round(funaction.pos * PatternManager.Singleton.ScaleY);
@@ -156,7 +179,7 @@ public class FunscriptMouseInput : UIBehaviour
             funaction.pos = PatternManager.Singleton.InvertY ? -funaction.pos : funaction.pos;
 
             // mouse offset
-            funaction.pos += mousePos;
+            funaction.pos += MousePos;
 
             // clamp
             funaction.pos = math.clamp(funaction.pos, 0, 100);
@@ -192,25 +215,21 @@ public class FunscriptMouseInput : UIBehaviour
     private void AddFunAction(Vector2 relativeCoords)
     {
         // Add Action
-        int at = GetAtValue(relativeCoords);
-        if (at < 0)
+        if (MouseAt < 0)
         {
             //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
         }
-
-        int pos = GetPosValue(relativeCoords, Snapping);
-
         var funaction = new FunAction
         {
-            at = at,
-            pos = pos
+            at = MouseAt,
+            pos = MousePos
         };
 
         // On StepMode add an FunAction to create a step 
         if (StepMode)
         {
-            int at0 = at - 1;
+            int at0 = MouseAt - 1;
             int pos0 = GetPosAtTime(at0);
             if (pos0 != -1)
             {
@@ -222,9 +241,15 @@ public class FunscriptMouseInput : UIBehaviour
         TitleBar.MarkLabelDirty();
     }
 
-    private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)
+    private Vector2 GetRelativeCoords(Vector2 coords, VisualElement target)
     {
-        var relativeCoords = new Vector2(coords.x / contentRect.width, 1f - (coords.y) / contentRect.height);
+        var style = target.resolvedStyle;
+        coords.y -= style.paddingTop;
+
+        var height = style.height - style.paddingTop - style.paddingBottom;
+        var width = style.width;
+
+        var relativeCoords = new Vector2(coords.x / width, 1f - (coords.y) / height);
         relativeCoords.x = math.clamp(relativeCoords.x, 0f, 1f);
         relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);
         return relativeCoords;
@@ -272,16 +297,8 @@ public class FunscriptMouseInput : UIBehaviour
         // Not RMB
         if (evt.button != 1) return;
 
-        // Get coords
-        VisualElement target = evt.target as VisualElement;
-        var coords = evt.localPosition;
-        coords.y -= target.resolvedStyle.paddingTop;
-
-        var relativeCoords = GetRelativeCoords(coords, target.contentRect);
-        int at = GetAtValue(relativeCoords);
-
         bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
-        int index = targetPrevModifier ? GetPreviousFunActionIndex(at) : GetNextFunActionIndex(at);
+        int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);
         if (index != -1)
         {
             var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;

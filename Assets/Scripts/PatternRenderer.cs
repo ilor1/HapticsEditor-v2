@@ -10,9 +10,7 @@ public class PatternRenderer : UIBehaviour
     private bool _isInitialized = false;
     private bool _patternMode = false;
     private LineDrawer _pattern;
-
     private List<FunAction> _funActions = new List<FunAction>();
-    private Vector2 _mouseRelativePosition;
 
     private void OnEnable()
     {
@@ -26,10 +24,8 @@ public class PatternRenderer : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        _mouseRelativePosition = new Vector2(0.5f, 0f);
         _patternContainer = Create("pattern-container");
-        _patternContainer.RegisterCallback<MouseMoveEvent>(OnMouseMove);
-        _patternContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+        _patternContainer.pickingMode = PickingMode.Ignore;
 
         // Pattern settings
         _pattern = Create<LineDrawer>();
@@ -37,42 +33,19 @@ public class PatternRenderer : UIBehaviour
         ColorUtility.TryParseHtmlString("#4d54b2", out Color color);
         _pattern.StrokeColor = color;
         _patternContainer.Add(_pattern);
-        //_pattern.AddToClassList("funscript-line");
 
-        _funscriptContainer = root.Query(className: "funscript-haptic-container");
+        _funscriptContainer = ((VisualElement)root.Query(className: "funscript-haptic-container")).parent;
         _isInitialized = true;
-    }
-
-    private void OnMouseLeave(MouseLeaveEvent evt)
-    {
-        if (PatternManager.Singleton.InvertY)
-        {
-            _mouseRelativePosition = new Vector2(0.5f, 1f);
-        }
-        else
-        {
-            _mouseRelativePosition = new Vector2(0.5f, 0f);
-        }
-    }
-
-    private void OnMouseMove(MouseMoveEvent evt)
-    {
-        _mouseRelativePosition = GetRelativeCoords(evt.localMousePosition, _patternContainer.contentRect);
     }
 
     private void Render()
     {
+        _funActions.Clear();
+        
         // Get the active pattern
         var funactions = PatternManager.Singleton.ActivePattern.actions;
 
-        // Offset the pattern by mouse position
-        int mouseAt = GetAtValue(_mouseRelativePosition);
-        int mousePos = GetPosValue(_mouseRelativePosition, FunscriptMouseInput.Singleton.Snapping);
-
-        _funActions.Clear();
-
         int repeatCounter = 0;
-
         bool endingReached = false;
 
         for (int i = 0; i < funactions.Length; i++)
@@ -93,7 +66,7 @@ public class PatternRenderer : UIBehaviour
             funaction.at = (int)math.round(funaction.at * PatternManager.Singleton.ScaleX);
 
             // mouse offset
-            funaction.at += mouseAt;
+            funaction.at += FunscriptMouseInput.MouseAt;
 
             // stop rendering when outside current timeline length
             if (funaction.at > TimelineManager.Instance.TimeInMilliseconds + 0.5f * TimelineManager.Instance.LengthInMilliseconds)
@@ -116,7 +89,7 @@ public class PatternRenderer : UIBehaviour
             funaction.pos = PatternManager.Singleton.InvertY ? -funaction.pos : funaction.pos;
 
             // mouse offset
-            funaction.pos += mousePos;
+            funaction.pos += FunscriptMouseInput.MousePos;
 
             // clamp
             funaction.pos = math.clamp(funaction.pos, 0, 100);
@@ -179,35 +152,5 @@ public class PatternRenderer : UIBehaviour
     private void OnPointerEnter(PointerEnterEvent evt)
     {
         _patternContainer.style.display = DisplayStyle.Flex;
-    }
-
-
-    private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)
-    {
-        float paddingBottom = 0;
-        var relativeCoords = new Vector2(coords.x / contentRect.width, 1f - (coords.y - paddingBottom) / (contentRect.height));
-        relativeCoords.x = math.clamp(relativeCoords.x, 0f, 1f);
-        relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);
-        return relativeCoords;
-    }
-
-    private int GetAtValue(Vector2 relativeCoords)
-    {
-        float x0 = TimelineManager.Instance.TimeInMilliseconds - 0.5f * TimelineManager.Instance.LengthInMilliseconds;
-        int at = (int)math.round(x0 + relativeCoords.x * TimelineManager.Instance.LengthInMilliseconds);
-        return at;
-    }
-
-    private int GetPosValue(Vector2 relativeCoords, bool snapping)
-    {
-        float value = 100 * relativeCoords.y;
-        if (snapping)
-        {
-            return (int)(math.round(value / 5f) * 5);
-        }
-        else
-        {
-            return (int)math.round(value);
-        }
     }
 }
