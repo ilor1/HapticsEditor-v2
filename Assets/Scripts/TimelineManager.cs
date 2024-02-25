@@ -8,6 +8,8 @@ public class TimelineManager : MonoBehaviour
 
     public static Action ZoomLevelChanged;
 
+    public float Smoothness = 10f;
+
     public bool IsPlaying;
     public int TimeInMilliseconds;
     public float TimeInSeconds => TimeInMilliseconds * 0.001f;
@@ -36,12 +38,12 @@ public class TimelineManager : MonoBehaviour
             return 1;
         }
     }
-    
+
     public float GetClipLengthInSeconds()
     {
         return GetClipLengthInMilliseconds() * 0.001f;
     }
-    
+
 
     private void Awake()
     {
@@ -110,14 +112,19 @@ public class TimelineManager : MonoBehaviour
         // Update Timeline while playing. Scrub timeline while paused 
         if (IsPlaying)
         {
-            if (_audioSource != null)
+            TimeInMilliseconds += _audioSource != null
+                ? (int)math.round(Time.deltaTime * 1000f * _audioSource.pitch)
+                : (int)math.round(Time.deltaTime * 1000f);
+
+            TimeInMilliseconds %= GetClipLengthInMilliseconds();
+
+            // Update audiosource timesamples
+            if (_audioSource != null && _audioSource.clip != null)
             {
-                TimeInMilliseconds = (int)math.round(_audioSource.timeSamples / (_audioSource.clip.frequency * 0.001f));
-            }
-            else
-            {
-                TimeInMilliseconds += (int)math.round(Time.deltaTime * 1000f);
-                TimeInMilliseconds %= GetClipLengthInMilliseconds();
+                if (math.abs(_audioSource.time - TimeInMilliseconds * 0.001f) > 0.1f)
+                {
+                    _audioSource.time = TimeInMilliseconds * 0.001f;
+                }
             }
         }
         else
@@ -127,33 +134,20 @@ public class TimelineManager : MonoBehaviour
                 int timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
                 if (_audioSource.timeSamples != timeSamples)
                 {
-                    _audioSource.timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
+                    _audioSource.timeSamples = timeSamples;
                 }
             }
         }
     }
 
+
     public void SetTimeInMilliseconds(int timeInMilliseconds)
     {
-        if (IsPlaying && _audioSource != null)
-        {
-            _audioSource.timeSamples = (int)math.round(timeInMilliseconds * _audioSource.clip.frequency * 0.001f);
-        }
-        else
-        {
-            TimeInMilliseconds = timeInMilliseconds;
-        }
+        TimeInMilliseconds = timeInMilliseconds;
     }
 
     public void SetTimeInSeconds(float timeInSeconds)
     {
-        if (IsPlaying && _audioSource != null)
-        {
-            _audioSource.timeSamples = (int)math.round(timeInSeconds * _audioSource.clip.frequency);
-        }
-        else
-        {
-            TimeInMilliseconds = (int)math.round(timeInSeconds * 1000f);
-        }
+        TimeInMilliseconds = (int)math.round(timeInSeconds * 1000f);
     }
 }

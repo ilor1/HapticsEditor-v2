@@ -1,4 +1,3 @@
-using System;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -88,47 +87,31 @@ public class PlaybackControls : MonoBehaviour
         }
     }
 
-    public void TogglePlay()
+    private void TogglePlay()
     {
         TimelineManager.Instance.IsPlaying = !TimelineManager.Instance.IsPlaying;
     }
 
-    public void SkipForward()
+    private void SkipForward()
     {
-        if (TimelineManager.Instance.IsPlaying && _audioSource != null)
-        {
-            var time = _audioSource.time + TimelineManager.Instance.LengthInSeconds * 0.5f;
-            _audioSource.time = math.clamp(time, 0, _audioSource.clip.length);
-        }
-        else
-        {
-            float maxLength = _audioSource != null
-                ? _audioSource.clip.length
-                : FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count - 1].at * 0.001f;
-            var time = TimelineManager.Instance.TimeInSeconds + (int)math.round(TimelineManager.Instance.LengthInSeconds * 0.5f);
-            TimelineManager.Instance.TimeInMilliseconds = (int)math.floor(math.clamp(time, 0f, maxLength) * 1000f);
-        }
+        float maxLength = _audioSource != null
+            ? _audioSource.clip.length
+            : FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[^1].at * 0.001f;
+        var time = TimelineManager.Instance.TimeInSeconds + (int)math.round(TimelineManager.Instance.LengthInSeconds * 0.5f);
+        TimelineManager.Instance.TimeInMilliseconds = (int)math.floor(math.clamp(time, 0f, maxLength) * 1000f);
     }
 
-    public void SkipBack()
+    private void SkipBack()
     {
-        if (TimelineManager.Instance.IsPlaying && _audioSource != null)
-        {
-            var time = _audioSource.time - TimelineManager.Instance.LengthInSeconds * 0.5f;
-            _audioSource.time = math.clamp(time, 0, _audioSource.clip.length);
-        }
-        else
-        {
-            float maxLength = _audioSource != null
-                ? _audioSource.clip.length
-                : FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count - 1].at;
+        float maxLength = _audioSource != null
+            ? _audioSource.clip.length
+            : FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[^1].at;
 
-            var time = TimelineManager.Instance.TimeInMilliseconds - (int)math.round(TimelineManager.Instance.LengthInMilliseconds * 0.5f);
-            TimelineManager.Instance.TimeInMilliseconds = math.clamp(time, 0, (int)math.floor(maxLength));
-        }
+        var time = TimelineManager.Instance.TimeInSeconds - (int)math.round(TimelineManager.Instance.LengthInSeconds * 0.5f);
+        TimelineManager.Instance.TimeInMilliseconds = (int)math.floor(math.clamp(time, 0f, maxLength) * 1000f);
     }
 
-    public void IncreaseSpeed()
+    private void IncreaseSpeed()
     {
         if (_audioSource != null)
         {
@@ -137,7 +120,7 @@ public class PlaybackControls : MonoBehaviour
         }
     }
 
-    public void DecreaseSpeed()
+    private void DecreaseSpeed()
     {
         if (_audioSource != null)
         {
@@ -146,13 +129,13 @@ public class PlaybackControls : MonoBehaviour
         }
     }
 
-    public void ZoomIn()
+    private void ZoomIn()
     {
         var zoom = (int)math.round(TimelineManager.Instance.LengthInMilliseconds * 0.5f);
         TimelineManager.Instance.LengthInMilliseconds = math.clamp(zoom, _minZoom, _maxZoom);
     }
 
-    public void ZoomOut()
+    private void ZoomOut()
     {
         var zoom = (int)math.round(TimelineManager.Instance.LengthInMilliseconds * 2f);
         TimelineManager.Instance.LengthInMilliseconds = math.clamp(zoom, _minZoom, _maxZoom);

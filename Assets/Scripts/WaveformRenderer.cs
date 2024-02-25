@@ -126,7 +126,8 @@ public class WaveformRenderer : UIBehaviour
         int time = 0;
         if (TimelineManager.Instance.IsPlaying)
         {
-            time = _audioSource.timeSamples;
+            //time = _audioSource.timeSamples;
+            time = (int)math.round(TimelineManager.Instance.TimeInMilliseconds * 0.001f * _clip.frequency);
         }
         else
         {
