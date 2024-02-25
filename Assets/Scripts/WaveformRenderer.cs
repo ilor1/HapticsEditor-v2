@@ -123,16 +123,7 @@ public class WaveformRenderer : UIBehaviour
 
     private void RenderWaveform()
     {
-        int time = 0;
-        if (TimelineManager.Instance.IsPlaying)
-        {
-            //time = _audioSource.timeSamples;
-            time = (int)math.round(TimelineManager.Instance.TimeInMilliseconds * 0.001f * _clip.frequency);
-        }
-        else
-        {
-            time = (int)math.round(TimelineManager.Instance.TimeInMilliseconds * 0.001f * _clip.frequency);
-        }
+        int timeSamples = (int)math.round(TimelineManager.Instance.TimeInMilliseconds * 0.001f * _clip.frequency);
 
         // Get max sample
         if (_maxSample <= 0)
@@ -171,24 +162,46 @@ public class WaveformRenderer : UIBehaviour
                 RightRMS = _rightRMS
             }.Schedule(sampleNum, 64).Complete();
         }
+
         // Get the range for this texture
-        int start = (int)math.round(time / (float)samplesPerPixel);
-        if (start < 0)
-        {
-            return;
-        }
+        int startPixel = (int)math.round(timeSamples / (float)samplesPerPixel);
+        // startPixel -= (int)math.round(_texture.width * 0.5f);
 
         var leftHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        leftHighestValues.CopyFrom(_leftHigh.GetSubArray(start, _texture.width));
-
         var rightHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        rightHighestValues.CopyFrom(_rightHigh.GetSubArray(start, _texture.width));
-
         var leftRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        leftRmsValues.CopyFrom(_leftRMS.GetSubArray(start, _texture.width));
-
         var rightRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        rightRmsValues.CopyFrom(_rightRMS.GetSubArray(start, _texture.width));
+
+        // copy with offsets
+        // if (startPixel < 0)
+        // {
+        //     for (int i = 0; i < _texture.width; i++)
+        //     {
+        //         int sourceIndex = (_leftHigh.Length + startPixel + i) % _leftHigh.Length;
+        //         leftHighestValues[i] = _leftHigh[sourceIndex];
+        //         rightHighestValues[i] = _rightHigh[sourceIndex];
+        //         rightRmsValues[i] = _rightRMS[sourceIndex];
+        //         leftRmsValues[i] = _leftRMS[sourceIndex];
+        //     }
+        // }
+        if (startPixel + _texture.width > _leftHigh.Length)
+        {
+            for (int i = 0; i < _texture.width; i++)
+            {
+                int sourceIndex = (startPixel + i) % _leftHigh.Length;
+                leftHighestValues[i] = _leftHigh[sourceIndex];
+                rightHighestValues[i] = _rightHigh[sourceIndex];
+                rightRmsValues[i] = _rightRMS[sourceIndex];
+                leftRmsValues[i] = _leftRMS[sourceIndex];
+            }
+        }
+        else
+        {
+            leftHighestValues.CopyFrom(_leftHigh.GetSubArray(startPixel, _texture.width));
+            rightHighestValues.CopyFrom(_rightHigh.GetSubArray(startPixel, _texture.width));
+            leftRmsValues.CopyFrom(_leftRMS.GetSubArray(startPixel, _texture.width));
+            rightRmsValues.CopyFrom(_rightRMS.GetSubArray(startPixel, _texture.width));
+        }
 
         // Get colors
         var colors = _texture.GetRawTextureData<Color32>();

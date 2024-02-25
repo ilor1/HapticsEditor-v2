@@ -34,6 +34,9 @@ public struct PreProcessSamplesJob : IJobParallelFor
             int leftIndex = i * Channels;
             int rightIndex = i * Channels + 1;
 
+            leftIndex = leftIndex % Samples.Length;
+            rightIndex = rightIndex % Samples.Length;
+            
             // Get samples
             leftSample = math.abs(Samples[leftIndex]) / MaxSampleValue;
             rightSample = math.abs(Samples[rightIndex]) / MaxSampleValue;
