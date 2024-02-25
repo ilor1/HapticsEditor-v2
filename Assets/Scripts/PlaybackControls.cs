@@ -131,14 +131,14 @@ public class PlaybackControls : MonoBehaviour
 
     private void ZoomIn()
     {
-        // var zoom = (int)math.round(TimelineManager.Instance.LengthInMilliseconds * 0.5f);
-        // TimelineManager.Instance.LengthInMilliseconds = math.clamp(zoom, _minZoom, _maxZoom);
+        var zoom = (int)math.round(TimelineManager.Instance.LengthInMilliseconds * 0.5f);
+        TimelineManager.Instance.LengthInMilliseconds = math.clamp(zoom, _minZoom, _maxZoom);
     }
 
     private void ZoomOut()
     {
-        // var zoom = (int)math.round(TimelineManager.Instance.LengthInMilliseconds * 2f);
-        // TimelineManager.Instance.LengthInMilliseconds = math.clamp(zoom, _minZoom, _maxZoom);
+        var zoom = (int)math.round(TimelineManager.Instance.LengthInMilliseconds * 2f);
+        TimelineManager.Instance.LengthInMilliseconds = math.clamp(zoom, _minZoom, _maxZoom);
     }
 
     public void Reset()

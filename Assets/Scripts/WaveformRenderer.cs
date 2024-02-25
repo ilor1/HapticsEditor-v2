@@ -15,17 +15,11 @@ public class WaveformRenderer : UIBehaviour
     private float _maxSample = -1f;
     private int _outputWidth = 1920;
     private int _outputHeight = 256;
-
     private AudioSource _audioSource;
     private AudioClip _clip;
-
-    // private int _frequency;
-    // private int _channels;
     private NativeArray<float> _samples;
     private bool _clipLoaded = false;
-
     private int _samplesPerPixel;
-
     private NativeArray<float> _leftHigh;
     private NativeArray<float> _leftRMS;
     private NativeArray<float> _rightHigh;
@@ -110,7 +104,6 @@ public class WaveformRenderer : UIBehaviour
 
         _samples = new NativeArray<float>(_clip.samples * _clip.channels, Allocator.Persistent);
         _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
-
         _clipLoaded = true;
     }
 
@@ -123,7 +116,7 @@ public class WaveformRenderer : UIBehaviour
 
     private void RenderWaveform()
     {
-        int timeSamples = (int)math.round(TimelineManager.Instance.TimeInMilliseconds * 0.001f * _clip.frequency);
+        int timeSamples = (int)math.round(TimelineManager.Instance.TimeInSeconds * _clip.frequency);
 
         // Get max sample
         if (_maxSample <= 0)
@@ -142,6 +135,7 @@ public class WaveformRenderer : UIBehaviour
         int samplesPerPixel = GetSamplesPerPixel();
         if (_samplesPerPixel != samplesPerPixel)
         {
+            _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
             _samplesPerPixel = samplesPerPixel;
 
             int sampleNum = (int)math.round((_samples.Length / (float)_clip.channels) / (float)_samplesPerPixel);
@@ -165,7 +159,6 @@ public class WaveformRenderer : UIBehaviour
 
         // Get the range for this texture
         int startPixel = (int)math.round(timeSamples / (float)samplesPerPixel);
-        // startPixel -= (int)math.round(_texture.width * 0.5f);
 
         var leftHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
         var rightHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
@@ -173,17 +166,6 @@ public class WaveformRenderer : UIBehaviour
         var rightRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
 
         // copy with offsets
-        // if (startPixel < 0)
-        // {
-        //     for (int i = 0; i < _texture.width; i++)
-        //     {
-        //         int sourceIndex = (_leftHigh.Length + startPixel + i) % _leftHigh.Length;
-        //         leftHighestValues[i] = _leftHigh[sourceIndex];
-        //         rightHighestValues[i] = _rightHigh[sourceIndex];
-        //         rightRmsValues[i] = _rightRMS[sourceIndex];
-        //         leftRmsValues[i] = _leftRMS[sourceIndex];
-        //     }
-        // }
         if (startPixel + _texture.width > _leftHigh.Length)
         {
             for (int i = 0; i < _texture.width; i++)
@@ -231,10 +213,7 @@ public class WaveformRenderer : UIBehaviour
 
     private int GetSamplesPerPixel()
     {
-        var timelineLength = TimelineManager.Instance.LengthInSeconds;
-        var frequency = _clip.frequency;
-
-        int samplesPerPixel = (int)math.floor((frequency * timelineLength) / (float)_texture.width);
-        return samplesPerPixel;
+        float samples = TimelineManager.Instance.LengthInSeconds * _clip.frequency;
+        return (int)math.floor(samples / _texture.width);
     }
 }
