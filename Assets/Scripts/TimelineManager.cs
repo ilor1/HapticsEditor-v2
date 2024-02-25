@@ -88,7 +88,7 @@ public class TimelineManager : MonoBehaviour
         _audioSource = src;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (_prevLengthInMilliseconds != LengthInMilliseconds)
         {
@@ -112,18 +112,25 @@ public class TimelineManager : MonoBehaviour
         // Update Timeline while playing. Scrub timeline while paused 
         if (IsPlaying)
         {
-            TimeInMilliseconds += _audioSource != null
-                ? (int)math.round(Time.deltaTime * 1000f * _audioSource.pitch)
-                : (int)math.round(Time.deltaTime * 1000f);
-
-            TimeInMilliseconds %= GetClipLengthInMilliseconds();
-
-            // Update audiosource timesamples
-            if (_audioSource != null && _audioSource.clip != null)
+            if (_audioSource != null && _audioSource.pitch < 0.9f)
             {
-                if (math.abs(_audioSource.time - TimeInMilliseconds * 0.001f) > 0.1f)
+                TimeInMilliseconds = (int)math.round(_audioSource.time * 1000f);
+            }
+            else
+            {
+                TimeInMilliseconds += _audioSource != null
+                    ? (int)math.round(Time.deltaTime * 1000f * _audioSource.pitch)
+                    : (int)math.round(Time.deltaTime * 1000f);
+
+                TimeInMilliseconds %= GetClipLengthInMilliseconds();
+
+                // Update audiosource timesamples
+                if (_audioSource != null && _audioSource.clip != null)
                 {
-                    _audioSource.time = TimeInMilliseconds * 0.001f;
+                    if (math.abs(_audioSource.time - TimeInMilliseconds * 0.001f) > 0.1f)
+                    {
+                        _audioSource.time = TimeInMilliseconds * 0.001f;
+                    }
                 }
             }
         }

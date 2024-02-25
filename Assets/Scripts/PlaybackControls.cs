@@ -115,7 +115,7 @@ public class PlaybackControls : MonoBehaviour
     {
         if (_audioSource != null)
         {
-            var pitch = _audioSource.pitch + 0.5f;
+            var pitch = _audioSource.pitch + 0.25f;
             _audioSource.pitch = math.clamp(pitch, _minSpeed, _maxSpeed);
         }
     }
@@ -124,7 +124,7 @@ public class PlaybackControls : MonoBehaviour
     {
         if (_audioSource != null)
         {
-            var pitch = _audioSource.pitch - 0.5f;
+            var pitch = _audioSource.pitch - 0.25f;
             _audioSource.pitch = math.clamp(pitch, _minSpeed, _maxSpeed);
         }
     }
