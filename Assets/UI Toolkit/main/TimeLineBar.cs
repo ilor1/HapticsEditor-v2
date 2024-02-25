@@ -40,7 +40,8 @@ public class TimeLineBar : UIBehaviour
         _timeline.RegisterCallback<PointerDownEvent>(OnPointerDown);
         _timeline.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _timeline.RegisterCallback<PointerUpEvent>(OnPointerUp);
-
+        _timeline.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
+        
         _initialized = true;
     }
 
@@ -80,6 +81,11 @@ public class TimeLineBar : UIBehaviour
     }
 
     private void OnPointerUp(PointerUpEvent evt)
+    {
+        _isDragging = false;
+    }
+    
+    private void OnPointerLeave(PointerLeaveEvent evt)
     {
         _isDragging = false;
     }

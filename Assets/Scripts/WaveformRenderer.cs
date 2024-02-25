@@ -22,8 +22,14 @@ public class WaveformRenderer : UIBehaviour
     // private int _frequency;
     // private int _channels;
     private NativeArray<float> _samples;
-
     private bool _clipLoaded = false;
+
+    private int _samplesPerPixel;
+
+    private NativeArray<float> _leftHigh;
+    private NativeArray<float> _leftRMS;
+    private NativeArray<float> _rightHigh;
+    private NativeArray<float> _rightRMS;
 
     private void OnEnable()
     {
@@ -115,7 +121,6 @@ public class WaveformRenderer : UIBehaviour
         RenderWaveform();
     }
 
-    [ContextMenu("Render")]
     private void RenderWaveform()
     {
         int time = 0;
@@ -141,38 +146,52 @@ public class WaveformRenderer : UIBehaviour
             maxSample.Dispose();
         }
 
-        // process samples
-        var leftHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        var rightHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        var leftRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        var rightRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
-        new ProcessSamplesParallelJob
+        // If samplesPerPixel changes (ie. zooming in/out), recalculate the rms/high samples 
+        int samplesPerPixel = GetSamplesPerPixel();
+        if (_samplesPerPixel != samplesPerPixel)
         {
-            Time = time,
-            SamplesPerPixel = GetSamplesPerPixel(),
-            LeftHighestSamples = leftHighestValues,
-            RightHighestSamples = rightHighestValues,
-            LeftRms = leftRmsValues,
-            RightRms = rightRmsValues,
-            Samples = _samples,
-            Channels = _clip.channels,
-            MaxSampleValue = _maxSample
-        }.Schedule(_texture.width, 64).Complete();
-        // new ProcessSamplesParallelBatchJob
-        // {
-        //     Time = time,
-        //     Samples = _samples,
-        //     Channels = _clip.channels,
-        //     MaxSampleValue = _maxSample,
-        //     LeftHighestSamples = leftHighestValues,
-        //     RightHighestSamples = rightHighestValues,
-        //     LeftRms = leftRmsValues,
-        //     RightRms = rightRmsValues
-        // }.Schedule(_texture.width, GetSamplesPerPixel()).Complete();
+            _samplesPerPixel = samplesPerPixel;
+
+            int sampleNum = (int)math.round((_samples.Length / (float)_clip.channels) / (float)_samplesPerPixel);
+            _leftHigh = new NativeArray<float>(sampleNum, Allocator.Persistent);
+            _leftRMS = new NativeArray<float>(sampleNum, Allocator.Persistent);
+            _rightHigh = new NativeArray<float>(sampleNum, Allocator.Persistent);
+            _rightRMS = new NativeArray<float>(sampleNum, Allocator.Persistent);
+
+            new PreProcessSamplesJob
+            {
+                SamplesPerPixel = samplesPerPixel,
+                Samples = _samples,
+                Channels = _clip.channels,
+                MaxSampleValue = _maxSample,
+                LeftHigh = _leftHigh,
+                LeftRMS = _leftRMS,
+                RightHigh = _rightHigh,
+                RightRMS = _rightRMS
+            }.Schedule(sampleNum, 64).Complete();
+        }
+        // Get the range for this texture
+        int start = (int)math.round(time / (float)samplesPerPixel);
+        if (start < 0)
+        {
+            return;
+        }
+
+        var leftHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
+        leftHighestValues.CopyFrom(_leftHigh.GetSubArray(start, _texture.width));
+
+        var rightHighestValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
+        rightHighestValues.CopyFrom(_rightHigh.GetSubArray(start, _texture.width));
+
+        var leftRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
+        leftRmsValues.CopyFrom(_leftRMS.GetSubArray(start, _texture.width));
+
+        var rightRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
+        rightRmsValues.CopyFrom(_rightRMS.GetSubArray(start, _texture.width));
 
         // Get colors
         var colors = _texture.GetRawTextureData<Color32>();
-        new GetColorsParallelJob()
+        new GetColorsParallelJob
         {
             ColorCenter = RMSColor,
             ColorOuter = PeakColor,

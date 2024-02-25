@@ -4,44 +4,37 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [BurstCompile]
-public struct ProcessSamplesParallelJob : IJobParallelFor
+public struct PreProcessSamplesJob : IJobParallelFor
 {
-    [ReadOnly] public int Time;
     [ReadOnly] public int SamplesPerPixel;
     [ReadOnly] public NativeArray<float> Samples;
     [ReadOnly] public int Channels;
     [ReadOnly] public float MaxSampleValue;
 
-    [WriteOnly] public NativeArray<float> LeftHighestSamples;
-    [WriteOnly] public NativeArray<float> RightHighestSamples;
-
-    [WriteOnly] public NativeArray<float> LeftRms;
-    [WriteOnly] public NativeArray<float> RightRms;
-
-    [BurstCompile]
-    public void Execute(int x)
+    [WriteOnly] public NativeArray<float> LeftHigh;
+    [WriteOnly] public NativeArray<float> LeftRMS;
+    [WriteOnly] public NativeArray<float> RightHigh;
+    [WriteOnly] public NativeArray<float> RightRMS;
+    
+    public void Execute(int index)
     {
-        int firstSampleIndex = SamplesPerPixel * x;
+        float leftRms = 0;
+        float rightRms = 0;
+        float leftHighestSample = 0;
+        float rightHighestSample = 0;
+        int firstSampleIndex = SamplesPerPixel * index;
         int lastSampleIndex = firstSampleIndex + SamplesPerPixel;
-        float leftRms = 0;
-        float rightRms = 0;
-        float leftHighestSample = 0;
-        float rightHighestSample = 0;
-
+        
         for (int i = firstSampleIndex; i < lastSampleIndex; i++)
         {
             // https://manual.audacityteam.org/man/audacity_waveform.html
             float leftSample = 0;
             float rightSample = 0;
+       
+            int leftIndex = i * Channels;
+            int rightIndex = i * Channels + 1;
 
-            int arrayLength = Samples.Length;
-            int leftIndex = (Time + i) * Channels;
-            leftIndex = (leftIndex % arrayLength + arrayLength) % arrayLength;
-
-            int rightIndex = (Time + i) * Channels + 1;
-            rightIndex = (rightIndex % arrayLength + arrayLength) % arrayLength;
-
-            // leftSample = math.abs(Samples[(Time + i) * Channels]) / MaxSampleValue;
+            // Get samples
             leftSample = math.abs(Samples[leftIndex]) / MaxSampleValue;
             rightSample = math.abs(Samples[rightIndex]) / MaxSampleValue;
 
@@ -53,71 +46,12 @@ public struct ProcessSamplesParallelJob : IJobParallelFor
             leftRms += leftSample;
             rightRms += rightSample;
         }
-
-        LeftHighestSamples[x] = leftHighestSample;
-        RightHighestSamples[x] = rightHighestSample;
-
-        // average the samples
-        LeftRms[x] = leftRms / SamplesPerPixel;
-        RightRms[x] = rightRms / SamplesPerPixel;
-    }
-}
-
-[BurstCompile]
-public struct ProcessSamplesParallelBatchJob : IJobParallelForBatch
-{
-    [ReadOnly] public int Time;
-    [ReadOnly] public NativeArray<float> Samples;
-    [ReadOnly] public int Channels;
-    [ReadOnly] public float MaxSampleValue;
-
-    [WriteOnly] public NativeArray<float> LeftHighestSamples;
-    [WriteOnly] public NativeArray<float> RightHighestSamples;
-
-    [WriteOnly] public NativeArray<float> LeftRms;
-    [WriteOnly] public NativeArray<float> RightRms;
-
-    [BurstCompile]
-    public void Execute(int x, int samplesPerPixel)
-    {
-        int firstSampleIndex = samplesPerPixel * x;
-        int lastSampleIndex = firstSampleIndex + samplesPerPixel;
-        float leftRms = 0;
-        float rightRms = 0;
-        float leftHighestSample = 0;
-        float rightHighestSample = 0;
-
-        for (int i = firstSampleIndex; i < lastSampleIndex; i++)
-        {
-            // https://manual.audacityteam.org/man/audacity_waveform.html
-            float leftSample = 0;
-            float rightSample = 0;
-
-            int arrayLength = Samples.Length;
-            int leftIndex = (Time + i) * Channels;
-            leftIndex = (leftIndex % arrayLength + arrayLength) % arrayLength;
-
-            int rightIndex = (Time + i) * Channels + 1;
-            rightIndex = (rightIndex % arrayLength + arrayLength) % arrayLength;
-
-            // leftSample = math.abs(Samples[(Time + i) * Channels]) / MaxSampleValue;
-            leftSample = math.abs(Samples[leftIndex]) / MaxSampleValue;
-            rightSample = math.abs(Samples[rightIndex]) / MaxSampleValue;
-
-            // Get highest sample values
-            leftHighestSample = leftSample > leftHighestSample ? leftSample : leftHighestSample;
-            rightHighestSample = rightSample > rightHighestSample ? rightSample : rightHighestSample;
-
-            // Get RMS sample values
-            leftRms += leftSample;
-            rightRms += rightSample;
-        }
-
-        LeftHighestSamples[x] = leftHighestSample;
-        RightHighestSamples[x] = rightHighestSample;
+        
+        LeftHigh[index] = leftHighestSample;
+        RightHigh[index] = rightHighestSample;
 
         // average the samples
-        LeftRms[x] = leftRms / samplesPerPixel;
-        RightRms[x] = rightRms / samplesPerPixel;
+        LeftRMS[index] = leftRms / SamplesPerPixel;
+        RightRMS[index] = rightRms / SamplesPerPixel;
     }
 }
