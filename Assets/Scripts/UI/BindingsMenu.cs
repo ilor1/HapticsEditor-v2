@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class BindingsMenu : UIBehaviour
 {
-    public static BindingsMenu Singleton;
+    private static BindingsMenu Singleton;
 
     private VisualElement _root;
     private VisualElement _popup;
@@ -157,14 +157,14 @@ public class BindingsMenu : UIBehaviour
         InputManager.InputBlocked = false;
     }
 
-    public void Open()
+    public static void Open()
     {
         // Mark BindingsMenu open so we block keypresses
         InputManager.InputBlocked = true;
 
         // Get copy of actual controls
-        _keyCodeDictionary = InputManager.Singleton.GetKeyboardControls();
-        UpdateBindingButtons();
-        _root.Add(_popup);
+        Singleton._keyCodeDictionary = InputManager.Singleton.GetKeyboardControls();
+        Singleton.UpdateBindingButtons();
+        Singleton._root.Add(Singleton._popup);
     }
 }

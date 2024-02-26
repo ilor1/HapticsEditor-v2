@@ -3,7 +3,7 @@
 public class MenuBar : UIBehaviour
 {
     private CustomDropDownMenu _fileDropdown;
-    private CustomDropDownMenu _settingsDropdown;
+    private CustomDropDownMenu _editDropdown;
 
     private void OnEnable()
     {
@@ -39,21 +39,22 @@ public class MenuBar : UIBehaviour
         menuBar.Add(fileButton);
 
         // Settings Dropdown
-        _settingsDropdown = CreateDropdownMenu(root);
-        _settingsDropdown.Append("Edit bindings", SettingsDropdownMenu.OnEditBindingsClick);
+        _editDropdown = CreateDropdownMenu(root);
+        _editDropdown.Append("Settings", EditDropdownMenu.OnSettingsClick);
+        _editDropdown.Append("Bindings", EditDropdownMenu.OnBindingsClick);
 
-        var settingsButton = Create<Button>("menu-button");
-        settingsButton.text = "Settings";
-        settingsButton.clicked += () =>
+        var editButton = Create<Button>("menu-button");
+        editButton.text = "Edit";
+        editButton.clicked += () =>
         {
             // menu-bar padding-left + fileButton padding-left + padding-right
-            _settingsDropdown.style.left = new StyleLength(fileButton.contentRect.width + 20);
-            _settingsDropdown.style.top = new StyleLength(64f);
+            _editDropdown.style.left = new StyleLength(fileButton.contentRect.width + 20);
+            _editDropdown.style.top = new StyleLength(64f);
 
             // Toggle dropdown on click
-            _settingsDropdown.Toggle(settingsButton);
+            _editDropdown.Toggle(editButton);
         };
-        menuBar.Add(settingsButton);
+        menuBar.Add(editButton);
 
         var patternsButton = Create<Button>("menu-button");
         patternsButton.text = "Patterns";

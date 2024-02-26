@@ -18,4 +18,50 @@ public class UIBehaviour : MonoBehaviour
 
         return element;
     }
+    
+    protected TextField CreateInputTextField(string title, VisualElement parent, string className)
+    {
+        var container = Create(className);
+        var label = Create<Label>();
+        label.text = title;
+
+        var inputField = Create<TextField>();
+        container.Add(label);
+        container.Add(inputField);
+
+        parent.Add(container);
+
+        return inputField;
+    }
+
+    protected IntegerField CreateInputIntegerField(string title, VisualElement parent, string className)
+    {
+        var container = Create(className);
+        var label = Create<Label>();
+        label.text = title;
+
+        var inputField = Create<IntegerField>();
+        container.Add(label);
+        container.Add(inputField);
+
+        parent.Add(container);
+
+        return inputField;
+    }
+
+    protected Toggle CreateInputToggleField(string title, VisualElement parent, string className)
+    {
+        var container = Create(className);
+        var label = Create<Label>();
+        label.text = title;
+
+        var inputField = Create<Toggle>();
+        container.Add(label);
+        container.Add(inputField);
+
+        parent.Add(container);
+
+        return inputField;
+    }
+
 }

@@ -26,8 +26,6 @@ public class MetadataMenu : UIBehaviour
     private IntegerField _rangeField;
     private TextField _versionField;
 
-    private bool _initialized = false;
-
     private void Awake()
     {
         if (Singleton == null)
@@ -39,27 +37,37 @@ public class MetadataMenu : UIBehaviour
             Destroy(this);
         }
     }
+    
+    private void OnEnable()
+    {
+        MainUI.RootCreated += Generate;
+    }
+
+    private void OnDisable()
+    {
+        MainUI.RootCreated -= Generate;
+    }
 
     private void Generate(VisualElement root)
     {
         _root = root;
         _popup = Create("metadata-popup");
         _container = Create("metadata-container");
-        
-        _creatorField = CreateInputTextField("Creator", _container);
-        _descriptionField = CreateInputTextField("Description", _container);
-        _durationField =  CreateInputIntegerField("Duration", _container);
-        _licenseField = CreateInputTextField("License", _container);
-        _notesField = CreateInputTextField("Notes", _container);
-        _performersField = CreateInputTextField("Performers", _container);
-        _scriptUrlField = CreateInputTextField("Script-URL", _container);
-        _tagsField = CreateInputTextField("Tags", _container);
-        _titleField = CreateInputTextField("Title", _container);
-        _typeField = CreateInputTextField("Type", _container);
-        _videoUrlField = CreateInputTextField("Video-URL", _container);
-        _rangeField = CreateInputIntegerField("Range", _container);
-        _invertedField = CreateInputToggleField("Inverted", _container);
-        _versionField = CreateInputTextField("Version", _container);
+
+        _creatorField = CreateInputTextField("Creator", _container, "metadata-field");
+        _descriptionField = CreateInputTextField("Description", _container, "metadata-field");
+        _durationField = CreateInputIntegerField("Duration", _container, "metadata-field");
+        _licenseField = CreateInputTextField("License", _container, "metadata-field");
+        _notesField = CreateInputTextField("Notes", _container, "metadata-field");
+        _performersField = CreateInputTextField("Performers", _container, "metadata-field");
+        _scriptUrlField = CreateInputTextField("Script-URL", _container, "metadata-field");
+        _tagsField = CreateInputTextField("Tags", _container, "metadata-field");
+        _titleField = CreateInputTextField("Title", _container, "metadata-field");
+        _typeField = CreateInputTextField("Type", _container, "metadata-field");
+        _videoUrlField = CreateInputTextField("Video-URL", _container, "metadata-field");
+        _rangeField = CreateInputIntegerField("Range", _container, "metadata-field");
+        _invertedField = CreateInputToggleField("Inverted", _container, "metadata-field");
+        _versionField = CreateInputTextField("Version", _container, "metadata-field");
 
         // Subscribe to value change events if needed
         _creatorField.RegisterValueChangedCallback(evt => _data.creator = evt.newValue);
@@ -82,12 +90,12 @@ public class MetadataMenu : UIBehaviour
         saveButton.clicked += OnSave;
         saveButton.text = "Save";
         metadataButtons.Add(saveButton);
-        
+
         var cancelButton = Create<Button>();
         cancelButton.text = "Cancel";
         cancelButton.clicked += OnCancel;
         metadataButtons.Add(cancelButton);
-        
+
         _container.Add(metadataButtons);
         _popup.Add(_container);
     }
@@ -96,7 +104,7 @@ public class MetadataMenu : UIBehaviour
     {
         // Close without saving
         _root.Remove(_popup);
-        
+
         InputManager.InputBlocked = false;
     }
 
@@ -105,53 +113,8 @@ public class MetadataMenu : UIBehaviour
         // Save and close
         SaveMetaData();
         _root.Remove(_popup);
-        
+
         InputManager.InputBlocked = false;
-    }
-    
-    private TextField CreateInputTextField(string title, VisualElement parent)
-    {
-        var container = Create("metadata-field");
-        var label = Create<Label>();
-        label.text = title;
-
-        var inputField = Create<TextField>();
-        container.Add(label);
-        container.Add(inputField);
-
-        parent.Add(container);
-
-        return inputField;
-    }
-    
-    private IntegerField CreateInputIntegerField(string title, VisualElement parent)
-    {
-        var container = Create("metadata-field");
-        var label = Create<Label>();
-        label.text = title;
-
-        var inputField = Create<IntegerField>();
-        container.Add(label);
-        container.Add(inputField);
-
-        parent.Add(container);
-
-        return inputField;
-    }
-    
-    private Toggle CreateInputToggleField(string title, VisualElement parent)
-    {
-        var container = Create("metadata-field");
-        var label = Create<Label>();
-        label.text = title;
-
-        var inputField = Create<Toggle>();
-        container.Add(label);
-        container.Add(inputField);
-
-        parent.Add(container);
-
-        return inputField;
     }
 
     public void Open(VisualElement root)
@@ -160,13 +123,6 @@ public class MetadataMenu : UIBehaviour
         if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return;
 
         InputManager.InputBlocked = true;
-        
-        // Initialize when opened the first time
-        if (!_initialized)
-        {
-            Generate(root);
-            _initialized = true;
-        }
 
         LoadMetaData();
         root.Add(_popup);
