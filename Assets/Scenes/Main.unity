@@ -1108,7 +1108,7 @@ GameObject:
   - component: {fileID: 1703550952}
   - component: {fileID: 1703550953}
   m_Layer: 0
-  m_Name: Settings
+  m_Name: SettingsManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
