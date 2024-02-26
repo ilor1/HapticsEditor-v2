@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
@@ -54,7 +55,7 @@ public class PatternCreatorMenu : UIBehaviour
         newButton.text = "Add pattern";
         newButton.clicked += NewPattern;
         topButtons.Add(newButton);
-        
+
         var removeButton = Create<Button>();
         removeButton.text = "Remove pattern";
         removeButton.clicked += RemovePattern;
@@ -64,7 +65,7 @@ public class PatternCreatorMenu : UIBehaviour
         nextButton.text = ">";
         nextButton.clicked += NextPattern;
         topButtons.Add(nextButton);
-        
+
         var patternContainer = Create("pattern-editor-pattern");
         var horizontalGrid = Create("horizontal-grid");
         for (int i = 0; i < 11; i++)
@@ -72,10 +73,10 @@ public class PatternCreatorMenu : UIBehaviour
             var line = Create("horizontal-line");
             line.pickingMode = PickingMode.Ignore;
             horizontalGrid.Add(line);
-            
         }
+
         patternContainer.Add(horizontalGrid);
-        
+
         var verticalGrid = Create("vertical-grid");
         for (int i = 0; i < 11; i++)
         {
@@ -83,8 +84,9 @@ public class PatternCreatorMenu : UIBehaviour
             line.pickingMode = PickingMode.Ignore;
             verticalGrid.Add(line);
         }
+
         patternContainer.Add(verticalGrid);
-        
+
         _pattern = Create<LineDrawer>("pattern-pattern");
         _pattern.LineWidth = 4f;
         ColorUtility.TryParseHtmlString("#4d54b2", out Color color);
@@ -104,7 +106,7 @@ public class PatternCreatorMenu : UIBehaviour
         closeButton.text = "Close";
         closeButton.clicked += Close;
         bottomButtons.Add(closeButton);
-        
+
         _container.Add(topButtons);
         _container.Add(patternContainer);
         _container.Add(bottomButtons);
@@ -286,13 +288,22 @@ public class PatternCreatorMenu : UIBehaviour
         _patterns = PatternManager.Singleton.Patterns;
         _pattern.LengthInMilliseconds = 1000;
         _pattern.TimeInMilliseconds = 500;
+
+        _root.Add(_popup);
+        
+        // Load the pattern with one frame delay. Otherwise it won't show up
+        StartCoroutine(LoadPatternWithDelay());
+    }
+
+    private IEnumerator LoadPatternWithDelay()
+    {
+        yield return null;
         _activePatternIndex = 0;
         _activePattern = _patterns[_activePatternIndex].actions.ToList();
         _pattern.RenderFunActions(_activePattern);
-        _root.Add(_popup);
     }
 
-    public void Save()
+    private void Save()
     {
         PatternManager.Singleton.Patterns = _patterns;
         PatternManager.Singleton.SavePatterns();
@@ -300,7 +311,7 @@ public class PatternCreatorMenu : UIBehaviour
         Close();
     }
 
-    public void Close()
+    private void Close()
     {
         _root.Remove(_popup);
     }
@@ -352,7 +363,7 @@ public class PatternCreatorMenu : UIBehaviour
         {
             _patterns.RemoveAt(_activePatternIndex);
             _activePatternIndex = math.max(0, _activePatternIndex - 1);
-            
+
             _activePattern = _patterns[_activePatternIndex].actions.ToList();
             _pattern.RenderFunActions(_activePattern);
         }

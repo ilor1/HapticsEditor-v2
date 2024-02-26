@@ -148,7 +148,7 @@ public class FunscriptMouseInput : UIBehaviour
             //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
         }
-      
+
 
         int repeatCounter = 0;
 
@@ -220,6 +220,7 @@ public class FunscriptMouseInput : UIBehaviour
             //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
         }
+
         var funaction = new FunAction
         {
             at = MouseAt,
