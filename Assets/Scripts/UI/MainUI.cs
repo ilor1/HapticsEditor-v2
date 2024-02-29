@@ -11,9 +11,11 @@ public class MainUI : UIBehaviour
     [Header("UI Panel")] [SerializeField] protected UIDocument _document;
 
     [SerializeField] protected StyleSheet _styleSheet;
-    
+
     private VisualElement _funscriptContainer;
     private VisualElement _funscriptHapticContainer;
+
+    private VisualElement _valueLabels;
 
     private void Awake()
     {

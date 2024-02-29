@@ -200,8 +200,14 @@
     height: 100%;
     flex-direction: column;
     -unity-text-align: middle-right;
-    justify-content: space-between;
+    justify-content: space-around;
     flex-grow: 1;
+}
+
+.funscript-values-container > Label {
+    padding: 0;
+    margin: 0;
+    -unity-text-align: middle-right;
 }
 
 .funscript-haptic-container {
@@ -210,6 +216,7 @@
     width: 100%;
     height: 100%;
     background-color: #202020;
+    overflow: hidden;
 }
 
 .funscript-line {
@@ -318,6 +325,7 @@
 .waveform {
     width: 100%;
     height: 100%;
+    background-color: #202020;
 }
 
 .timeline {
@@ -481,6 +489,8 @@
 .timemarkers {
     width: 100%;
     height: 100%;
+    background-color: #202020;
+    overflow: hidden;
 }
 
 .timemarker {
