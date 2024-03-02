@@ -516,6 +516,25 @@
     background-color: #333333;
 }
 
+.marker-start {
+    height: 100%;
+    width: 16px;
+    position: absolute;
+    background-image: resource("Images/marker-start");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: #C840C0;
+}
+
+.marker-end {
+    height: 100%;
+    width: 16px;
+    position: absolute;
+    background-image: resource("Images/marker-end");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: #C840C0;
+}
+
+
 .pattern-editor-popup {
     width: 100%;
     height: 100%;

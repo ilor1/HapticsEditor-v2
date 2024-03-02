@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FunscriptCutPaste : MonoBehaviour
 {
+    public static FunscriptCutPaste Singleton;
+
     public int TrackIndex = 0;
     public int StartTimeInMilliseconds;
     public int EndTimeInMilliseconds;
@@ -10,8 +13,15 @@ public class FunscriptCutPaste : MonoBehaviour
 
     private FunscriptRenderer _hapticsManager;
 
-    [ContextMenu("Move")]
-    public void Move()
+    private List<FunAction> _copyActions = new List<FunAction>();
+
+    private void Awake()
+    {
+        if (Singleton == null) Singleton = this;
+        else if (Singleton != this) Destroy(this);
+    }
+
+    public void Move(bool copy = false)
     {
         if (_hapticsManager == null)
         {
@@ -20,6 +30,11 @@ public class FunscriptCutPaste : MonoBehaviour
 
         var haptics = _hapticsManager.Haptics[TrackIndex];
         var actions = haptics.Funscript.actions;
+
+        if (copy)
+        {
+            _copyActions.Clear();
+        }
 
         for (int i = 0; i < actions.Count; i++)
         {
@@ -34,10 +49,27 @@ public class FunscriptCutPaste : MonoBehaviour
             // move
             else if (ActionShouldBeMoved(actions[i].at, StartTimeInMilliseconds, EndTimeInMilliseconds))
             {
-                var action = actions[i];
-                action.at += AmountToMoveInMilliseconds;
-                actions[i] = action;
+                if (copy)
+                {
+                    var action = new FunAction
+                    {
+                        at = actions[i].at + AmountToMoveInMilliseconds,
+                        pos = actions[i].pos
+                    };
+                    _copyActions.Add(action);
+                }
+                else
+                {
+                    var action = actions[i];
+                    action.at += AmountToMoveInMilliseconds;
+                    actions[i] = action;
+                }
             }
+        }
+
+        if (copy)
+        {
+            actions.AddRange(_copyActions);
         }
 
         // filter out all actions with pos -1
@@ -48,7 +80,7 @@ public class FunscriptCutPaste : MonoBehaviour
         _hapticsManager.Haptics[TrackIndex] = haptics;
 
         AmountToMoveInMilliseconds = 0;
-        Debug.Log("Move done!");
+        Debug.Log($"FunscriptCutPaste: Move done! [{StartTimeInMilliseconds}-{EndTimeInMilliseconds}] -> [{StartTimeInMilliseconds + AmountToMoveInMilliseconds}-{EndTimeInMilliseconds + AmountToMoveInMilliseconds}]");
     }
 
     private bool ActionShouldBeMoved(int at, int a, int b)
