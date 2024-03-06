@@ -44,6 +44,15 @@ public class PlaybackControls : MonoBehaviour
             return;
         }
 
+        bool modifierKeyDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftAlt) ||
+                               Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+
+        if (modifierKeyDown)
+        {
+            return;
+        }
+        
+
         if (InputManager.Singleton.GetKeyDown(ControlName.TogglePlay))
         {
             TogglePlay();

@@ -20,11 +20,21 @@ public class FunscriptSaver : MonoBehaviour
     private void OnEnable()
     {
         TitleBar.TitleBarCreated += LoadOrCreateTemporaryFunscript;
+        AudioLoader.ClipLoaded += OnAudioClipLoaded;
     }
 
     private void OnDisable()
     {
         TitleBar.TitleBarCreated -= LoadOrCreateTemporaryFunscript;
+        AudioLoader.ClipLoaded -= OnAudioClipLoaded;
+    }
+
+    private void OnAudioClipLoaded(AudioSource audioSource)
+    {
+        // Update MetaData length 
+        var haptics = _hapticsManager.Haptics[0];
+        haptics.Funscript.metadata.duration = math.max((int)math.round(audioSource. clip.length), haptics.Funscript.metadata.duration);
+        _hapticsManager.Haptics[0] = haptics;
     }
 
     private void LoadOrCreateTemporaryFunscript()
@@ -67,10 +77,9 @@ public class FunscriptSaver : MonoBehaviour
         }
 
         var funscript = _hapticsManager.Haptics[0].Funscript;
-        if (_addTimeoutFunactions)
+        var actions = new List<FunAction>();
+        if (_addTimeoutFunactions && funscript.actions != null && funscript.actions.Count > 0)
         {
-            var actions = new List<FunAction>();
-
             // Add action at start, if there isn't one
             if (funscript.actions[0].at > 0)
                 actions.Add(
@@ -102,9 +111,9 @@ public class FunscriptSaver : MonoBehaviour
 
             // add the last point
             actions.Add(funscript.actions[funscript.actions.Count - 1]);
-
-            funscript.actions = actions;
         }
+
+        funscript.actions = actions;
 
 
         // Save
@@ -128,7 +137,7 @@ public class FunscriptSaver : MonoBehaviour
         {
             creator = "",
             description = "",
-            duration = 0,
+            duration = (int)math.round(TimelineManager.Instance.GetClipLengthInSeconds()),
             license = "",
             notes = "",
             performers = new string[]

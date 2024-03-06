@@ -117,6 +117,12 @@ public class FileDropdownMenu : MonoBehaviour
             else
             {
                 Debug.Log($"FileDropdownMenu: No matching funscript for: ({result})");
+                
+                // Create new haptics
+                FunscriptRenderer.Singleton.Haptics.Clear();
+                FunscriptSaver.Singleton.Save(FunscriptPath);
+                
+                FunscriptPathLoaded?.Invoke(FunscriptPath);
             }
         }
         else

@@ -48,7 +48,7 @@ public class TitleBar : UIBehaviour
 
     public static void MarkLabelDirty()
     {
-        if (!Singleton._isDirty)
+        if (!Singleton._isDirty && !Singleton._titleText.text.EndsWith("*"))
         {
             Singleton._titleText.text = $"{Singleton._titleText.text}*";
             Singleton._isDirty = true;
@@ -57,7 +57,11 @@ public class TitleBar : UIBehaviour
 
     public static void MarkLabelClean()
     {
-        Singleton._titleText.text = Singleton._titleText.text.Substring(0, Singleton._titleText.text.Length - 1);
+        if (Singleton._titleText.text.EndsWith("*"))
+        {
+            Singleton._titleText.text = Singleton._titleText.text.Substring(0, Singleton._titleText.text.Length - 1);
+        }
+
         Singleton._isDirty = false;
     }
 }

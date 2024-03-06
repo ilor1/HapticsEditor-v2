@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using Unity.Mathematics;
+using UnityEngine.UIElements;
 
 public class MetadataMenu : UIBehaviour
 {
@@ -138,7 +139,7 @@ public class MetadataMenu : UIBehaviour
         _invertedField.value = _inverted;
         _creatorField.value = _data.creator;
         _descriptionField.value = _data.description;
-        _durationField.value = TimelineManager.Instance.LengthInMilliseconds;
+        _durationField.value = (int)math.round(TimelineManager.Instance.GetClipLengthInSeconds());
         _licenseField.value = _data.license;
         _notesField.value = _data.notes;
         _performersField.value = string.Join(",", _data.performers);
