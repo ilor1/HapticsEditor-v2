@@ -31,10 +31,22 @@ public class FunscriptSaver : MonoBehaviour
 
     private void OnAudioClipLoaded(AudioSource audioSource)
     {
+        if (_hapticsManager == null)
+        {
+            _hapticsManager = GetComponent<FunscriptRenderer>();
+        }
+        
         // Update MetaData length 
-        var haptics = _hapticsManager.Haptics[0];
-        haptics.Funscript.metadata.duration = math.max((int)math.round(audioSource. clip.length), haptics.Funscript.metadata.duration);
-        _hapticsManager.Haptics[0] = haptics;
+        if (_hapticsManager.Haptics != null && _hapticsManager.Haptics.Count > 0)
+        {
+            var haptics = _hapticsManager.Haptics[0];
+            haptics.Funscript.metadata.duration = math.max((int)math.round(audioSource. clip.length), haptics.Funscript.metadata.duration);
+            _hapticsManager.Haptics[0] = haptics;
+        }
+        else
+        {
+          //  _hapticsManager.Haptics.Add(CreateNewHaptics(funscriptPath));
+        }
     }
 
     private void LoadOrCreateTemporaryFunscript()
