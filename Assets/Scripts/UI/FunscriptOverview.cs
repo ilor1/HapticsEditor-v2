@@ -76,6 +76,7 @@ public class FunscriptOverview : UIBehaviour
         var colors = _texture.GetRawTextureData<Color32>();
         var averageHapticAtPixel = new NativeParallelHashMap<int, float>(_outputWidth, Allocator.TempJob);
         var highestHapticAtPixel = new NativeParallelHashMap<int, float>(_outputWidth, Allocator.TempJob);
+        var lowestHapticAtPixel = new NativeParallelHashMap<int, float>(_outputWidth, Allocator.TempJob);
 
         // Get haptic values for the width
         var getHapticValuesJob = new GetAverageHapticValue
@@ -83,7 +84,8 @@ public class FunscriptOverview : UIBehaviour
             MillisecondsPerPixel = millisecondsPerPixel,
             Funactions = funactions,
             AverageHapticAtPixel = averageHapticAtPixel.AsParallelWriter(),
-            HighestHapticAtPixel = highestHapticAtPixel.AsParallelWriter()
+            HighestHapticAtPixel = highestHapticAtPixel.AsParallelWriter(),
+            LowestHapticAtPixel = lowestHapticAtPixel.AsParallelWriter()
         };
         getHapticValuesJob.Schedule(_outputWidth, 64).Complete();
 
@@ -95,6 +97,7 @@ public class FunscriptOverview : UIBehaviour
             ColorClear = Clear,
             AverageHapticAtPixel = averageHapticAtPixel,
             HighestHapticAtPixel = highestHapticAtPixel,
+            LowestHapticAtPixel = lowestHapticAtPixel,
             Width = _outputWidth,
             Height = _outputHeight,
             Colors = colors
@@ -106,6 +109,7 @@ public class FunscriptOverview : UIBehaviour
         funactions.Dispose();
         averageHapticAtPixel.Dispose();
         highestHapticAtPixel.Dispose();
+        lowestHapticAtPixel.Dispose();
     }
 
     private void ClearHaptics()
@@ -143,6 +147,7 @@ public struct GetAverageHapticValue : IJobParallelFor
 
     [WriteOnly] public NativeParallelHashMap<int, float>.ParallelWriter AverageHapticAtPixel;
     [WriteOnly] public NativeParallelHashMap<int, float>.ParallelWriter HighestHapticAtPixel;
+    [WriteOnly] public NativeParallelHashMap<int, float>.ParallelWriter LowestHapticAtPixel;
 
 
     [BurstCompile]
@@ -152,6 +157,7 @@ public struct GetAverageHapticValue : IJobParallelFor
         int at1 = (int)math.round(x * MillisecondsPerPixel + MillisecondsPerPixel);
 
         float highest = 0f;
+        float lowest = 1f;
         float average = 0f;
 
         // no funactions
@@ -175,10 +181,13 @@ public struct GetAverageHapticValue : IJobParallelFor
         float aAt = at0;
         float bPos = GetHapticValue(at1);
         float bAt = at1;
-        
+
         highest = math.max(highest, aPos);
         highest = math.max(highest, bPos);
-        
+        lowest = math.min(lowest, aPos);
+        lowest = math.min(lowest, bPos);
+
+
         for (int i = 0; i < Funactions.Length; i++)
         {
             if (Funactions[i].at <= at0) continue;
@@ -192,14 +201,16 @@ public struct GetAverageHapticValue : IJobParallelFor
             aAt = Funactions[i].at;
             aPos = Funactions[i].pos * 0.01f;
             highest = math.max(highest, aPos);
+            lowest = math.min(lowest, aPos);
         }
 
         // We don't need to walk through each millisecond... we can multiply the values with atvalues or something
 
-        average /= (at1-at0);
-        
+        average /= (at1 - at0);
+
         AverageHapticAtPixel.TryAdd(x, average);
         HighestHapticAtPixel.TryAdd(x, highest);
+        LowestHapticAtPixel.TryAdd(x, lowest);
     }
 
     private float GetHapticValue(int at)
@@ -237,6 +248,7 @@ public struct SetHapticColorsParallelJob : IJobParallelFor
     [ReadOnly] public Color32 ColorClear;
     [ReadOnly] public NativeParallelHashMap<int, float> AverageHapticAtPixel;
     [ReadOnly] public NativeParallelHashMap<int, float> HighestHapticAtPixel;
+    [ReadOnly] public NativeParallelHashMap<int, float> LowestHapticAtPixel;
     [ReadOnly] public int Width;
     [ReadOnly] public int Height;
 
@@ -249,8 +261,13 @@ public struct SetHapticColorsParallelJob : IJobParallelFor
         int y = colorIndex / Width;
 
         float highest = HighestHapticAtPixel[x] * Height;
+        float lowest = (LowestHapticAtPixel[x] - 0.05f) * Height;
 
-        if (highest >= y)
+        if (y < lowest)
+        {
+            Colors[colorIndex] = ColorClear;
+        }
+        else if (highest > y)
         {
             var color = Color32.Lerp(ColorLow, ColorHigh, AverageHapticAtPixel[x]);
             Colors[colorIndex] = color;
