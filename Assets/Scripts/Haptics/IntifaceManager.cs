@@ -15,7 +15,9 @@ public class IntifaceManager : MonoBehaviour
     private List<ButtplugClientDevice> _devices { get; } = new List<ButtplugClientDevice>();
 
     private float _timeSinceLastUpdate = 0f;
-    private const float _updateInterval = 0f;//0.33f;
+    private const float _updateInterval = 0f; //0.33f;
+
+    public bool Inverted { get; set; } // This inverted is on top of the "Inverted" value inside the funscript. So you can Invert while you Invert.
 
     private void Awake()
     {
@@ -69,7 +71,8 @@ public class IntifaceManager : MonoBehaviour
             // Only play haptics when playing
             if (TimelineManager.Instance.IsPlaying)
             {
-                _intensity = GetHapticValue();
+                float value = GetHapticValue();
+                _intensity = Inverted ? 1 - value : value;
                 UpdateDevices();
             }
             else
@@ -88,6 +91,8 @@ public class IntifaceManager : MonoBehaviour
         int at = TimelineManager.Instance.TimeInMilliseconds;
         var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
 
+        bool inverted = FunscriptRenderer.Singleton.Haptics[0].Funscript.inverted;
+
         // exit early cases
         if (actions.Count <= 0) return 0f; // no funactions
         if (actions.Count == 1) return actions[0].pos * 0.01f; // only one funaction
@@ -98,13 +103,15 @@ public class IntifaceManager : MonoBehaviour
         {
             if (actions[i].at >= at)
             {
-                return actions[i].pos * 0.01f;
+                float value = actions[i].pos * 0.01f;
+                return inverted ? 1f - value : value;
             }
 
             if (actions[i + 1].at > at)
             {
                 float t = (at - actions[i].at) / (float)(actions[i + 1].at - actions[i].at);
-                return math.lerp(actions[i].pos, actions[i + 1].pos, t) * 0.01f;
+                float value = math.lerp(actions[i].pos, actions[i + 1].pos, t) * 0.01f;
+                return inverted ? 1f - value : value;
             }
         }
 

@@ -74,6 +74,14 @@ public class MenuBar : UIBehaviour
         intifaceLabel.text = "Intiface Central:";
         var intifaceToggle = Create<Toggle>();
         intifaceToggle.RegisterValueChangedCallback(OnIntifaceToggle);
+        
+        var invertedLabel = Create<Label>();
+        invertedLabel.text = "Inverted";
+        var invertedToggle = Create<Toggle>();
+        invertedToggle.RegisterValueChangedCallback(OnInvertHapticsToggle);
+        
+        intifaceContainer.Add(invertedToggle);
+        intifaceContainer.Add(invertedLabel);
         intifaceContainer.Add(intifaceToggle);
         intifaceContainer.Add(intifaceLabel);
         menuBar.Add(intifaceContainer);
@@ -84,6 +92,11 @@ public class MenuBar : UIBehaviour
         IntifaceManager.Singleton.enabled = evt.newValue;
     }
 
+    private void OnInvertHapticsToggle(ChangeEvent<bool> evt)
+    {
+        IntifaceManager.Singleton.Inverted = evt.newValue;
+    }
+    
     private CustomDropDownMenu CreateDropdownMenu(VisualElement root)
     {
         var dropdown = Create<CustomDropDownMenu>("menu-dropdown");
