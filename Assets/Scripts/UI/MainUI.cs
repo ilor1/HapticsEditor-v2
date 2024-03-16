@@ -95,6 +95,8 @@ public class MainUI : UIBehaviour
         timemarkersContainer.Add(timemarkers);
         timemarkers.Add(timemarkersRedline);
 
+        var hapticOverview = Create("haptic-overview");
+
         var waveformContainer = Create("waveform-container");
         var waveformLabels = Create("waveform-labels");
         waveformContainer.Add(waveformLabels);
@@ -112,6 +114,7 @@ public class MainUI : UIBehaviour
         root.Add(_funscriptContainer);
         root.Add(timemarkersContainer);
         root.Add(waveformContainer);
+        root.Add(hapticOverview);
         root.Add(timeline);
 
         // Send event

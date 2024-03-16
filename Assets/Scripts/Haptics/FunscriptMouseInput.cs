@@ -92,6 +92,9 @@ public class FunscriptMouseInput : UIBehaviour
 
         FunscriptRenderer.Singleton.SortFunscript();
         FunscriptRenderer.Singleton.CleanupExcessPoints();
+        
+        TitleBar.MarkLabelDirty();
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 
 
@@ -209,7 +212,6 @@ public class FunscriptMouseInput : UIBehaviour
         }
 
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.AddRange(_patternActions);
-        TitleBar.MarkLabelDirty();
     }
 
     private void AddFunAction(Vector2 relativeCoords)
@@ -239,7 +241,6 @@ public class FunscriptMouseInput : UIBehaviour
         }
 
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Add(funaction);
-        TitleBar.MarkLabelDirty();
     }
 
     private Vector2 GetRelativeCoords(Vector2 coords, VisualElement target)
@@ -305,6 +306,9 @@ public class FunscriptMouseInput : UIBehaviour
             var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
             actions.RemoveAt(index);
         }
+        
+        TitleBar.MarkLabelDirty();
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 
     private int GetNextFunActionIndex(int at)

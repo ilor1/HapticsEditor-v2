@@ -41,7 +41,16 @@ public class WaveformRenderer : UIBehaviour
 
     private void ClearWaveforms()
     {
-        _texture = new Texture2D(_outputWidth, _outputHeight, TextureFormat.RGBA32, false);
+        if (_texture == null)
+        {
+            _texture = new Texture2D(_outputWidth, _outputHeight, TextureFormat.RGBA32, false);
+        }
+        else
+        {
+            _texture.width = _outputWidth;
+            _texture.height = _outputHeight;
+        }
+
         var colors = _texture.GetRawTextureData<Color32>();
         _texture.filterMode = FilterMode.Bilinear;
 

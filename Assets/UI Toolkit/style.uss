@@ -307,6 +307,12 @@
     padding-right: 7px;
 }
 
+.haptic-overview {
+    width: 100%;
+    height: 80px;
+    background-color: #262626;
+}
+
 .waveform-container {
     width: 100%;
     height: 50%;
@@ -333,6 +339,8 @@
     width: 100%;
     height: 40px;
     background-color: #262626;
+    border-top-width: 3px;
+    border-color: #3e3e42;
     align-self: flex-end;
 }
 
