@@ -10,6 +10,7 @@ public class Timemarkers : UIBehaviour
     private Label[] _labels;
     private bool _initialized = false;
 
+    private int _pointerAt;
     private VisualElement _startMarker;
     private int _startAt = -1;
     private VisualElement _endMarker;
@@ -62,6 +63,7 @@ public class Timemarkers : UIBehaviour
         _container.RegisterCallback<PointerUpEvent>(OnPointerUp);
         _container.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _container.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
+        _container.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
 
         _initialized = true;
     }
@@ -72,130 +74,117 @@ public class Timemarkers : UIBehaviour
         _dragEndMarker = false;
     }
 
+    private void OnPointerEnter(PointerEnterEvent evt)
+    {
+        int time0 = (int)math.round(TimelineManager.Instance.TimeInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
+        _pointerAt = (int)math.round(evt.localPosition.x * TimelineManager.Instance.LengthInMilliseconds / _container.contentRect.width) + time0;
+    }
+
     private void OnPointerMove(PointerMoveEvent evt)
     {
-        if (!_dragEndMarker && !_dragStartMarker) return;
-
         int time0 = (int)math.round(TimelineManager.Instance.TimeInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
-        int at = (int)math.round(evt.localPosition.x * TimelineManager.Instance.LengthInMilliseconds / _container.contentRect.width) + time0;
+        _pointerAt = (int)math.round(evt.localPosition.x * TimelineManager.Instance.LengthInMilliseconds / _container.contentRect.width) + time0;
+
+        if (!_dragEndMarker && !_dragStartMarker) return;
 
         if (_dragStartMarker)
         {
-            _startAt = at;
+            _startAt = _pointerAt;
         }
         else if (_dragEndMarker)
         {
-            _endAt = at;
+            _endAt = _pointerAt;
         }
     }
 
     private void OnPointerUp(PointerUpEvent evt)
     {
+        _startAt = _startAt == -1 ? 0 : _startAt;
+        _endAt = _endAt == -1 ? TimelineManager.Instance.LengthInMilliseconds : _endAt;
+        
         _dragStartMarker = false;
         _dragEndMarker = false;
+        
+        // swap the markers if the end is before start
+        if (_endAt < _startAt)
+        {
+            int start = math.min(_startAt, _endAt);
+            int end = math.max(_startAt, _endAt);
+            _startAt = start;
+            _endAt = end;
+        }
     }
 
     private void OnPointerDown(PointerDownEvent evt)
     {
         int time0 = (int)math.round(TimelineManager.Instance.TimeInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
-        int at = (int)math.round(evt.localPosition.x * TimelineManager.Instance.LengthInMilliseconds / _container.contentRect.width) + time0;
+        _pointerAt = (int)math.round(evt.localPosition.x * TimelineManager.Instance.LengthInMilliseconds / _container.contentRect.width) + time0;
 
         if (evt.button == 0 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
         {
             // left click + shift, place right marker
             _dragEndMarker = true;
-            _endAt = at;
+            _endAt = _pointerAt;
         }
         else if (evt.button == 0)
         {
             // left click, place left marker
             _dragStartMarker = true;
-            _startAt = at;
+            _startAt = _pointerAt;
         }
-
-        if (evt.button == 2 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
-        {
-            // right click + shift, offset using end marker
-            int amountToMove = at - _endAt;
-
-            // move
-            bool copy = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
-            FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
-            FunscriptCutPaste.Singleton.AmountToMoveInMilliseconds = amountToMove;
-            FunscriptCutPaste.Singleton.Move(copy);
-
-            FunscriptRenderer.Singleton.SortFunscript();
-            FunscriptRenderer.Singleton.CleanupExcessPoints();
-            TitleBar.MarkLabelDirty();
-
-            _startAt += amountToMove;
-            _endAt += amountToMove;
-        }
-        else if (evt.button == 2)
-        {
-            // right click, offset using start marker
-            int amountToMove = at - _startAt;
-
-            // move
-            bool copy = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
-            FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
-            FunscriptCutPaste.Singleton.AmountToMoveInMilliseconds = amountToMove;
-            FunscriptCutPaste.Singleton.Move(copy);
-
-            FunscriptRenderer.Singleton.SortFunscript();
-            FunscriptRenderer.Singleton.CleanupExcessPoints();
-            TitleBar.MarkLabelDirty();
-
-            _startAt += amountToMove;
-            _endAt += amountToMove;
-        }
-    }
-
-    private void DragStartMarker()
-    {
-    }
-
-    private void DragEndMarker()
-    {
     }
 
     private void Update()
     {
         if (!_initialized) return;
+        bool sortFunscript = false;
+
+        // Cut (CTRL-X)
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
+            && Input.GetKeyDown(KeyCode.X))
+        {
+            FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
+            FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
+            FunscriptCutPaste.Singleton.Cut();
+            sortFunscript = true;
+        }
+
+        // Copy (CTRL-C)
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
+            && Input.GetKeyDown(KeyCode.C))
+        {
+            FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
+            FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
+            FunscriptCutPaste.Singleton.Copy();
+        }
+
+        // Paste from the start (CTRL-V), if SHIFT is pressed paste ending at the cursor location
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
+            && Input.GetKeyDown(KeyCode.V))
+        {
+            FunscriptCutPaste.Singleton.PointerAt = _pointerAt;
+            FunscriptCutPaste.Singleton.Paste(!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift));
+            sortFunscript = true;
+        }
+
+        if (sortFunscript)
+        {
+            FunscriptRenderer.Singleton.SortFunscript();
+            FunscriptRenderer.Singleton.CleanupExcessPoints();
+            TitleBar.MarkLabelDirty();
+        }
+
 
         int time0 = (int)math.round(TimelineManager.Instance.TimeInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
         int time1 = time0 + TimelineManager.Instance.LengthInMilliseconds;
 
-        // Show/Hide start marker
-        if (_startAt < 0 || time0 > _startAt || time1 < _startAt)
-        {
-            _startMarker.style.display = DisplayStyle.None;
-        }
-        else
-        {
-            _startMarker.style.display = DisplayStyle.Flex;
-            float x = (_startAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
-            x *= _container.contentRect.width;
-            _startMarker.style.left = x;
-        }
+        ShowHideStartMarker(time0, time1);
+        ShowHideEndMarker(time0, time1);
+        ShowHideVerticalMarkers(time0);
+    }
 
-        // Show/Hide end marker
-        if (_endAt < 0 || time0 > _endAt || time1 < _endAt)
-        {
-            _endMarker.style.display = DisplayStyle.None;
-        }
-        else
-        {
-            _endMarker.style.display = DisplayStyle.Flex;
-            float x = (_endAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
-            x *= _container.contentRect.width;
-            x -= _endMarker.contentRect.width;
-            _endMarker.style.left = x;
-        }
-
-
+    private void ShowHideVerticalMarkers(int time0)
+    {
         int spacingInMilliseconds = (int)math.round(TimelineManager.Instance.LengthInMilliseconds / 10f);
         int offsetInMilliseconds = time0 % spacingInMilliseconds;
 
@@ -219,6 +208,37 @@ public class Timemarkers : UIBehaviour
             _labels[index].text = $"{time}";
 
             index++;
+        }
+    }
+
+    private void ShowHideEndMarker(int time0, int time1)
+    {
+        if (_endAt < 0 || time0 > _endAt || time1 < _endAt)
+        {
+            _endMarker.style.display = DisplayStyle.None;
+        }
+        else
+        {
+            _endMarker.style.display = DisplayStyle.Flex;
+            float x = (_endAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
+            x *= _container.contentRect.width;
+            x -= _endMarker.contentRect.width;
+            _endMarker.style.left = x;
+        }
+    }
+
+    private void ShowHideStartMarker(int time0, int time1)
+    {
+        if (_startAt < 0 || time0 > _startAt || time1 < _startAt)
+        {
+            _startMarker.style.display = DisplayStyle.None;
+        }
+        else
+        {
+            _startMarker.style.display = DisplayStyle.Flex;
+            float x = (_startAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
+            x *= _container.contentRect.width;
+            _startMarker.style.left = x;
         }
     }
 }
