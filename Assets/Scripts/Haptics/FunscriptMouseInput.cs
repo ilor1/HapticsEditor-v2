@@ -92,7 +92,7 @@ public class FunscriptMouseInput : UIBehaviour
 
         FunscriptRenderer.Singleton.SortFunscript();
         FunscriptRenderer.Singleton.CleanupExcessPoints();
-        
+
         TitleBar.MarkLabelDirty();
         FunscriptOverview.Singleton.RenderHaptics();
     }
@@ -277,6 +277,19 @@ public class FunscriptMouseInput : UIBehaviour
         }
     }
 
+    public static int GetPreviousAtValue()
+    {
+        if (MouseAt <= 0) return 0;
+
+        if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return 0;
+        if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count <= 0) return 0;
+
+        int index = Singleton.GetPreviousFunActionIndex(MouseAt);
+        if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count <= index) return 0;
+
+        return FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[index].at;
+    }
+
     private int GetPosAtTime(int at)
     {
         var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
@@ -306,7 +319,7 @@ public class FunscriptMouseInput : UIBehaviour
             var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
             actions.RemoveAt(index);
         }
-        
+
         TitleBar.MarkLabelDirty();
         FunscriptOverview.Singleton.RenderHaptics();
     }

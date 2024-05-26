@@ -5,6 +5,7 @@ public class CursorInfo : UIBehaviour
     private VisualElement _funscriptHapticContainer;
     private VisualElement _lineCursorVertical;
     private VisualElement _lineCursorHorizontal;
+    private Label _prevLabel;
     private Label _atLabel;
     private Label _posLabel;
 
@@ -36,10 +37,15 @@ public class CursorInfo : UIBehaviour
         _posLabel.focusable = false;
         _posLabel.pickingMode = PickingMode.Ignore;
 
+        _prevLabel = Create<Label>("line-cursor-label");
+        _prevLabel.focusable = false;
+        _prevLabel.pickingMode = PickingMode.Ignore;
+
         root.Add(_lineCursorVertical);
         root.Add(_lineCursorHorizontal);
         root.Add(_atLabel);
         root.Add(_posLabel);
+        root.Add(_prevLabel);
 
         _funscriptHapticContainer = root.Query(className: "funscript-haptic-container");
         _funscriptHapticContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
@@ -53,6 +59,7 @@ public class CursorInfo : UIBehaviour
         _lineCursorHorizontal.style.display = DisplayStyle.Flex;
         _atLabel.style.display = DisplayStyle.Flex;
         _posLabel.style.display = DisplayStyle.Flex;
+        _prevLabel.style.display = DisplayStyle.Flex;
     }
 
     private void OnPointerLeave(PointerLeaveEvent evt)
@@ -61,6 +68,7 @@ public class CursorInfo : UIBehaviour
         _lineCursorHorizontal.style.display = DisplayStyle.None;
         _atLabel.style.display = DisplayStyle.None;
         _posLabel.style.display = DisplayStyle.None;
+        _prevLabel.style.display = DisplayStyle.Flex;
     }
 
     private void OnPointerMove(PointerMoveEvent evt)
@@ -78,5 +86,9 @@ public class CursorInfo : UIBehaviour
         // pos-label
         _posLabel.style.top = evt.position.y - 35;
         _posLabel.text = $"pos:{FunscriptMouseInput.MousePos}";
+
+        // prev-label
+        _prevLabel.style.top = evt.position.y + 20;
+        _prevLabel.text = $"prev:{FunscriptMouseInput.GetPreviousAtValue() - FunscriptMouseInput.MouseAt}";
     }
 }

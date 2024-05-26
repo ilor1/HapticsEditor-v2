@@ -70,7 +70,24 @@ public class FunscriptOverview : UIBehaviour
 
     public void RenderHaptics()
     {
-        float lengthInMilliseconds = _audioSource.clip.length * 1000f;
+        float lengthInMilliseconds;
+        if (_audioSource != null && _audioSource.clip != null)
+        {
+            // render using audioclip length
+            lengthInMilliseconds = _audioSource.clip.length * 1000f;
+        }
+        else if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count > 0)
+        {
+            // no audioclip, render using funscript length
+            int lastActionIndex = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count - 1;
+            lengthInMilliseconds = (float)FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[lastActionIndex].at;
+        }
+        else
+        {
+            // nothing to render
+            return;
+        }
+
         float millisecondsPerPixel = lengthInMilliseconds / _outputWidth;
         var funactions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.ToNativeArray(Allocator.TempJob);
         var colors = _texture.GetRawTextureData<Color32>();
@@ -260,6 +277,12 @@ public struct SetHapticColorsParallelJob : IJobParallelFor
         int x = colorIndex % Width;
         int y = colorIndex / Width;
 
+        if (x >= HighestHapticAtPixel.Count() || x >= LowestHapticAtPixel.Count())
+        {
+            Colors[colorIndex] = ColorClear;
+            return;
+        }
+        
         float highest = HighestHapticAtPixel[x] * Height;
         float lowest = (LowestHapticAtPixel[x] - 0.05f) * Height;
 
