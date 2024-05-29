@@ -22,7 +22,7 @@ public class TimelineManager : MonoBehaviour
 
     public int GetClipLengthInMilliseconds()
     {
-        if (_audioSource != null)
+        if (_audioSource != null && _audioSource.clip != null)
         {
             return (int)math.round(_audioSource.clip.length * 1000f);
         }

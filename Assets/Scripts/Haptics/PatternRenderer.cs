@@ -118,9 +118,9 @@ public class PatternRenderer : UIBehaviour
         if (!_isInitialized) return;
 
         // Toggle pattern element
-        if (_patternMode != PatternManager.Singleton.PatternMode)
+        if (_patternMode !=  (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern))
         {
-            _patternMode = PatternManager.Singleton.PatternMode;
+            _patternMode = SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern;
 
             if (_patternMode)
             {

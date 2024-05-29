@@ -22,7 +22,7 @@ public enum ControlName
     Reset,
     TargetPreviousModifier,
     ChangeModeOrPattern,
-    TogglePatternMode,
+    CycleMode,
     ToggleSnapping,
     PatternScaleX,
     PatternRepeat,

@@ -68,7 +68,7 @@ public class CursorInfo : UIBehaviour
         _lineCursorHorizontal.style.display = DisplayStyle.None;
         _atLabel.style.display = DisplayStyle.None;
         _posLabel.style.display = DisplayStyle.None;
-        _prevLabel.style.display = DisplayStyle.Flex;
+        _prevLabel.style.display = DisplayStyle.None;
     }
 
     private void OnPointerMove(PointerMoveEvent evt)

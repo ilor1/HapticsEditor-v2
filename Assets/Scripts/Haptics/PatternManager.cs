@@ -7,7 +7,7 @@ public class PatternManager : MonoBehaviour
 {
     public static PatternManager Singleton;
 
-    public bool PatternMode { get; set; }
+    // public bool PatternMode { get; set; }
     public int RepeatAmount { get; set; }
     public readonly int RepeatAmountDefault = 3;
     public readonly int RepeatAmountMin = 0;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,9 +14,14 @@ public class FunscriptMouseInput : UIBehaviour
 
     private Vector2 _mouseRelativePosition;
 
+    private bool _mouseInsideContainer;
+
     public bool Snapping { get; set; }
 
     public bool StepMode { get; set; }
+
+    private float _freeformTimeUntilAddingNextPoint = 0f;
+    private float _freeformTimeUntilRemovingNextPoint = 0f;
 
 
     private List<FunAction> _patternActions = new List<FunAction>();
@@ -49,8 +53,55 @@ public class FunscriptMouseInput : UIBehaviour
         _funscriptContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
     }
 
+    private void Update()
+    {
+        _freeformTimeUntilAddingNextPoint -= Time.deltaTime;
+        _freeformTimeUntilRemovingNextPoint -= Time.deltaTime;
+
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free && _mouseInsideContainer)
+        {
+            if (Input.GetMouseButton(0))
+            {
+                if (_freeformTimeUntilAddingNextPoint <= 0f)
+                {
+                    _freeformTimeUntilAddingNextPoint = 0.1f; // once a point is placed, wait this long until placing another. 
+
+                    AddFunAction(_mouseRelativePosition, false);
+
+                    FunscriptRenderer.Singleton.SortFunscript();
+                    FunscriptRenderer.Singleton.CleanupExcessPoints();
+
+                    TitleBar.MarkLabelDirty();
+                    FunscriptOverview.Singleton.RenderHaptics();
+                }
+            }
+
+            if (Input.GetMouseButton(1))
+            {
+                if (_freeformTimeUntilRemovingNextPoint <= 0f)
+                {
+                    _freeformTimeUntilRemovingNextPoint = 0.1f; // once a point is removed, wait this long until removing another. 
+                    
+                    bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
+                    int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);
+                    if (index != -1)
+                    {
+                        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+                        actions.RemoveAt(index);
+                    }
+
+                    TitleBar.MarkLabelDirty();
+                    FunscriptOverview.Singleton.RenderHaptics();
+                }
+            }
+        }
+    }
+
+
     private void OnMouseLeave(MouseLeaveEvent evt)
     {
+        _mouseInsideContainer = false;
+
         if (PatternManager.Singleton.InvertY)
         {
             _mouseRelativePosition = new Vector2(0.5f, 1f);
@@ -67,27 +118,33 @@ public class FunscriptMouseInput : UIBehaviour
 
     private void OnMouseMove(MouseMoveEvent evt)
     {
+        _mouseInsideContainer = true;
         _mouseRelativePosition = GetRelativeCoords(evt.localMousePosition, _funscriptContainer);
         MouseAt = GetAtValue(_mouseRelativePosition);
         MousePos = GetPosValue(_mouseRelativePosition, Snapping);
     }
 
-
     public void OnLeftClick(ClickEvent evt)
     {
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free)
+        {
+            // free mode is done on update
+            return;
+        }
+
         // Get coords
         VisualElement target = evt.target as VisualElement;
         var relativeCoords = GetRelativeCoords(evt.localPosition, target);
         // Debug.Log($"FunscriptMouseInput: funscript-container clicked (coords:{coords}, relativeCoords{relativeCoords})");
 
         // PatternMode, not in default mode
-        if (PatternManager.Singleton.PatternMode)
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern)
         {
             AddPattern(relativeCoords);
         }
-        else
+        else if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Default)
         {
-            AddFunAction(relativeCoords);
+            AddFunAction(relativeCoords, StepMode);
         }
 
         FunscriptRenderer.Singleton.SortFunscript();
@@ -214,7 +271,7 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.AddRange(_patternActions);
     }
 
-    private void AddFunAction(Vector2 relativeCoords)
+    private void AddFunAction(Vector2 relativeCoords, bool stepmode)
     {
         // Add Action
         if (MouseAt < 0)
@@ -230,7 +287,7 @@ public class FunscriptMouseInput : UIBehaviour
         };
 
         // On StepMode add an FunAction to create a step 
-        if (StepMode)
+        if (stepmode)
         {
             int at0 = MouseAt - 1;
             int pos0 = GetPosAtTime(at0);
@@ -285,6 +342,8 @@ public class FunscriptMouseInput : UIBehaviour
         if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count <= 0) return 0;
 
         int index = Singleton.GetPreviousFunActionIndex(MouseAt);
+        if (index < 0) return 0;
+        
         if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count <= index) return 0;
 
         return FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[index].at;
@@ -311,6 +370,8 @@ public class FunscriptMouseInput : UIBehaviour
     {
         // Not RMB
         if (evt.button != 1) return;
+
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free) return;
 
         bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
         int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);

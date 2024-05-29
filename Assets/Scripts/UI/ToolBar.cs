@@ -71,20 +71,38 @@ public class ToolBar : UIBehaviour
             _snappingToggle.value = !_snappingToggle.value;
         }
 
-        if (InputManager.Singleton.GetKeyDown(ControlName.TogglePatternMode))
+        if (InputManager.Singleton.GetKeyDown(ControlName.CycleMode))
         {
-            _patternToggle.value = !_patternToggle.value;
+            switch (SettingsManager.ApplicationSettings.Mode)
+            {
+                case ScriptingMode.Default:
+                    SettingsManager.ApplicationSettings.Mode = ScriptingMode.Pattern;
+                    break;
+                case ScriptingMode.Pattern:
+                    SettingsManager.ApplicationSettings.Mode = ScriptingMode.Free;
+                    break;
+                case ScriptingMode.Free:
+                    SettingsManager.ApplicationSettings.Mode = ScriptingMode.Default;
+                    break;
+                default:
+                    SettingsManager.ApplicationSettings.Mode = ScriptingMode.Pattern;
+                    break;
+            }
+
+            // _patternToggle.value = !_patternToggle.value;
+            OnScriptingModeChanged(SettingsManager.ApplicationSettings.Mode);
         }
 
         if (InputManager.Singleton.GetKeyDown(ControlName.ChangeModeOrPattern))
         {
-            if (_patternToggle.value)
+            switch (SettingsManager.ApplicationSettings.Mode)
             {
-                OnNextPattern();
-            }
-            else
-            {
-                _stepToggle.value = !_stepToggle.value;
+                case ScriptingMode.Default:
+                    _stepToggle.value = !_stepToggle.value;
+                    break;
+                case ScriptingMode.Pattern:
+                    OnNextPattern();
+                    break;
             }
         }
     }
@@ -94,9 +112,9 @@ public class ToolBar : UIBehaviour
         _toolBar = root.Query(className: "tool-bar");
 
         // Shared tools
-        _patternToggleContainer = CreateItem("Pattern-mode:", out _patternToggle);
-        _patternToggle.RegisterValueChangedCallback(OnPatternModeChanged);
-        _toolBar.Add(_patternToggleContainer);
+        // _patternToggleContainer = CreateItem("Pattern-mode:", out _patternToggle);
+        // _patternToggle.RegisterValueChangedCallback(OnPatternModeChanged);
+        // _toolBar.Add(_patternToggleContainer);
 
         _snappingToggleContainer = CreateItem("Snapping:", out _snappingToggle);
         _snappingToggle.RegisterValueChangedCallback(OnSnappingChanged);
@@ -145,29 +163,27 @@ public class ToolBar : UIBehaviour
         _isInitialized = true;
     }
 
-    private void OnPatternModeChanged(ChangeEvent<bool> evt)
+    private void OnScriptingModeChanged(ScriptingMode mode)
     {
-        PatternManager.Singleton.PatternMode = evt.newValue;
-
         // Change toolbar based on mode
-        switch (evt.newValue)
+        switch (mode)
         {
             // Default mode
-            case false:
-                _toolBar.Remove(_nextPatternButton);
-                _toolBar.Remove(_repeatContainer);
-                _toolBar.Remove(_spacingContainer);
-                _toolBar.Remove(_scaleXContainer);
-                _toolBar.Remove(_invertXContainer);
-                _toolBar.Remove(_scaleYContainer);
-                _toolBar.Remove(_invertYContainer);
+            case ScriptingMode.Default:
+                if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
+                if (_toolBar.Contains(_repeatContainer)) _toolBar.Remove(_repeatContainer);
+                if (_toolBar.Contains(_spacingContainer)) _toolBar.Remove(_spacingContainer);
+                if (_toolBar.Contains(_scaleXContainer)) _toolBar.Remove(_scaleXContainer);
+                if (_toolBar.Contains(_invertXContainer)) _toolBar.Remove(_invertXContainer);
+                if (_toolBar.Contains(_scaleYContainer)) _toolBar.Remove(_scaleYContainer);
+                if (_toolBar.Contains(_invertYContainer)) _toolBar.Remove(_invertYContainer);
 
                 _toolBar.Add(_stepMode);
                 break;
             // Pattern mode
-            case true:
-                _toolBar.Remove(_stepMode);
-
+            case ScriptingMode.Pattern:
+                if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
+                
                 _toolBar.Add(_nextPatternButton);
                 _toolBar.Add(_repeatContainer);
                 _toolBar.Add(_spacingContainer);
@@ -175,6 +191,16 @@ public class ToolBar : UIBehaviour
                 _toolBar.Add(_invertXContainer);
                 _toolBar.Add(_scaleYContainer);
                 _toolBar.Add(_invertYContainer);
+                break;
+            case ScriptingMode.Free:
+                if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
+                if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
+                if (_toolBar.Contains(_repeatContainer)) _toolBar.Remove(_repeatContainer);
+                if (_toolBar.Contains(_spacingContainer)) _toolBar.Remove(_spacingContainer);
+                if (_toolBar.Contains(_scaleXContainer)) _toolBar.Remove(_scaleXContainer);
+                if (_toolBar.Contains(_invertXContainer)) _toolBar.Remove(_invertXContainer);
+                if (_toolBar.Contains(_scaleYContainer)) _toolBar.Remove(_scaleYContainer);
+                if (_toolBar.Contains(_invertYContainer)) _toolBar.Remove(_invertYContainer);
                 break;
         }
     }
@@ -250,7 +276,7 @@ public class ToolBar : UIBehaviour
     {
         SetScaleY(evt.newValue);
     }
-    
+
     public void SetScaleY(float value)
     {
         // validate value
