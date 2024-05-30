@@ -10,7 +10,7 @@ public class MainUI : UIBehaviour
 
     [Header("UI Panel")] [SerializeField] protected UIDocument _document;
 
-    [SerializeField] protected StyleSheet _styleSheet;
+    public StyleSheet StyleSheet;
 
     private VisualElement _funscriptContainer;
     private VisualElement _funscriptHapticContainer;
@@ -35,7 +35,7 @@ public class MainUI : UIBehaviour
         // Create Root
         var root = _document.rootVisualElement;
         root.Clear();
-        root.styleSheets.Add(_styleSheet);
+        root.styleSheets.Add(StyleSheet);
         root.AddToClassList("root");
 
         var titleBar = Create("title-bar");

@@ -1,0 +1,660 @@
+.root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    color: white;
+    background-color: #000000;
+    flex-direction: column;
+    border-color: #202020;
+    border-width: 3px;
+}
+
+.title-bar {
+    height: 40px;
+    width: 100%;
+    padding: 0;
+    flex-direction: row;
+    background-color: #000000;
+    -unity-text-align: middle-left;
+}
+
+.title-bar > Label {
+    margin: 0;
+    padding-left: 10px;
+}
+
+.menu-bar {
+    height: 40px;
+    width: 100%;
+    padding: 0;
+    flex-direction: row;
+    background-color: #000000;
+    border-bottom-width: 3px;
+    border-color: #3e3e42;
+    -unity-text-align: middle-left;
+}
+
+.menu-dropdown {
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    height: auto;
+    width: auto;
+    flex-direction: column;
+    background-color: #000000;
+    border-top-width: 0;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-color: #3e3e42;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.menu-button {
+    margin: 0;
+    padding: 4px 10px;
+    font-size: 14px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    -unity-text-align: middle-left;
+}
+
+.menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.01);
+}
+
+.menu-button:disabled {
+    opacity: 1;
+}
+
+.intiface-container {
+    width: 100%;
+    flex-direction: row-reverse;
+}
+
+.intiface-container > Label {
+
+}
+
+.intiface-container > Toggle > {
+
+}
+
+.tool-bar {
+    height: 60px;
+    width: 100%;
+    padding: 0;
+    flex-direction: row;
+    background-color: #000000;
+    border-bottom-width: 3px;
+    border-color: #3e3e42;
+    -unity-text-align: middle-left;
+    align-content: center;
+    align-items: center;
+}
+
+.tool-bar-item {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 0;
+    height: 30px;
+    width: auto;
+    flex-direction: row;
+    font-size: 12px;
+}
+
+.tool-bar-item > Label {
+    margin: 0 5px 0 0;
+    padding: 0;
+}
+
+.tool-bar-item > Toggle {
+    margin: 0;
+    padding: 0;
+}
+
+.tool-bar-item > Slider {
+    width: 100px;
+    margin: 0;
+    padding: 0;
+}
+
+.tool-bar-item > IntegerField {
+    margin: 0;
+    padding: 0;
+}
+
+.tool-bar-item > FloatField {
+    margin: 0;
+    padding: 0;
+}
+
+
+.tool-bar .unity-button {
+    height: 30px;
+    background-color: #000000;
+    border-radius: 5px;
+    border-color: dimgray;
+}
+
+.unity-toggle__checkmark {
+    height: 20px;
+    width: 20px;
+    background-color: #000000;
+    border-radius: 5px;
+    border-color: dimgray;
+    -unity-background-image-tint-color: white;
+}
+
+.tool-bar .unity-base-text-field {
+    height: 30px;
+    min-width: 30px;
+}
+
+.tool-bar #unity-text-input {
+    height: 100%;
+    width: 100%;
+    border-radius: 5px;
+    border-color: dimgray;
+    padding: 0;
+    background-color: #000000;
+    -unity-text-align: middle-center;
+}
+
+.loading-bar {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+.unity-progress-bar__background {
+    background-color: #262626;
+    border-radius: 5px;
+    border-width: 1px;
+    font-size: 12px;
+}
+
+.unity-progress-bar__progress {
+    background-color: #C840C0;
+    margin: 0;
+    border-radius: 5px;
+}
+
+.funscript-container {
+    flex-direction: row;
+    width: 100%;
+    height: 50%;
+    background-color: #000000;
+    align-content: flex-end;
+    justify-content: flex-end;
+    overflow: hidden;
+}
+
+.funscript-values-container {
+    padding-top: 4px;
+    padding-bottom: 6px;
+    width: 50px;
+    height: 100%;
+    flex-direction: column;
+    -unity-text-align: middle-right;
+    justify-content: space-around;
+    flex-grow: 1;
+}
+
+.funscript-values-container > Label {
+    padding: 0;
+    margin: 0;
+    -unity-text-align: middle-right;
+}
+
+.funscript-haptic-container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    overflow: hidden;
+}
+
+.funscript-line {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.horizontal-grid {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
+}
+
+.vertical-grid {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
+    padding-top: 0;
+    padding-bottom: 0;
+    left: 0;
+}
+
+.vertical-line-thick {
+    height: 100%;
+    width: 2px;
+    background-color: #333333;
+}
+
+.vertical-line {
+    height: 100%;
+    width: 2px;
+    background-color: #333333;
+}
+
+.horizontal-line-thick {
+    height: 1px;
+    width: 100%;
+    background-color: #333333;
+}
+
+.horizontal-line {
+    height: 1px;
+    width: 100%;
+    background-color: #333333;
+}
+
+.red-line {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 1px;
+    background-color: red;
+    position: absolute;
+    left: 50%;
+    right: 50%;
+}
+
+.line-cursor-vertical {
+    margin-top: 94px;
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.line-cursor-horizontal {
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 1);
+    margin: 0;
+    padding: 0;
+}
+
+.line-cursor-label {
+    position: absolute;
+    align-self: flex-end;
+    padding-right: 7px;
+}
+
+.haptic-overview {
+    width: 100%;
+    height: 80px;
+    background-color: #000000;
+}
+
+.waveform-container {
+    width: 100%;
+    height: 50%;
+    background-color: #000000;
+    border-bottom-width: 3px;
+    border-color: #3e3e42;
+    align-self: flex-start;
+    flex-direction: row;
+}
+
+.waveform-labels {
+    width: 50px;
+    height: 100%;
+}
+
+.waveform {
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+}
+
+.timeline {
+    padding: 0;
+    width: 100%;
+    height: 40px;
+    background-color: #000000;
+    border-top-width: 3px;
+    border-color: #3e3e42;
+    align-self: flex-end;
+}
+
+.timeline-fill {
+    position: absolute;
+    height: 40px;
+    width: 0;
+    background-color: #C840C0;
+}
+
+.timeline-label {
+    width: 180px;
+    height: 100%;
+    align-self: center;
+    color: white;
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+    -unity-text-align: middle-right;
+}
+
+.timeline-length-label {
+    position: absolute;
+    right: 0;
+    -unity-text-align: middle-right;
+}
+
+.metadata-popup {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.metadata-container {
+    padding: 40px;
+    position: relative;
+    align-self: center;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    background-color: #000000;
+    border-width: 3px;
+    border-color: #3e3e42;
+    border-radius: 10px;
+}
+
+.metadata-buttons {
+    margin-top: 40px;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.metadata-buttons > Button {
+    width: 150px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.metadata-buttons .unity-button {
+    background-color: #000000;
+}
+
+.metadata-field {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.metadata-container .unity-base-field {
+    width: 260px;
+}
+
+.metadata-container .unity-base-text-field__input {
+    background-color: #000000;
+    width: 100%;
+}
+
+.bindings-popup {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.bindings-container {
+    padding: 40px;
+    position: relative;
+    align-self: center;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    background-color: #000000;
+    border-width: 3px;
+    border-color: #3e3e42;
+    border-radius: 10px;
+}
+
+.bindings-container .unity-button {
+    height: 30px;
+    width: 120px;
+    background-color: #000000;
+    border-radius: 5px;
+}
+
+.bindings-buttons {
+    margin-top: 20px;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.bindings-field {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.pattern-container {
+    position: absolute;
+    flex-direction: column-reverse;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.align-right {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.timemarkers-container {
+    width: 100%;
+    height: 50px;
+    flex-direction: row;
+    background-color: #000000;
+}
+
+.timemarkers-left {
+    width: 50px;
+    height: 100%;
+}
+
+.timemarkers {
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    overflow: hidden;
+}
+
+.timemarker {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    -unity-text-align: middle-center;
+    justify-content: center;
+    align-content: center;
+}
+
+.timemarker > Label {
+    background-color: #262626;
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.timemarker-line {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background-color: #333333;
+}
+
+.marker-start {
+    height: 100%;
+    width: 16px;
+    position: absolute;
+    background-image: resource("Images/marker-start");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: #C840C0;
+}
+
+.marker-end {
+    height: 100%;
+    width: 16px;
+    position: absolute;
+    background-image: resource("Images/marker-end");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: #C840C0;
+}
+
+
+.pattern-editor-popup {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.pattern-pattern {
+    position: absolute;
+    top: 100%;
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+}
+
+.pattern-editor-container {
+    padding: 40px;
+    position: relative;
+    align-self: center;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    background-color: #000000;
+    border-width: 3px;
+    border-color: #3e3e42;
+    border-radius: 10px;
+}
+
+.pattern-editor-pattern {
+    width: 400px;
+    height: 400px;
+    align-content: flex-end;
+    justify-content: flex-end;
+    margin: 20px;
+    background-color: #000000;
+    align-self: center;
+}
+
+.pattern-editor-buttons-top {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.pattern-editor-buttons-bottom {
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.pattern-editor-buttons-top .unity-button {
+    background-color: #000000;
+}
+
+.pattern-editor-buttons-bottom .unity-button {
+    background-color: #000000;
+}
+
+.settings-popup {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-container {
+    padding: 40px;
+    position: relative;
+    align-self: center;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    background-color: #000000;
+    border-width: 3px;
+    border-color: #3e3e42;
+    border-radius: 10px;
+}
+
+.settings-buttons {
+    margin-top: 40px;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.settings-buttons > Button {
+    width: 150px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.settings-buttons .unity-button {
+    background-color: #000000;
+}
+
+.settings-field {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.settings-container .unity-base-field {
+    width: 160px;
+}
+
+.settings-container .unity-base-text-field__input {
+    background-color: #000000;
+    width: 100%;
+}

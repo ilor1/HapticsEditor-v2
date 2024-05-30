@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -282,12 +281,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &432475337
 GameObject:
   m_ObjectHideFlags: 0
@@ -893,6 +892,7 @@ GameObject:
   - component: {fileID: 1611213305}
   - component: {fileID: 1611213306}
   - component: {fileID: 1611213307}
+  - component: {fileID: 1611213308}
   m_Layer: 0
   m_Name: main
   m_TagString: Untagged
@@ -928,7 +928,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _document: {fileID: 1611213298}
-  _styleSheet: {fileID: 7433441132597879392, guid: 2a3083695929d9d43b370ab2eee2900d,
+  StyleSheet: {fileID: 7433441132597879392, guid: 2a3083695929d9d43b370ab2eee2900d,
     type: 3}
 --- !u!114 &1611213298
 MonoBehaviour:
@@ -1069,6 +1069,21 @@ MonoBehaviour:
   Clear:
     serializedVersion: 2
     rgba: 0
+--- !u!114 &1611213308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611213295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ead10d643c2e9c4e92726121993155f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stylesheets:
+  - {fileID: 7433441132597879392, guid: 2a3083695929d9d43b370ab2eee2900d, type: 3}
+  - {fileID: 7433441132597879392, guid: 7f14e66813c510446a84c5759f9c862f, type: 3}
 --- !u!1 &1701923416
 GameObject:
   m_ObjectHideFlags: 0
