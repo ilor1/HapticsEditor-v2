@@ -75,9 +75,19 @@ public class FunscriptMouseInput : UIBehaviour
                         var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
                         for (int i = actions.Count - 1; i >= 0; i--)
                         {
-                            if (actions[i].at <= MouseAt && actions[i].at > _previousAddedPointAt)
+                            if (_previousAddedPointAt < MouseAt)
                             {
-                                actions.RemoveAt(i);
+                                if (actions[i].at <= MouseAt && actions[i].at > _previousAddedPointAt)
+                                {
+                                    actions.RemoveAt(i);
+                                }
+                            }
+                            else
+                            {
+                                if (actions[i].at >= MouseAt && actions[i].at < _previousAddedPointAt)
+                                {
+                                    actions.RemoveAt(i);
+                                }
                             }
                         }
                     }
@@ -92,6 +102,12 @@ public class FunscriptMouseInput : UIBehaviour
                     TitleBar.MarkLabelDirty();
                     FunscriptOverview.Singleton.RenderHaptics();
                 }
+            }
+
+            // Reset _previousAddedPointAt value
+            if (Input.GetMouseButtonUp(0))
+            {
+                _previousAddedPointAt = -1;
             }
 
             if (Input.GetMouseButton(1))
