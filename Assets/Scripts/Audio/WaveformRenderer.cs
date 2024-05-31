@@ -24,6 +24,10 @@ public class WaveformRenderer : UIBehaviour
     private NativeArray<float> _leftRMS;
     private NativeArray<float> _rightHigh;
     private NativeArray<float> _rightRMS;
+    private bool _isDragging = false;
+
+    private float _downX;
+    private int _downTime;
 
     private void OnEnable()
     {
@@ -101,10 +105,52 @@ public class WaveformRenderer : UIBehaviour
         waveform.style.backgroundImage = _texture;
         _waveformContainer.Add(waveform);
 
+        _waveformContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
+        _waveformContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        _waveformContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
+        _waveformContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
+
         var redLine = Create("red-line");
         waveform.Add(redLine);
     }
 
+    private void OnPointerDown(PointerDownEvent evt)
+    {
+        _isDragging = true;
+        var relativeCoords = GetRelativeCoords(evt.localPosition, _waveformContainer.contentRect);
+        _downX = relativeCoords.x;
+        _downTime = TimelineManager.Instance.TimeInMilliseconds;
+    }
+
+    private void OnPointerMove(PointerMoveEvent evt)
+    {
+        if (_isDragging)
+        {
+            float x = GetRelativeCoords(evt.localPosition, _waveformContainer.contentRect).x;
+            float delta = x - _downX;
+
+            int newTime = _downTime - (int)math.round(delta * TimelineManager.Instance.LengthInMilliseconds);
+            TimelineManager.Instance.SetTimeInMilliseconds(newTime);
+        }
+    }
+
+    private void OnPointerUp(PointerUpEvent evt)
+    {
+        _isDragging = false;
+    }
+
+    private void OnPointerLeave(PointerLeaveEvent evt)
+    {
+        _isDragging = false;
+    }
+
+    private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)
+    {
+        var relativeCoords = new Vector2(coords.x / contentRect.width, 1f - (coords.y) / contentRect.height);
+        relativeCoords.x = math.clamp(relativeCoords.x, 0f, 1f);
+        relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);
+        return relativeCoords;
+    }
 
     private void OnAudioClipLoaded(AudioSource audioSource)
     {
