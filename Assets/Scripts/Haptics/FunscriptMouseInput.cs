@@ -26,6 +26,9 @@ public class FunscriptMouseInput : UIBehaviour
 
     private List<FunAction> _patternActions = new List<FunAction>();
 
+
+    private int _previousAddedPointAt = -1;
+
     private void Awake()
     {
         if (Singleton == null) Singleton = this;
@@ -66,7 +69,22 @@ public class FunscriptMouseInput : UIBehaviour
                 {
                     _freeformTimeUntilAddingNextPoint = 0.1f; // once a point is placed, wait this long until placing another. 
 
+                    // remove any points between MouseAt and _previousAddedPointAt
+                    if (_previousAddedPointAt != -1)
+                    {
+                        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+                        for (int i = actions.Count - 1; i >= 0; i--)
+                        {
+                            if (actions[i].at <= MouseAt && actions[i].at > _previousAddedPointAt)
+                            {
+                                actions.RemoveAt(i);
+                            }
+                        }
+                    }
+
                     AddFunAction(_mouseRelativePosition, false);
+
+                    _previousAddedPointAt = MouseAt;
 
                     FunscriptRenderer.Singleton.SortFunscript();
                     FunscriptRenderer.Singleton.CleanupExcessPoints();
@@ -81,7 +99,7 @@ public class FunscriptMouseInput : UIBehaviour
                 if (_freeformTimeUntilRemovingNextPoint <= 0f)
                 {
                     _freeformTimeUntilRemovingNextPoint = 0.1f; // once a point is removed, wait this long until removing another. 
-                    
+
                     bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
                     int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);
                     if (index != -1)
@@ -343,7 +361,7 @@ public class FunscriptMouseInput : UIBehaviour
 
         int index = Singleton.GetPreviousFunActionIndex(MouseAt);
         if (index < 0) return 0;
-        
+
         if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count <= index) return 0;
 
         return FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[index].at;
