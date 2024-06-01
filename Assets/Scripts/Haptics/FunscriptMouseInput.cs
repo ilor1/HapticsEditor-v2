@@ -28,6 +28,8 @@ public class FunscriptMouseInput : UIBehaviour
 
 
     private int _previousAddedPointAt = -1;
+    private int _previousRemovedPointAt = -1;
+    private int _startRemovePointAt = -1;
 
     private void Awake()
     {
@@ -75,6 +77,8 @@ public class FunscriptMouseInput : UIBehaviour
                         var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
                         for (int i = actions.Count - 1; i >= 0; i--)
                         {
+                            // cursor moved forward
+                            // removing points between where cursor was pressed down and current position 
                             if (_previousAddedPointAt < MouseAt)
                             {
                                 if (actions[i].at <= MouseAt && actions[i].at > _previousAddedPointAt)
@@ -82,6 +86,8 @@ public class FunscriptMouseInput : UIBehaviour
                                     actions.RemoveAt(i);
                                 }
                             }
+                            // cursor moved back
+                            // removing points between where cursor was pressed down and current position 
                             else
                             {
                                 if (actions[i].at >= MouseAt && actions[i].at < _previousAddedPointAt)
@@ -110,19 +116,52 @@ public class FunscriptMouseInput : UIBehaviour
                 _previousAddedPointAt = -1;
             }
 
+            if (Input.GetMouseButtonDown(1))
+            {
+                _startRemovePointAt = MouseAt;
+            }
+            if (Input.GetMouseButtonUp(1))
+            {
+                _startRemovePointAt = -1;
+            }
+
             if (Input.GetMouseButton(1))
             {
                 if (_freeformTimeUntilRemovingNextPoint <= 0f)
                 {
-                    _freeformTimeUntilRemovingNextPoint = 0.1f; // once a point is removed, wait this long until removing another. 
+                    // once a point is removed, wait this long until removing another. (performance optimization)
+                    _freeformTimeUntilRemovingNextPoint = 0.1f; 
 
-                    bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
-                    int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);
-                    if (index != -1)
+                    var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+                    for (int i = actions.Count - 1; i >= 0; i--)
                     {
-                        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
-                        actions.RemoveAt(index);
+                        // cursor moved forward
+                        // removing points between where cursor was pressed down and current position 
+                        if (_startRemovePointAt < MouseAt)
+                        {
+                            if (actions[i].at <= MouseAt && actions[i].at >= _startRemovePointAt)
+                            {
+                                actions.RemoveAt(i);
+                            }
+                        }
+                        // cursor moved back
+                        // removing points between where cursor was pressed down and current position 
+                        else
+                        {
+                            if (actions[i].at >= MouseAt && actions[i].at <= _startRemovePointAt)
+                            {
+                                actions.RemoveAt(i);
+                            }
+                        }
                     }
+
+                    // bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
+                    // int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);
+                    // if (index != -1)
+                    // {
+                    //     var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+                    //     actions.RemoveAt(index);
+                    // }
 
                     TitleBar.MarkLabelDirty();
                     FunscriptOverview.Singleton.RenderHaptics();
