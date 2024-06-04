@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -63,18 +65,42 @@ public class FunscriptRenderer : UIBehaviour
     {
         foreach (var haptic in Haptics)
         {
-            if (haptic.Funscript.actions.Count < 3) continue;
-            for (int i = haptic.Funscript.actions.Count - 3; i >= 0; i--)
+            var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
+
+            var cleanupPointsJob = new DouglasPeuckerJob
             {
-                // if three consecutive pos values are the same, remove the excess middle one.
-                if (haptic.Funscript.actions[i].pos == haptic.Funscript.actions[i + 1].pos 
-                    && haptic.Funscript.actions[i].pos == haptic.Funscript.actions[i + 2].pos)
-                {
-                    haptic.Funscript.actions.RemoveAt(i + 1);
-                }
-            }
+                Actions = actionsNative,
+            };
+            cleanupPointsJob.Schedule().Complete();
+
+            haptic.Funscript.actions.Clear();
+            haptic.Funscript.actions.AddRange(actionsNative.AsArray());
+
+            actionsNative.Dispose();
         }
     }
+
+    public void RemovePointsBetween(int at0, int at1)
+    {
+        foreach (var haptic in Haptics)
+        {
+            var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
+
+            var removePointsJob = new RemovePointsJob
+            {
+                Start = at0,
+                End = at1,
+                Actions = actionsNative
+            };
+            removePointsJob.Schedule().Complete();
+
+            haptic.Funscript.actions.Clear();
+            haptic.Funscript.actions.AddRange(actionsNative.ToArray(Allocator.Temp));
+
+            actionsNative.Dispose();
+        }
+    }
+
 
     private VisualElement _verticalGrid;
 

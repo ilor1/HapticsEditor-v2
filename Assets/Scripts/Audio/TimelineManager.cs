@@ -122,7 +122,8 @@ public class TimelineManager : MonoBehaviour
                     ? (int)math.round(Time.deltaTime * 1000f * _audioSource.pitch)
                     : (int)math.round(Time.deltaTime * 1000f);
 
-                TimeInMilliseconds %= GetClipLengthInMilliseconds();
+                int clipLength = math.max(1, GetClipLengthInMilliseconds());
+                TimeInMilliseconds %= clipLength;
 
                 // Update audiosource timesamples
                 if (_audioSource != null && _audioSource.clip != null)

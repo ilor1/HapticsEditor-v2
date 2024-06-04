@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,6 +14,9 @@ public class FunscriptMouseInput : UIBehaviour
 
     public static int MouseAt;
     public static int MousePos;
+
+    public static int PreviousMouseAt;
+    public static int PreviousMousePos;
 
     private Vector2 _mouseRelativePosition;
 
@@ -28,7 +34,7 @@ public class FunscriptMouseInput : UIBehaviour
 
 
     private int _previousAddedPointAt = -1;
-    private int _previousRemovedPointAt = -1;
+    //private int _previousRemovedPointAt = -1;
     private int _startRemovePointAt = -1;
 
     private void Awake()
@@ -67,52 +73,38 @@ public class FunscriptMouseInput : UIBehaviour
         {
             if (Input.GetMouseButton(0))
             {
-                if (_freeformTimeUntilAddingNextPoint <= 0f)
+                // if (_freeformTimeUntilAddingNextPoint <= 0f)
+                // {
+                //     _freeformTimeUntilAddingNextPoint = 0.1f; // once a point is placed, wait this long until placing another. 
+
+                // remove any points between MouseAt and _previousAddedPointAt
+                if (_previousAddedPointAt != -1)
                 {
-                    _freeformTimeUntilAddingNextPoint = 0.1f; // once a point is placed, wait this long until placing another. 
-
-                    // remove any points between MouseAt and _previousAddedPointAt
-                    if (_previousAddedPointAt != -1)
+                    if (_previousAddedPointAt < MouseAt)
                     {
-                        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
-                        for (int i = actions.Count - 1; i >= 0; i--)
-                        {
-                            // cursor moved forward
-                            // removing points between where cursor was pressed down and current position 
-                            if (_previousAddedPointAt < MouseAt)
-                            {
-                                if (actions[i].at <= MouseAt && actions[i].at > _previousAddedPointAt)
-                                {
-                                    actions.RemoveAt(i);
-                                }
-                            }
-                            // cursor moved back
-                            // removing points between where cursor was pressed down and current position 
-                            else
-                            {
-                                if (actions[i].at >= MouseAt && actions[i].at < _previousAddedPointAt)
-                                {
-                                    actions.RemoveAt(i);
-                                }
-                            }
-                        }
+                        FunscriptRenderer.Singleton.RemovePointsBetween(_previousAddedPointAt + 1, MouseAt);
                     }
-
-                    AddFunAction(_mouseRelativePosition, false);
-
-                    _previousAddedPointAt = MouseAt;
-
-                    FunscriptRenderer.Singleton.SortFunscript();
-                    FunscriptRenderer.Singleton.CleanupExcessPoints();
-
-                    TitleBar.MarkLabelDirty();
-                    FunscriptOverview.Singleton.RenderHaptics();
+                    else
+                    {
+                        FunscriptRenderer.Singleton.RemovePointsBetween(MouseAt, _previousAddedPointAt - 1);
+                    }
                 }
+                //}
+
+                AddFunAction(_mouseRelativePosition, false);
+
+                _previousAddedPointAt = MouseAt;
+
+                FunscriptRenderer.Singleton.SortFunscript();
+                FunscriptOverview.Singleton.RenderHaptics();
+                // }
             }
 
             // Reset _previousAddedPointAt value
             if (Input.GetMouseButtonUp(0))
             {
+                TitleBar.MarkLabelDirty();
+                FunscriptRenderer.Singleton.CleanupExcessPoints();
                 _previousAddedPointAt = -1;
             }
 
@@ -120,8 +112,10 @@ public class FunscriptMouseInput : UIBehaviour
             {
                 _startRemovePointAt = MouseAt;
             }
+
             if (Input.GetMouseButtonUp(1))
             {
+                TitleBar.MarkLabelDirty();
                 _startRemovePointAt = -1;
             }
 
@@ -130,44 +124,24 @@ public class FunscriptMouseInput : UIBehaviour
                 if (_freeformTimeUntilRemovingNextPoint <= 0f)
                 {
                     // once a point is removed, wait this long until removing another. (performance optimization)
-                    _freeformTimeUntilRemovingNextPoint = 0.1f; 
+                    _freeformTimeUntilRemovingNextPoint = 0.1f;
 
-                    var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
-                    for (int i = actions.Count - 1; i >= 0; i--)
+                    if (_startRemovePointAt < MouseAt)
                     {
-                        // cursor moved forward
-                        // removing points between where cursor was pressed down and current position 
-                        if (_startRemovePointAt < MouseAt)
-                        {
-                            if (actions[i].at <= MouseAt && actions[i].at >= _startRemovePointAt)
-                            {
-                                actions.RemoveAt(i);
-                            }
-                        }
-                        // cursor moved back
-                        // removing points between where cursor was pressed down and current position 
-                        else
-                        {
-                            if (actions[i].at >= MouseAt && actions[i].at <= _startRemovePointAt)
-                            {
-                                actions.RemoveAt(i);
-                            }
-                        }
+                        FunscriptRenderer.Singleton.RemovePointsBetween(_startRemovePointAt, MouseAt);
+                    }
+                    else
+                    {
+                        FunscriptRenderer.Singleton.RemovePointsBetween(MouseAt, _startRemovePointAt);
                     }
 
-                    // bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
-                    // int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);
-                    // if (index != -1)
-                    // {
-                    //     var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
-                    //     actions.RemoveAt(index);
-                    // }
-
-                    TitleBar.MarkLabelDirty();
                     FunscriptOverview.Singleton.RenderHaptics();
                 }
             }
         }
+
+        PreviousMouseAt = MouseAt;
+        PreviousMousePos = MousePos;
     }
 
 
@@ -187,6 +161,8 @@ public class FunscriptMouseInput : UIBehaviour
             MouseAt = GetAtValue(_mouseRelativePosition);
             MousePos = GetPosValue(_mouseRelativePosition, Snapping);
         }
+        
+        FunscriptRenderer.Singleton.CleanupExcessPoints();
     }
 
     private void OnMouseMove(MouseMoveEvent evt)

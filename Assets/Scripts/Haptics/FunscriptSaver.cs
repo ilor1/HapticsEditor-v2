@@ -35,17 +35,17 @@ public class FunscriptSaver : MonoBehaviour
         {
             _hapticsManager = GetComponent<FunscriptRenderer>();
         }
-        
+
         // Update MetaData length 
         if (_hapticsManager.Haptics != null && _hapticsManager.Haptics.Count > 0)
         {
             var haptics = _hapticsManager.Haptics[0];
-            haptics.Funscript.metadata.duration = math.max((int)math.round(audioSource. clip.length), haptics.Funscript.metadata.duration);
+            haptics.Funscript.metadata.duration = math.max((int)math.round(audioSource.clip.length), haptics.Funscript.metadata.duration);
             _hapticsManager.Haptics[0] = haptics;
         }
         else
         {
-          //  _hapticsManager.Haptics.Add(CreateNewHaptics(funscriptPath));
+            //  _hapticsManager.Haptics.Add(CreateNewHaptics(funscriptPath));
         }
     }
 
@@ -94,12 +94,26 @@ public class FunscriptSaver : MonoBehaviour
         {
             // Add action at start, if there isn't one
             if (funscript.actions[0].at > 0)
+            {
                 actions.Add(
                     new FunAction
                     {
                         at = 0,
                         pos = funscript.actions[0].pos
                     });
+            }
+
+            // action at the very end
+            int clipLength = TimelineManager.Instance.GetClipLengthInMilliseconds();
+            if (clipLength > 1)
+            {
+                funscript.actions.Add(
+                    new FunAction
+                    {
+                        at = clipLength,
+                        pos = funscript.actions[funscript.actions.Count - 1].pos
+                    });
+            }
 
             // go through funactions and add points in between if needed
             for (int i = 0; i < funscript.actions.Count - 1; i++)
@@ -153,12 +167,10 @@ public class FunscriptSaver : MonoBehaviour
             license = "",
             notes = "",
             performers = new string[]
-            {
-            },
+                { },
             script_url = "",
             tags = new string[]
-            {
-            },
+                { },
             title = Path.GetFileName(path),
             type = "basic",
             video_url = "",
