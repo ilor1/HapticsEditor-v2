@@ -34,6 +34,7 @@ public class FunscriptMouseInput : UIBehaviour
 
 
     private int _previousAddedPointAt = -1;
+
     //private int _previousRemovedPointAt = -1;
     private int _startRemovePointAt = -1;
 
@@ -77,23 +78,25 @@ public class FunscriptMouseInput : UIBehaviour
                 // {
                 //     _freeformTimeUntilAddingNextPoint = 0.1f; // once a point is placed, wait this long until placing another. 
 
+                int at = TimelineManager.Instance.IsPlaying ? TimelineManager.Instance.TimeInMilliseconds : MouseAt;
+
                 // remove any points between MouseAt and _previousAddedPointAt
                 if (_previousAddedPointAt != -1)
                 {
-                    if (_previousAddedPointAt < MouseAt)
+                    if (_previousAddedPointAt < at)
                     {
-                        FunscriptRenderer.Singleton.RemovePointsBetween(_previousAddedPointAt + 1, MouseAt);
+                        FunscriptRenderer.Singleton.RemovePointsBetween(_previousAddedPointAt + 1, at);
                     }
                     else
                     {
-                        FunscriptRenderer.Singleton.RemovePointsBetween(MouseAt, _previousAddedPointAt - 1);
+                        FunscriptRenderer.Singleton.RemovePointsBetween(at, _previousAddedPointAt - 1);
                     }
                 }
                 //}
 
-                AddFunAction(_mouseRelativePosition, false);
+                AddFunAction(at, false);
 
-                _previousAddedPointAt = MouseAt;
+                _previousAddedPointAt = at;
 
                 FunscriptRenderer.Singleton.SortFunscript();
                 FunscriptOverview.Singleton.RenderHaptics();
@@ -161,7 +164,7 @@ public class FunscriptMouseInput : UIBehaviour
             MouseAt = GetAtValue(_mouseRelativePosition);
             MousePos = GetPosValue(_mouseRelativePosition, Snapping);
         }
-        
+
         FunscriptRenderer.Singleton.CleanupExcessPoints();
     }
 
@@ -193,7 +196,7 @@ public class FunscriptMouseInput : UIBehaviour
         }
         else if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Default)
         {
-            AddFunAction(relativeCoords, StepMode);
+            AddFunAction(MouseAt, StepMode);
         }
 
         FunscriptRenderer.Singleton.SortFunscript();
@@ -320,10 +323,10 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.AddRange(_patternActions);
     }
 
-    private void AddFunAction(Vector2 relativeCoords, bool stepmode)
+    private void AddFunAction(int at, bool stepmode)
     {
         // Add Action
-        if (MouseAt < 0)
+        if (at < 0)
         {
             //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
             return;
@@ -331,14 +334,14 @@ public class FunscriptMouseInput : UIBehaviour
 
         var funaction = new FunAction
         {
-            at = MouseAt,
+            at = at,
             pos = MousePos
         };
 
         // On StepMode add an FunAction to create a step 
         if (stepmode)
         {
-            int at0 = MouseAt - 1;
+            int at0 = at - 1;
             int pos0 = GetPosAtTime(at0);
             if (pos0 != -1)
             {
