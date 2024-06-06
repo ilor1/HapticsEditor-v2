@@ -32,21 +32,22 @@ alternatively:
 3. a .funscript file with a matching name gets created/loaded automatically
 
 #### Bindings
+* 'Ctrl-S' - saves the funscript
 * 'Space' - toggles playback 
 * 'D' - skips forward 8 seconds
 * 'A' - skips backward 8 seconds
-* 'S' - Decreases playback speed
-* 'W' - Increases playback speed
-* 'Page Up' - Zooms in
-* 'Page Down' - Zooms out
-* 'R' - Resets Zoom-level
-* 'RMB' - Removes next point
-* 'Left-Alt + RMB' - Removes previous point
-* 'Q' - Toggles Step-Mode in Default Scripting Mode
-* 'Q' - Cycles patterns in Pattern Scripting Mode
-* 'F1' - Cycles scripting modes
-* 'F2' - Toggles Snapping
-* 'F5' - Cycles available stylesheets
+* 'S' - decreases playback speed
+* 'W' - increases playback speed
+* 'Page Up' - zooms in
+* 'Page Down' - zooms out
+* 'R' - Resets zoom-level
+* 'RMB' - removes next point
+* 'Left-Alt + RMB' - removes previous point
+* 'Q' - toggles Step-Mode in Default Scripting Mode
+* 'Q' - cycles patterns in Pattern Scripting Mode
+* 'F1' - cycles scripting modes
+* 'F2' - toggles Snapping
+* 'F5' - cycles available stylesheets
 
 #### Cursor Data
 * 'pos' - Current Pos value
@@ -60,10 +61,11 @@ alternatively:
   * Click and Drag the timebar at the bottom to 
   * Click and Drag the waveform for finer adjustments
 
-## Scripting modes
+## Scripting features
 * [Default](./_Documentation/default-mode.md)
 * [Pattern](./_Documentation/pattern-mode.md)
 * [Freeform](./_Documentation/freeform-mode.md)
+* [Cut/Copy-And-Paste](./_Documentation/cutcopypaste.md)
 
 ## Misc features
 * On-Load: Automatic funscript loading/creation
