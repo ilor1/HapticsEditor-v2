@@ -7,14 +7,15 @@ This project is a tool for creating funscripts. For those unaware, funscript is 
 
 Supports only .mp3 audiofiles, for any other formats you should first export it as .mp3 using Audacity.
 
+Special thanks to u/yaliplover for pre-alpha-testing and supporting this tool since its infancy!
 
-
-> Special thanks to u/yaliplover for pre-alpha-testing this tool since its infancy and giving amazing feature suggestions!
+> If you like using this Haptics Editor, and want to donate towards the development of it, or just in general make my day...  
+> You can sponsor me here on [github](https://github.com/sponsors/ilor1) or buy me a [ko-fi](https://ko-fi.com/ilori). Not expected, but immensely appreciated!
 
 ## Installation
 
 #### Windows:
-1. Download and run latest from the [Releases page](https://github.com/ilor1/HapticsEditor-v2/releases/)
+1. Download and run the latest version from the [Releases page](https://github.com/ilor1/HapticsEditor-v2/releases/)
 
 alternatively:
 1. Clone the repository
