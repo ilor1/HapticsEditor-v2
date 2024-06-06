@@ -2,7 +2,7 @@
 
 documentation in work...
 
-<img src="./_Documentation/Images/pattern-mode.png" alt="" height="720"/>
+<img src="./Images/pattern-mode.png" alt="" height="720"/>
 
 #### Snapping (F2)
 
