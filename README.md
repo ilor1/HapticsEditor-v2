@@ -62,9 +62,9 @@ alternatively:
   * Click and Drag the waveform for finer adjustments
 
 ## Scripting features
-* [Default](./_Documentation/default-mode.md)
-* [Pattern](./_Documentation/pattern-mode.md)
-* [Freeform](./_Documentation/freeform-mode.md)
+* [Default-Mode](./_Documentation/default-mode.md)
+* [Pattern-Mode](./_Documentation/pattern-mode.md)
+* [Freeform-Mode](./_Documentation/freeform-mode.md)
 * [Cut/Copy-And-Paste](./_Documentation/cutcopypaste.md)
 
 ## Misc features
