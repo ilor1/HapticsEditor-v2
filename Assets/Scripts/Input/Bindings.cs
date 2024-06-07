@@ -26,7 +26,10 @@ public enum ControlName
     ToggleSnapping,
     PatternScaleX,
     PatternRepeat,
-    PatternSpacing
+    PatternSpacing,
+    DefaultMode,
+    PatternMode,
+    FreeMode,
 }
 
 [Serializable]

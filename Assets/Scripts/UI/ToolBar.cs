@@ -72,6 +72,24 @@ public class ToolBar : UIBehaviour
             _snappingToggle.value = !_snappingToggle.value;
         }
 
+        if (InputManager.Singleton.GetKeyDown(ControlName.DefaultMode))
+        {
+            SettingsManager.ApplicationSettings.Mode = ScriptingMode.Default;
+            OnScriptingModeChanged(SettingsManager.ApplicationSettings.Mode);
+        }
+        
+        if (InputManager.Singleton.GetKeyDown(ControlName.PatternMode))
+        {
+            SettingsManager.ApplicationSettings.Mode = ScriptingMode.Pattern;
+            OnScriptingModeChanged(SettingsManager.ApplicationSettings.Mode);
+        }
+        
+        if (InputManager.Singleton.GetKeyDown(ControlName.FreeMode))
+        {
+            SettingsManager.ApplicationSettings.Mode = ScriptingMode.Free;
+            OnScriptingModeChanged(SettingsManager.ApplicationSettings.Mode);
+        }
+        
         if (InputManager.Singleton.GetKeyDown(ControlName.CycleMode))
         {
             switch (SettingsManager.ApplicationSettings.Mode)
@@ -200,6 +218,7 @@ public class ToolBar : UIBehaviour
             // Default mode
             case ScriptingMode.Default:
                 _modeChangeButton.text = "Default";
+                _modeChangeButton.RemoveFromClassList("blue");
                 _modeChangeButton.RemoveFromClassList("green");
                 _modeChangeButton.AddToClassList("black");
                 if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
@@ -215,6 +234,7 @@ public class ToolBar : UIBehaviour
             // Pattern mode
             case ScriptingMode.Pattern:
                 _modeChangeButton.text = "Pattern";
+                _modeChangeButton.RemoveFromClassList("green");
                 _modeChangeButton.RemoveFromClassList("black");
                 _modeChangeButton.AddToClassList("blue");
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
@@ -229,6 +249,7 @@ public class ToolBar : UIBehaviour
                 break;
             case ScriptingMode.Free:
                 _modeChangeButton.text = "Freeform";
+                _modeChangeButton.RemoveFromClassList("black");
                 _modeChangeButton.RemoveFromClassList("blue");
                 _modeChangeButton.AddToClassList("green");
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);

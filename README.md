@@ -46,6 +46,9 @@ alternatively:
 * 'Q' - toggles Step-Mode in Default Scripting Mode
 * 'Q' - cycles patterns in Pattern Scripting Mode
 * 'F1' - cycles scripting modes
+* '1' - changes to Default scripting mode
+* '2' - changes to Pattern scripting mode
+* '3' - changes to Free scripting mode
 * 'F2' - toggles Snapping
 * 'F5' - cycles available stylesheets
 
