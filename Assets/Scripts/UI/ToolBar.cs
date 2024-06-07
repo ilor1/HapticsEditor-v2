@@ -12,6 +12,7 @@ public class ToolBar : UIBehaviour
     private VisualElement _toolBar;
 
     // Shared tools
+    private Button _modeChangeButton;
     private VisualElement _patternToggleContainer;
     private Toggle _patternToggle;
     private VisualElement _snappingToggleContainer;
@@ -116,6 +117,12 @@ public class ToolBar : UIBehaviour
         // _patternToggle.RegisterValueChangedCallback(OnPatternModeChanged);
         // _toolBar.Add(_patternToggleContainer);
 
+        _modeChangeButton = Create<Button>();
+        _modeChangeButton.text = "Default";
+        _modeChangeButton.AddToClassList("black");
+        _modeChangeButton.clicked += OnCycleMode;
+        _toolBar.Add(_modeChangeButton);
+        
         _snappingToggleContainer = CreateItem("Snapping:", out _snappingToggle);
         _snappingToggle.RegisterValueChangedCallback(OnSnappingChanged);
         _toolBar.Add(_snappingToggleContainer);
@@ -163,6 +170,28 @@ public class ToolBar : UIBehaviour
         _isInitialized = true;
     }
 
+    private void OnCycleMode()
+    {
+        switch (SettingsManager.ApplicationSettings.Mode)
+        {
+            case ScriptingMode.Default:
+                SettingsManager.ApplicationSettings.Mode = ScriptingMode.Pattern;
+                break;
+            case ScriptingMode.Pattern:
+                SettingsManager.ApplicationSettings.Mode = ScriptingMode.Free;
+                break;
+            case ScriptingMode.Free:
+                SettingsManager.ApplicationSettings.Mode = ScriptingMode.Default;
+                break;
+            default:
+                SettingsManager.ApplicationSettings.Mode = ScriptingMode.Pattern;
+                break;
+        }
+
+        // _patternToggle.value = !_patternToggle.value;
+        OnScriptingModeChanged(SettingsManager.ApplicationSettings.Mode);
+    }
+
     private void OnScriptingModeChanged(ScriptingMode mode)
     {
         // Change toolbar based on mode
@@ -170,6 +199,9 @@ public class ToolBar : UIBehaviour
         {
             // Default mode
             case ScriptingMode.Default:
+                _modeChangeButton.text = "Default";
+                _modeChangeButton.RemoveFromClassList("green");
+                _modeChangeButton.AddToClassList("black");
                 if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
                 if (_toolBar.Contains(_repeatContainer)) _toolBar.Remove(_repeatContainer);
                 if (_toolBar.Contains(_spacingContainer)) _toolBar.Remove(_spacingContainer);
@@ -182,6 +214,9 @@ public class ToolBar : UIBehaviour
                 break;
             // Pattern mode
             case ScriptingMode.Pattern:
+                _modeChangeButton.text = "Pattern";
+                _modeChangeButton.RemoveFromClassList("black");
+                _modeChangeButton.AddToClassList("blue");
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
                 
                 _toolBar.Add(_nextPatternButton);
@@ -193,6 +228,9 @@ public class ToolBar : UIBehaviour
                 _toolBar.Add(_invertYContainer);
                 break;
             case ScriptingMode.Free:
+                _modeChangeButton.text = "Free";
+                _modeChangeButton.RemoveFromClassList("blue");
+                _modeChangeButton.AddToClassList("green");
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
                 if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
                 if (_toolBar.Contains(_repeatContainer)) _toolBar.Remove(_repeatContainer);

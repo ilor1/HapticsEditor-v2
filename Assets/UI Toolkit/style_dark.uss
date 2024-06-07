@@ -140,6 +140,22 @@
     border-color: dimgray;
 }
 
+.tool-bar .unity-button.black {
+    color: white;
+    background-color: #3e3e42;
+}
+
+.tool-bar .unity-button.green {
+    color: white;
+    background-color: rgba(40, 100, 40, 255);
+}
+
+.tool-bar .unity-button.blue {
+    color: white;
+    background-color: rgba(40, 40, 100, 255);
+}
+
+
 .unity-toggle__checkmark {
     height: 20px;
     width: 20px;
