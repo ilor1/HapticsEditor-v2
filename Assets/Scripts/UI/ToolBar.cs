@@ -228,7 +228,7 @@ public class ToolBar : UIBehaviour
                 _toolBar.Add(_invertYContainer);
                 break;
             case ScriptingMode.Free:
-                _modeChangeButton.text = "Free";
+                _modeChangeButton.text = "Freeform";
                 _modeChangeButton.RemoveFromClassList("blue");
                 _modeChangeButton.AddToClassList("green");
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
