@@ -100,6 +100,8 @@ public class MainUI : UIBehaviour
         var waveformContainer = Create("waveform-container");
         var waveformLabels = Create("waveform-labels");
         waveformContainer.Add(waveformLabels);
+        
+        var layersContainer = Create("layers-container");
 
         var timeline = Create("timeline");
 
@@ -114,6 +116,7 @@ public class MainUI : UIBehaviour
         root.Add(_funscriptContainer);
         root.Add(timemarkersContainer);
         root.Add(waveformContainer);
+        root.Add(layersContainer);
         root.Add(hapticOverview);
         root.Add(timeline);
 
