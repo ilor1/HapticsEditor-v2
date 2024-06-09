@@ -59,47 +59,56 @@ public class FunscriptOverview : UIBehaviour
     private void GetAudioSource(AudioSource audioSource)
     {
         _audioSource = audioSource;
-        //Render();
-        RenderHaptics();
-    }
-
-    private void Render()
-    {
-        // no audio clip, don't render
-        // if (_audioSource == null || _audioSource.clip == null)
-        // {
-        //     // clear the current texture
-        //     ClearHaptics();
-        //     return;
-        // }
-
         RenderHaptics();
     }
 
     public void RenderHaptics()
     {
-        if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return;
+        if (FunscriptRenderer.Singleton.Haptics.Count <= 0)
+        {
+            ClearHaptics();
+            return;
+        }
 
-        float lengthInMilliseconds;
+        float lengthInMilliseconds = -1f;
         if (_audioSource != null && _audioSource.clip != null)
         {
             // render using audioclip length
             lengthInMilliseconds = _audioSource.clip.length * 1000f;
         }
-        else if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count > 0)
-        {
-            // no audioclip, render using funscript length
-            int lastActionIndex = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count - 1;
-            lengthInMilliseconds = (float)FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[lastActionIndex].at;
-        }
         else
         {
+            // Get length from the longest haptics script
+            foreach (var haptics in FunscriptRenderer.Singleton.Haptics)
+            {
+                if (!haptics.Visible) continue; // ignore invisible haptics
+
+                int lastActionIndex = haptics.Funscript.actions.Count - 1;
+                if (lastActionIndex < 0) continue;
+                float length = (float)haptics.Funscript.actions[lastActionIndex].at;
+                lengthInMilliseconds = math.max(length, lengthInMilliseconds);
+            }
+        }
+
+        if (lengthInMilliseconds < 0f)
+        {
             // nothing to render
+            ClearHaptics();
             return;
         }
 
         float millisecondsPerPixel = lengthInMilliseconds / _outputWidth;
-        var funactions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.ToNativeArray(Allocator.TempJob);
+
+        var funactions = new NativeList<FunAction>(Allocator.TempJob);
+        foreach (var haptics in FunscriptRenderer.Singleton.Haptics)
+        {
+            if (!haptics.Visible) continue; // ignore invisible haptics
+
+            funactions.AddRange(haptics.Funscript.actions.ToNativeArray(Allocator.Temp));
+        }
+
+        funactions.Sort();
+
         var colors = _texture.GetRawTextureData<Color32>();
         var averageHapticAtPixel = new NativeParallelHashMap<int, float>(_outputWidth, Allocator.TempJob);
         var highestHapticAtPixel = new NativeParallelHashMap<int, float>(_outputWidth, Allocator.TempJob);
@@ -109,7 +118,7 @@ public class FunscriptOverview : UIBehaviour
         var getHapticValuesJob = new GetAverageHapticValue
         {
             MillisecondsPerPixel = millisecondsPerPixel,
-            Funactions = funactions,
+            Funactions = funactions.AsArray(),
             AverageHapticAtPixel = averageHapticAtPixel.AsParallelWriter(),
             HighestHapticAtPixel = highestHapticAtPixel.AsParallelWriter(),
             LowestHapticAtPixel = lowestHapticAtPixel.AsParallelWriter()
@@ -147,8 +156,8 @@ public class FunscriptOverview : UIBehaviour
         }
         else
         {
-            _texture.width = _outputWidth;
-            _texture.height = _outputHeight;
+            // _texture.width = _outputWidth;
+            // _texture.height = _outputHeight;
         }
 
         var colors = _texture.GetRawTextureData<Color32>();

@@ -347,7 +347,7 @@ public class FunscriptMouseInput : UIBehaviour
             if (stepmode)
             {
                 int at0 = at - 1;
-                int pos0 = GetPosAtTime(at0);
+                int pos0 = GetPosAtTime(at0, haptic);
                 if (pos0 != -1)
                 {
                     haptic.Funscript.actions.Add(new FunAction { at = at0, pos = pos0 });
@@ -406,9 +406,9 @@ public class FunscriptMouseInput : UIBehaviour
         return haptics.Funscript.actions[index].at;
     }
 
-    private int GetPosAtTime(int at)
+    private int GetPosAtTime(int at, Haptics haptics)
     {
-        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+        var actions = haptics.Funscript.actions;
 
         if (actions.Count == 0) return -1;
 

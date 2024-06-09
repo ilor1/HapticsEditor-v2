@@ -42,7 +42,7 @@ public class LayersContainer : UIBehaviour
         // show/hide, layer, toy1, toy2, toy3, toy4
         _layersContainer.Add(CreateTitle());
 
-        _internalLayersContainer = Create();
+        _internalLayersContainer = Create<ScrollView>();
         _layersContainer.Add(_internalLayersContainer);
 
         // Layers
@@ -151,15 +151,22 @@ public class LayersContainer : UIBehaviour
         for (int i = _selectedLayers.Count - 1; i >= 0; i--)
         {
             // Also remove the haptic when the layer gets removed
-            FunscriptRenderer.Singleton.Haptics.RemoveAt(i);
+            for (int j = Layers.Count - 1; j >= 0; j--)
+            {
+                if (_selectedLayers[i] != Layers[j]) continue;
 
-            VisualElement layer = _selectedLayers[i];
-
-            _selectedLayers.Remove(layer);
-            _visibleLayers.Remove(layer);
-            _internalLayersContainer.Remove(layer);
-            Layers.Remove(layer);
+                FunscriptRenderer.Singleton.Haptics.RemoveAt(j);
+                VisualElement layer = _selectedLayers[i];
+                _selectedLayers.Remove(layer);
+                _visibleLayers.Remove(layer);
+                _internalLayersContainer.Remove(layer);
+                Layers.RemoveAt(j);
+                break;
+            }
         }
+        
+        // Update OverallHaptics
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 
 
@@ -217,6 +224,9 @@ public class LayersContainer : UIBehaviour
 
         SetHapticVisibilities();
         SetHapticSelections();
+        
+        // Update OverallHaptics
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 
     private void SetHapticVisibilities()
@@ -276,6 +286,9 @@ public class LayersContainer : UIBehaviour
 
         SetHapticVisibilities();
         SetHapticSelections();
+        
+        // Update OverallHaptics
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 
     private void OnLayerClick(ClickEvent evt)

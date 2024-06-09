@@ -21,13 +21,11 @@ public class FunscriptSaver : MonoBehaviour
 
     private void OnEnable()
     {
-        //TitleBar.TitleBarCreated += LoadOrCreateTemporaryFunscript;
         AudioLoader.ClipLoaded += OnAudioClipLoaded;
     }
 
     private void OnDisable()
     {
-        //TitleBar.TitleBarCreated -= LoadOrCreateTemporaryFunscript;
         AudioLoader.ClipLoaded -= OnAudioClipLoaded;
     }
 
@@ -48,31 +46,20 @@ public class FunscriptSaver : MonoBehaviour
         }
     }
 
-    private void LoadOrCreateTemporaryFunscript()
-    {
-        if (FunscriptRenderer.Singleton.Haptics.Count > 0) return;
-
-        string path = $"{Application.streamingAssetsPath}/new funscript.funscript";
-
-        // First try loading...
-        bool loadSuccess = FunscriptLoader.Singleton.TryLoadFunscript(path);
-
-        if (!loadSuccess)
-        {
-            Save(path);
-        }
-    }
-
     private void Update()
     {
+        bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+        bool s = Input.GetKeyDown(KeyCode.S);
+
         // save hotkey
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.S))
+        if (ctrl && s)
         {
-            Save(FileDropdownMenu.Singleton.FunscriptPath);
+            Save(FileDropdownMenu.Singleton.FunscriptPath, shift);
         }
     }
 
-    public void Save(string funscriptPath)
+    public void Save(string funscriptPath, bool mergeLayers = false)
     {
         if (_hapticsManager == null)
         {
@@ -82,81 +69,177 @@ public class FunscriptSaver : MonoBehaviour
         // No haptics to save
         if (_hapticsManager.Haptics.Count <= 0) return;
 
-        for (int hapticIndex = 0; hapticIndex < _hapticsManager.Haptics.Count; hapticIndex++)
+
+        string noExtension = string.IsNullOrEmpty(funscriptPath)
+            ? $"{Application.streamingAssetsPath}/New_Funscript"
+            : funscriptPath.Substring(0, funscriptPath.Length - 10);
+
+        if (mergeLayers)
         {
-            // The first haptic will be saved as the audio filename, the rest will have [#] in the end.
-            string noExtenstion = funscriptPath.Substring(0, funscriptPath.Length-10);
-            funscriptPath = hapticIndex == 0 ? funscriptPath : $"{noExtenstion}[{hapticIndex}].funscript";
+            bool hapticsFound = false;
 
-            var haptic = _hapticsManager.Haptics[hapticIndex];
-            var funscript = haptic.Funscript;
+            Haptics combinedHaptics = new Haptics();
 
-            var actions = new List<FunAction>();
-            if (_addTimeoutFunactions && funscript.actions != null && funscript.actions.Count > 0)
+            funscriptPath = $"{noExtension}_MergedLayers.funscript";
+
+            foreach (var haptics in _hapticsManager.Haptics)
             {
-                // Add action at start, if there isn't one
-                if (funscript.actions[0].at > 0)
-                {
-                    actions.Add(
-                        new FunAction
-                        {
-                            at = 0,
-                            pos = funscript.actions[0].pos
-                        });
-                }
+                if (!haptics.Visible) continue; // only merge visible layers
 
-                // action at the very end
-                int clipLength = TimelineManager.Instance.GetClipLengthInMilliseconds();
-                if (clipLength > 1)
+                // get metadata from the first haptics
+                if (!hapticsFound)
                 {
-                    funscript.actions.Add(
-                        new FunAction
-                        {
-                            at = clipLength,
-                            pos = funscript.actions[funscript.actions.Count - 1].pos
-                        });
+                    combinedHaptics.Funscript.metadata = haptics.Funscript.metadata;
+                    combinedHaptics.Funscript.inverted = haptics.Funscript.inverted;
+                    combinedHaptics.Funscript.actions = new List<FunAction>();
+                    hapticsFound = true;
                 }
+                // from the rest we copy only the actions
 
-                // go through funactions and add points in between if needed
-                for (int i = 0; i < funscript.actions.Count - 1; i++)
+                HashSet<int> atValuesAdded = new HashSet<int>();
+                
+                foreach (var action in haptics.Funscript.actions)
                 {
-                    actions.Add(funscript.actions[i]);
-                    int at = funscript.actions[i].at;
-                    while (funscript.actions[i + 1].at - at > _maxDurationBetweenFunactions)
+                    if (atValuesAdded.Contains(action.at)) continue;
+                    
+                    int pos = action.pos;
+                    // get highest pos value
+                    for (int i = 0; i < _hapticsManager.Haptics.Count; i++)
                     {
-                        at += _maxDurationBetweenFunactions;
-
-                        // calculate pos value at the "at + _maxDurationBetweenFunactions" time.
-                        float t = (at - funscript.actions[i].at) / (float)(funscript.actions[i + 1].at - funscript.actions[i].at);
-                        int pos = (int)math.round(math.lerp(funscript.actions[i].pos, funscript.actions[i + 1].pos, t));
-                        actions.Add(new FunAction
-                        {
-                            at = at,
-                            pos = pos
-                        });
+                        int pos0 = GetPosAtTime(action.at, _hapticsManager.Haptics[i]);
+                        pos = math.max(pos, pos0);
                     }
-                }
 
-                // add the last point
-                actions.Add(funscript.actions[funscript.actions.Count - 1]);
+                    // add new action
+                    combinedHaptics.Funscript.actions.Add(new FunAction
+                    {
+                        at = action.at,
+                        pos = pos
+                    });
+
+                    atValuesAdded.Add(action.at);
+                }
             }
 
-            funscript.actions = actions;
+            // sort
+            combinedHaptics.Funscript.actions.Sort();
 
-            // Save
-            string json = JsonUtility.ToJson(funscript);
+            // process
+            var actions = ProcessFunscriptForSaving(combinedHaptics.Funscript);
+            combinedHaptics.Funscript.actions = actions;
+
+            string json = JsonUtility.ToJson(combinedHaptics.Funscript);
             File.WriteAllText(funscriptPath, json);
-            Debug.Log($"FunscriptSaver: Funscript saved. ({funscriptPath})");
+            Debug.Log($"FunscriptSaver: Combined Funscript saved. ({funscriptPath})");
         }
+        else
+        {
+            for (int hapticIndex = 0; hapticIndex < _hapticsManager.Haptics.Count; hapticIndex++)
+            {
+                // The first haptic will be saved as the audio filename, the rest will have [#] in the end.
+                funscriptPath = hapticIndex == 0 ? funscriptPath : $"{noExtension}[{hapticIndex}].funscript";
 
-        // Load the newly created haptic, so it gets updated to the titlebar
-        // if (createNewFile)
-        // {
-        //     FileDropdownMenu.FunscriptPathLoaded?.Invoke(funscriptPath);
-        // }
+                var haptic = _hapticsManager.Haptics[hapticIndex];
+                var funscript = haptic.Funscript;
+
+                // process
+                var actions = ProcessFunscriptForSaving(funscript);
+                funscript.actions = actions;
+
+                // Save
+                string json = JsonUtility.ToJson(funscript);
+                File.WriteAllText(funscriptPath, json);
+                Debug.Log($"FunscriptSaver: Funscript saved. ({funscriptPath})");
+            }
+        }
 
         // Remove "*" from titlebar
         TitleBar.MarkLabelClean();
+    }
+
+    private int GetPosAtTime(int at, Haptics haptics)
+    {
+        var actions = haptics.Funscript.actions;
+
+        if (actions.Count == 0) return -1;
+
+        for (int i = actions.Count - 1; i >= 0; i--)
+        {
+            if (at > actions[i].at)
+            {
+                if (i < actions.Count - 1)
+                {
+                    // lerp
+                    int at0 = actions[i].at;
+                    int at1 = actions[i + 1].at;
+                    float t = (float)(at1 - at) / (float)(at1 - at0);
+                    return (int)math.round(math.lerp(actions[i].pos, actions[i + 1].pos, t));
+                }
+                else
+                {
+                    // the at is later than the last action
+                    return actions[i].pos;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+
+    private List<FunAction> ProcessFunscriptForSaving(Funscript funscript)
+    {
+        var actions = new List<FunAction>();
+        if (_addTimeoutFunactions && funscript.actions != null && funscript.actions.Count > 0)
+        {
+            // Add action at start, if there isn't one
+            if (funscript.actions[0].at > 0)
+            {
+                actions.Add(
+                    new FunAction
+                    {
+                        at = 0,
+                        pos = funscript.actions[0].pos
+                    });
+            }
+
+            // action at the very end
+            int clipLength = TimelineManager.Instance.GetClipLengthInMilliseconds();
+            if (clipLength > 1)
+            {
+                funscript.actions.Add(
+                    new FunAction
+                    {
+                        at = clipLength,
+                        pos = funscript.actions[funscript.actions.Count - 1].pos
+                    });
+            }
+
+            // go through funactions and add points in between if needed
+            for (int i = 0; i < funscript.actions.Count - 1; i++)
+            {
+                actions.Add(funscript.actions[i]);
+                int at = funscript.actions[i].at;
+                while (funscript.actions[i + 1].at - at > _maxDurationBetweenFunactions)
+                {
+                    at += _maxDurationBetweenFunactions;
+
+                    // calculate pos value at the "at + _maxDurationBetweenFunactions" time.
+                    float t = (at - funscript.actions[i].at) / (float)(funscript.actions[i + 1].at - funscript.actions[i].at);
+                    int pos = (int)math.round(math.lerp(funscript.actions[i].pos, funscript.actions[i + 1].pos, t));
+                    actions.Add(new FunAction
+                    {
+                        at = at,
+                        pos = pos
+                    });
+                }
+            }
+
+            // add the last point
+            actions.Add(funscript.actions[funscript.actions.Count - 1]);
+        }
+
+        return actions;
     }
 
     public Haptics CreateNewHaptics(string path)
