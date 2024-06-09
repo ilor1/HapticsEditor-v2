@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public struct Haptics
+public class Haptics
 {
+    public string Name;
+    public bool Visible;
+    public bool Selected;
     public Funscript Funscript;
     public LineRenderSettings LineRenderSettings;
 }
@@ -12,7 +15,6 @@ public struct Haptics
 [Serializable]
 public struct Funscript
 {
-    //public FunAction[] actions;
     public List<FunAction> actions;
     public bool inverted;
     public Metadata metadata;

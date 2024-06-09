@@ -11,9 +11,9 @@ public class AudioLoader : UIBehaviour
     public static Action<AudioSource> ClipLoaded;
 
     [Header("Audio")]
-    private string _audioFilePath = "E:/_Projects/Haptics/ExampleAudioFile.mp3";
+    public string AudioFilePath = "E:/_Projects/Haptics/ExampleAudioFile.mp3";
 
-    private AudioSource _audioSource;
+    public AudioSource AudioSource;
     private UnityWebRequest _audioRequest;
     private ProgressBar _progressBar;
 
@@ -25,7 +25,7 @@ public class AudioLoader : UIBehaviour
 
     private void Start()
     {
-        _audioSource = GetComponent<AudioSource>();
+        AudioSource = GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -57,14 +57,14 @@ public class AudioLoader : UIBehaviour
 
     private void LoadAudio(string path)
     {
-        _audioFilePath = path;
+        AudioFilePath = path;
         StartCoroutine(GetAudioClip());
     }
 
     private IEnumerator GetAudioClip()
     {
         _progressBar.style.display = DisplayStyle.Flex;
-        using (var www = UnityWebRequestMultimedia.GetAudioClip("file:///" + _audioFilePath, AudioType.MPEG))
+        using (var www = UnityWebRequestMultimedia.GetAudioClip("file:///" + AudioFilePath, AudioType.MPEG))
         {
             var operation = www.SendWebRequest();
 
@@ -84,13 +84,13 @@ public class AudioLoader : UIBehaviour
             }
             else
             {
-                _audioSource.clip = DownloadHandlerAudioClip.GetContent(www);
+                AudioSource.clip = DownloadHandlerAudioClip.GetContent(www);
 
                 // Send ClipLoaded event
-                ClipLoaded?.Invoke(_audioSource);
+                ClipLoaded?.Invoke(AudioSource);
 
-                Debug.Log($"AudioLoader: {_audioFilePath} loaded.");
-                _audioSource.Play();
+                Debug.Log($"AudioLoader: {AudioFilePath} loaded.");
+                AudioSource.Play();
             }
         }
 

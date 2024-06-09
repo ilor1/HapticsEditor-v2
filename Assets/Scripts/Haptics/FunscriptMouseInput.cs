@@ -74,10 +74,6 @@ public class FunscriptMouseInput : UIBehaviour
         {
             if (Input.GetMouseButton(0))
             {
-                // if (_freeformTimeUntilAddingNextPoint <= 0f)
-                // {
-                //     _freeformTimeUntilAddingNextPoint = 0.1f; // once a point is placed, wait this long until placing another. 
-
                 int at = TimelineManager.Instance.IsPlaying ? TimelineManager.Instance.TimeInMilliseconds : MouseAt;
 
                 // remove any points between MouseAt and _previousAddedPointAt
@@ -92,7 +88,6 @@ public class FunscriptMouseInput : UIBehaviour
                         FunscriptRenderer.Singleton.RemovePointsBetween(at, _previousAddedPointAt - 1);
                     }
                 }
-                //}
 
                 AddFunAction(at, false);
 
@@ -100,7 +95,6 @@ public class FunscriptMouseInput : UIBehaviour
 
                 FunscriptRenderer.Singleton.SortFunscript();
                 FunscriptOverview.Singleton.RenderHaptics();
-                // }
             }
 
             // Reset _previousAddedPointAt value
@@ -309,47 +303,59 @@ public class FunscriptMouseInput : UIBehaviour
         // Remove funactions that get overridden by the pattern
         int at0 = _patternActions[0].at;
         int at1 = _patternActions[^1].at;
-        for (int i = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count - 1; i >= 0; i--)
+
+        foreach (var haptics in FunscriptRenderer.Singleton.Haptics)
         {
-            // break early
-            if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at < at0) break;
+            if (!haptics.Selected) continue;
 
-            if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at >= at0 && FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[i].at <= at1)
+            for (int i = haptics.Funscript.actions.Count - 1; i >= 0; i--)
             {
-                FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.RemoveAt(i);
-            }
-        }
+                // break early
+                if (haptics.Funscript.actions[i].at < at0) break;
 
-        FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.AddRange(_patternActions);
+                if (haptics.Funscript.actions[i].at >= at0 && haptics.Funscript.actions[i].at <= at1)
+                {
+                    haptics.Funscript.actions.RemoveAt(i);
+                }
+            }
+
+            haptics.Funscript.actions.AddRange(_patternActions);
+        }
     }
 
     private void AddFunAction(int at, bool stepmode)
     {
-        // Add Action
-        if (at < 0)
+        foreach (Haptics haptic in FunscriptRenderer.Singleton.Haptics)
         {
-            //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
-            return;
-        }
+            // Only add points to selected haptics layers
+            if (!haptic.Selected) continue;
 
-        var funaction = new FunAction
-        {
-            at = at,
-            pos = MousePos
-        };
-
-        // On StepMode add an FunAction to create a step 
-        if (stepmode)
-        {
-            int at0 = at - 1;
-            int pos0 = GetPosAtTime(at0);
-            if (pos0 != -1)
+            // Add Action
+            if (at < 0)
             {
-                FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Add(new FunAction { at = at0, pos = pos0 });
+                //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
+                return;
             }
-        }
 
-        FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Add(funaction);
+            var funaction = new FunAction
+            {
+                at = at,
+                pos = MousePos
+            };
+
+            // On StepMode add an FunAction to create a step 
+            if (stepmode)
+            {
+                int at0 = at - 1;
+                int pos0 = GetPosAtTime(at0);
+                if (pos0 != -1)
+                {
+                    haptic.Funscript.actions.Add(new FunAction { at = at0, pos = pos0 });
+                }
+            }
+
+            haptic.Funscript.actions.Add(funaction);
+        }
     }
 
     private Vector2 GetRelativeCoords(Vector2 coords, VisualElement target)
@@ -386,19 +392,18 @@ public class FunscriptMouseInput : UIBehaviour
         }
     }
 
-    public static int GetPreviousAtValue()
+    public static int GetPreviousAtValue(Haptics haptics)
     {
         if (MouseAt <= 0) return 0;
 
-        if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return 0;
-        if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count <= 0) return 0;
+        if (haptics.Funscript.actions.Count <= 0) return 0;
 
-        int index = Singleton.GetPreviousFunActionIndex(MouseAt);
+        int index = Singleton.GetPreviousFunActionIndex(MouseAt, haptics);
         if (index < 0) return 0;
 
-        if (FunscriptRenderer.Singleton.Haptics[0].Funscript.actions.Count <= index) return 0;
+        if (haptics.Funscript.actions.Count <= index) return 0;
 
-        return FunscriptRenderer.Singleton.Haptics[0].Funscript.actions[index].at;
+        return haptics.Funscript.actions[index].at;
     }
 
     private int GetPosAtTime(int at)
@@ -426,10 +431,49 @@ public class FunscriptMouseInput : UIBehaviour
         if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free) return;
 
         bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
-        int index = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt) : GetNextFunActionIndex(MouseAt);
-        if (index != -1)
+        int index = -1;
+        int at = -1;
+        int hapticsIndex = -1;
+
+        for (int i = 0; i < FunscriptRenderer.Singleton.Haptics.Count; i++)
         {
-            var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+            var haptics = FunscriptRenderer.Singleton.Haptics[i];
+
+            // only run on selected haptics
+            if (!haptics.Selected) continue;
+
+            int tmpIndex = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt, haptics) : GetNextFunActionIndex(MouseAt, haptics);
+            
+            if (tmpIndex != -1)
+            {
+                int tmpAt = haptics.Funscript.actions[tmpIndex].at;
+                
+                if (targetPrevModifier)
+                {
+                    if (index == -1 || tmpAt > at)
+                    {
+                        at = tmpAt;
+                        index = tmpIndex;
+                        hapticsIndex = i;
+                    }
+                }
+                else
+                {
+                    if (index == -1 || tmpAt < at)
+                    {
+                        at = tmpAt;
+                        index = tmpIndex;
+                        hapticsIndex = i;
+                    }
+                }
+            }
+        }
+
+        // Only remove one point even if there's multiple selected funscripts
+        if (index != -1 || hapticsIndex != -1)
+        {
+            var haptics = FunscriptRenderer.Singleton.Haptics[hapticsIndex];
+            var actions = haptics.Funscript.actions;
             actions.RemoveAt(index);
         }
 
@@ -437,16 +481,13 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptOverview.Singleton.RenderHaptics();
     }
 
-    private int GetNextFunActionIndex(int at)
+    private int GetNextFunActionIndex(int at, Haptics haptics)
     {
         // No funscript
-        if (FunscriptRenderer.Singleton.Haptics.Count <= 0)
-        {
-            return -1;
-        }
+        if (!haptics.Selected) return -1;
 
         // we assume fun actions are sorted in correct order
-        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+        var actions = haptics.Funscript.actions;
 
         // no funActions
         if (actions.Count == 0) return -1;
@@ -465,16 +506,12 @@ public class FunscriptMouseInput : UIBehaviour
         return -1;
     }
 
-    private int GetPreviousFunActionIndex(int at)
+    private int GetPreviousFunActionIndex(int at, Haptics haptics)
     {
-        // No funscript
-        if (FunscriptRenderer.Singleton.Haptics.Count <= 0)
-        {
-            return -1;
-        }
+        if (!haptics.Selected) return -1;
 
         // we assume fun actions are sorted in correct order
-        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+        var actions = haptics.Funscript.actions;
 
         // no funActions
         if (actions.Count == 0) return -1;

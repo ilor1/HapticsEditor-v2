@@ -372,7 +372,30 @@
     border-bottom-width: 3px;
 }
 
-.layers-bottom {
+.layers-item.selected {
+    background-color: #323232;
+}
+
+.layers-item-label {
+    width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.layers-eye {
+    height: 30px;
+    width: 30px;    
+}
+
+.layers-eye.open {
+    background-image: resource("Images/eye_open");
+}
+
+.layers-eye.closed {
+    background-image: resource("Images/eye_closed");    
+}
+
+.layers-bottom-bar {
     bottom: 0px;
     position: absolute;
     height: 30px;

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,6 +8,13 @@ public class LayersContainer : UIBehaviour
     public static LayersContainer Singleton;
 
     private VisualElement _layersContainer;
+    private VisualElement _internalLayersContainer;
+
+    public List<VisualElement> Layers = new();
+    private HashSet<VisualElement> _visibleLayers = new();
+    private List<VisualElement> _selectedLayers = new();
+
+    private int _layerRunningNumber = 1;
 
     private void Awake()
     {
@@ -31,26 +40,279 @@ public class LayersContainer : UIBehaviour
 
         // Layers Title
         // show/hide, layer, toy1, toy2, toy3, toy4
-        var layersTitle = Create("layers-title");
-        _layersContainer.Add(layersTitle);
+        _layersContainer.Add(CreateTitle());
+
+        _internalLayersContainer = Create();
+        _layersContainer.Add(_internalLayersContainer);
 
         // Layers
         // eye, layer1, (o), (o), (o), (o)
-        // click to select
-        // ctrl-click to select multiple
+        // click to select/deselect
         // selected layers are highlighted
         // modifications always affect all selected layers, even if the layer is hidden!
-        var layer1 = Create("layers-item");
-        var layer2 = Create("layers-item");
-        var layer3 = Create("layers-item");
-        _layersContainer.Add(layer1);
-        _layersContainer.Add(layer2);
-        _layersContainer.Add(layer3);
 
         // Layers bottom
         // Add 'AddLayer' button
         // Add 'RemoveLayer' button, don't allow removing the last existing layer
-        var bottom = Create("layers-bottom");
-        _layersContainer.Add(bottom);
+        _layersContainer.Add(CreateBottomBar());
+    }
+
+
+    private VisualElement CreateTitle()
+    {
+        var layersTitle = Create("layers-title");
+
+        // show/hide
+        var eye = Create("layers-eye", "open");
+        eye.RegisterCallback<ClickEvent>(OnTitleEyeClick);
+        layersTitle.Add(eye);
+
+        // name
+        var layerName = Create<Label>();
+        layerName.text = "Name";
+        layersTitle.Add(layerName);
+
+        // toys...
+
+        return layersTitle;
+    }
+
+    public void CreateHapticsLayer(Haptics haptics)
+    {
+        _internalLayersContainer.Add(CreateLayer(haptics));
+    }
+
+    private VisualElement CreateLayer(Haptics haptics = null)
+    {
+        // if no Haptics track given, trigger creation of a new one
+        if (haptics == null) { }
+
+        var layer = Create("layers-item", "selected");
+        Layers.Add(layer);
+        _visibleLayers.Add(layer);
+        _selectedLayers.Add(layer);
+
+        // show/hide
+        var eye = Create("layers-eye", "open");
+        eye.RegisterCallback<ClickEvent>(OnLayerEyeClick);
+        layer.Add(eye);
+
+        // label
+        var label = Create<Label>("layers-item-label");
+        label.text = haptics == null ? $"Layer{_layerRunningNumber++}" : haptics.Name;
+        label.pickingMode = PickingMode.Ignore;
+        layer.Add(label);
+
+        layer.RegisterCallback<ClickEvent>(OnLayerClick);
+        return layer;
+    }
+
+    private VisualElement CreateBottomBar()
+    {
+        var bottomBar = Create("layers-bottom-bar");
+
+        // create layer
+        var createButton = Create<Button>("layers-plus-button");
+        createButton.text = "+";
+        createButton.clicked += OnAddLayerClicked;
+        bottomBar.Add(createButton);
+
+        // remove layer
+        var removeButton = Create<Button>("layers-minus-button");
+        removeButton.text = "-";
+        removeButton.clicked += OnRemoveLayerClicked;
+        bottomBar.Add(removeButton);
+
+        return bottomBar;
+    }
+
+    private void OnAddLayerClicked()
+    {
+        Debug.Log("Add Layer");
+
+        int hapticsCount = FunscriptRenderer.Singleton.Haptics.Count;
+        string pathWithoutExtension = FileDropdownMenu.Singleton.FunscriptPathWithoutExtension;
+
+        string path = string.IsNullOrEmpty(pathWithoutExtension)
+            ? $"{Application.streamingAssetsPath}/new funscript.funscript"
+            : $"{pathWithoutExtension}[{hapticsCount}].funscript";
+
+        // Create new haptics file
+        var haptics = FunscriptSaver.Singleton.CreateNewHaptics(path);
+        FunscriptRenderer.Singleton.Haptics.Add(haptics);
+
+        _internalLayersContainer.Add(CreateLayer());
+    }
+
+    private void OnRemoveLayerClicked()
+    {
+        Debug.Log("Remove Layer");
+
+        for (int i = _selectedLayers.Count - 1; i >= 0; i--)
+        {
+            // Also remove the haptic when the layer gets removed
+            FunscriptRenderer.Singleton.Haptics.RemoveAt(i);
+
+            VisualElement layer = _selectedLayers[i];
+
+            _selectedLayers.Remove(layer);
+            _visibleLayers.Remove(layer);
+            _internalLayersContainer.Remove(layer);
+            Layers.Remove(layer);
+        }
+    }
+
+
+    private void OnTitleEyeClick(ClickEvent evt)
+    {
+        evt.StopPropagation();
+
+        VisualElement clickedEye = evt.target as VisualElement;
+
+        if (clickedEye.GetClasses().Contains("open"))
+        {
+            // Hide all layers
+            foreach (VisualElement layer in Layers)
+            {
+                _visibleLayers.Remove(layer);
+
+                // if a layer gets hidden, lets also deselect it to avoid unwanted edits.
+                _selectedLayers.Remove(layer);
+                layer.RemoveFromClassList("selected");
+
+                foreach (VisualElement child in layer.Children())
+                {
+                    if (child.ClassListContains("layers-eye"))
+                    {
+                        child.RemoveFromClassList("open");
+                        child.AddToClassList("closed");
+                    }
+                }
+            }
+
+            // eye
+            clickedEye.RemoveFromClassList("open");
+            clickedEye.AddToClassList("closed");
+        }
+        else
+        {
+            // Show all layers
+            foreach (VisualElement layer in Layers)
+            {
+                _visibleLayers.Add(layer);
+                foreach (VisualElement child in layer.Children())
+                {
+                    if (child.ClassListContains("layers-eye"))
+                    {
+                        child.AddToClassList("open");
+                        child.RemoveFromClassList("closed");
+                    }
+                }
+            }
+
+            // eye
+            clickedEye.AddToClassList("open");
+            clickedEye.RemoveFromClassList("closed");
+        }
+
+        SetHapticVisibilities();
+        SetHapticSelections();
+    }
+
+    private void SetHapticVisibilities()
+    {
+        for (int i = 0; i < Layers.Count; i++)
+        {
+            bool visible = _visibleLayers.Contains(Layers[i]);
+            FunscriptRenderer.Singleton.Haptics[i].Visible = visible;
+        }
+    }
+
+    private void SetHapticSelections()
+    {
+        for (int i = 0; i < Layers.Count; i++)
+        {
+            bool selected = _selectedLayers.Contains(Layers[i]);
+            FunscriptRenderer.Singleton.Haptics[i].Selected = selected;
+        }
+    }
+
+    private void OnLayerEyeClick(ClickEvent evt)
+    {
+        evt.StopPropagation();
+
+        // Get the clicked VisualElement
+        VisualElement clickedEye = evt.target as VisualElement;
+
+        // select/deselect layer
+        if (clickedEye != null)
+        {
+            // get layer
+            VisualElement clickedLayer = clickedEye.parent;
+
+            if (_visibleLayers.Contains(clickedLayer))
+            {
+                // layer
+                _visibleLayers.Remove(clickedLayer);
+
+                // if a layer gets hidden, lets also deselect it to avoid unwanted edits.
+                _selectedLayers.Remove(clickedLayer);
+                clickedLayer.RemoveFromClassList("selected");
+
+                // eye
+                clickedEye.RemoveFromClassList("open");
+                clickedEye.AddToClassList("closed");
+            }
+            else
+            {
+                // layer
+                _visibleLayers.Add(clickedLayer);
+
+                // eye
+                clickedEye.AddToClassList("open");
+                clickedEye.RemoveFromClassList("closed");
+            }
+        }
+
+        SetHapticVisibilities();
+        SetHapticSelections();
+    }
+
+    private void OnLayerClick(ClickEvent evt)
+    {
+        evt.StopPropagation();
+
+        // Get the clicked VisualElement
+        VisualElement clickedLayer = evt.target as VisualElement;
+
+        // select/deselect layer
+        if (clickedLayer != null)
+        {
+            if (_selectedLayers.Contains(clickedLayer))
+            {
+                // deselect
+                _selectedLayers.Remove(clickedLayer);
+                clickedLayer.RemoveFromClassList("selected");
+            }
+            else
+            {
+                // select
+                _selectedLayers.Add(clickedLayer);
+                clickedLayer.AddToClassList("selected");
+
+                // force layer visible
+                _visibleLayers.Add(clickedLayer);
+                foreach (var child in clickedLayer.Children())
+                {
+                    if (child.ClassListContains("layers-eye"))
+                    {
+                        child.AddToClassList("open");
+                        child.RemoveFromClassList("closed");
+                    }
+                }
+            }
+        }
+
+        SetHapticSelections();
     }
 }

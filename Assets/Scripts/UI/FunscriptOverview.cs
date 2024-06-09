@@ -33,12 +33,19 @@ public class FunscriptOverview : UIBehaviour
     {
         MainUI.RootCreated += Generate;
         AudioLoader.ClipLoaded += GetAudioSource;
+        FunscriptLoader.FunscriptLoaded += OnFunscriptLoaded;
     }
 
     private void OnDisable()
     {
         MainUI.RootCreated -= Generate;
         AudioLoader.ClipLoaded -= GetAudioSource;
+        FunscriptLoader.FunscriptLoaded -= OnFunscriptLoaded;
+    }
+
+    private void OnFunscriptLoaded(string funscriptName)
+    {
+        RenderHaptics();
     }
 
     private void Generate(VisualElement root)
@@ -52,24 +59,27 @@ public class FunscriptOverview : UIBehaviour
     private void GetAudioSource(AudioSource audioSource)
     {
         _audioSource = audioSource;
-        Render();
+        //Render();
+        RenderHaptics();
     }
 
     private void Render()
     {
         // no audio clip, don't render
-        if (_audioSource == null || _audioSource.clip == null)
-        {
-            // clear the current texture
-            ClearHaptics();
-            return;
-        }
+        // if (_audioSource == null || _audioSource.clip == null)
+        // {
+        //     // clear the current texture
+        //     ClearHaptics();
+        //     return;
+        // }
 
         RenderHaptics();
     }
 
     public void RenderHaptics()
     {
+        if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return;
+
         float lengthInMilliseconds;
         if (_audioSource != null && _audioSource.clip != null)
         {
@@ -282,7 +292,7 @@ public struct SetHapticColorsParallelJob : IJobParallelFor
             Colors[colorIndex] = ColorClear;
             return;
         }
-        
+
         float highest = HighestHapticAtPixel[x] * Height;
         float lowest = (LowestHapticAtPixel[x] - 0.05f) * Height;
 

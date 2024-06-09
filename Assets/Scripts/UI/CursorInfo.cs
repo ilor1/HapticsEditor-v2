@@ -89,6 +89,14 @@ public class CursorInfo : UIBehaviour
 
         // prev-label
         _prevLabel.style.top = evt.position.y + 20;
-        _prevLabel.text = $"prev:{FunscriptMouseInput.GetPreviousAtValue() - FunscriptMouseInput.MouseAt}";
+
+        foreach (var haptics in FunscriptRenderer.Singleton.Haptics)
+        {
+            if (haptics.Selected)
+            {
+                _prevLabel.text = $"prev:{FunscriptMouseInput.GetPreviousAtValue(haptics) - FunscriptMouseInput.MouseAt}";
+                break;
+            }
+        }
     }
 }

@@ -57,6 +57,8 @@ public class FunscriptRenderer : UIBehaviour
     {
         foreach (var haptic in Haptics)
         {
+            if (!haptic.Selected) continue;
+            
             haptic.Funscript.actions.Sort();
         }
     }
@@ -65,6 +67,8 @@ public class FunscriptRenderer : UIBehaviour
     {
         foreach (var haptic in Haptics)
         {
+            if (!haptic.Selected) continue;
+            
             var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
 
             var cleanupPointsJob = new DouglasPeuckerJob
@@ -84,6 +88,8 @@ public class FunscriptRenderer : UIBehaviour
     {
         foreach (var haptic in Haptics)
         {
+            if (!haptic.Selected) continue;
+            
             var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
 
             var removePointsJob = new RemovePointsJob
@@ -164,11 +170,19 @@ public class FunscriptRenderer : UIBehaviour
         // Update LineDrawers
         for (int i = 0; i < _lineDrawers.Count; i++)
         {
-            _lineDrawers[i].StrokeColor = Haptics[i].LineRenderSettings.StrokeColor;
-            _lineDrawers[i].LineWidth = Haptics[i].LineRenderSettings.LineWidth;
-            _lineDrawers[i].LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
-            _lineDrawers[i].TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
-            _lineDrawers[i].RenderFunActions(Haptics[i].Funscript.actions);
+            if (!Haptics[i].Visible)
+            {
+                _lineDrawers[i].style.display = DisplayStyle.None;
+            }
+            else
+            {
+                _lineDrawers[i].style.display = DisplayStyle.Flex;
+                _lineDrawers[i].StrokeColor = Haptics[i].LineRenderSettings.StrokeColor;
+                _lineDrawers[i].LineWidth = Haptics[i].LineRenderSettings.LineWidth;
+                _lineDrawers[i].LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
+                _lineDrawers[i].TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
+                _lineDrawers[i].RenderFunActions(Haptics[i].Funscript.actions);
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ public class FileDropdownMenu : MonoBehaviour
     private const string FUNSCRIPT_EXT = ".funscript";
 
     [HideInInspector] public string FunscriptPath;
+    [HideInInspector] public string FunscriptPathWithoutExtension;
     private string _audioPath;
 
     private void Awake()
@@ -109,7 +110,9 @@ public class FileDropdownMenu : MonoBehaviour
             // Load funscript with matching name automatically
             string dir = Path.GetDirectoryName(result);
             string filename = Path.GetFileNameWithoutExtension(result);
-            FunscriptPath = Path.Combine(dir!, filename) + ".funscript";
+            FunscriptPathWithoutExtension = Path.Combine(dir!, filename);
+            FunscriptPath = FunscriptPathWithoutExtension + ".funscript";
+            
             if (File.Exists(FunscriptPath))
             {
                 FunscriptPathLoaded?.Invoke(FunscriptPath);
@@ -117,12 +120,17 @@ public class FileDropdownMenu : MonoBehaviour
             else
             {
                 Debug.Log($"FileDropdownMenu: No matching funscript for: ({result})");
-                
-                // Create new haptics
-                FunscriptRenderer.Singleton.Haptics.Clear();
-                FunscriptSaver.Singleton.Save(FunscriptPath);
-                
+
                 FunscriptPathLoaded?.Invoke(FunscriptPath);
+                
+                // // Create new haptics layer if there are none
+                // if (FunscriptRenderer.Singleton.Haptics.Count <= 0)
+                // {
+                //     FunscriptRenderer.Singleton.Haptics.Clear();
+                //     FunscriptSaver.Singleton.Save(FunscriptPath);
+                //
+                //     FunscriptPathLoaded?.Invoke(FunscriptPath);
+                // }
             }
         }
         else
