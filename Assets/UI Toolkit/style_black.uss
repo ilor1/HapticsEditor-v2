@@ -345,12 +345,73 @@
 
 .layers-container {
     width: 300px;
-    height: 300px;
-    bottom:93px;
+    height: 150px;
+    bottom: 93px;
     background-color: #000000;
     border-width: 3 3 3 0;
     border-color: #3e3e42;
     position: absolute;
+}
+
+.layers-title {
+    height: 30px;
+    width: 100%;
+    flex-direction: row;
+    border-color: #3e3e42;
+    border-bottom-width: 3px;
+    background-color: #000000;
+}
+
+.toy-feature {
+}
+
+.layers-item {
+    height: 30px;
+    width: 100%;
+    flex-direction: row;
+    background-color: #000000;
+    border-color: #3e3e42;
+    border-bottom-width: 3px;
+}
+
+.layers-item.selected {
+    background-color: #202020;
+}
+
+.layers-item-label {
+    width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.layers-eye {
+    height: 30px;
+    width: 30px;
+}
+
+.layers-eye.open {
+    background-image: resource("Images/eye_open");
+}
+
+.layers-eye.closed {
+    background-image: resource("Images/eye_closed");
+}
+
+.layers-bottom-bar {
+    bottom: 0px;
+    position: absolute;
+    height: 30px;
+    width: 100%;
+    flex-direction: row;
+    border-color: #3e3e42;
+    border-top-width: 3px;
+    background-color: #000000;
+}
+
+.layers-add-button {
+}
+
+.layers-remove-button {
 }
 
 .waveform {

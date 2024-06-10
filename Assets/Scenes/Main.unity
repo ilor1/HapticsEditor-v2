@@ -416,7 +416,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f67a6d388e62064b8b0c4f4765ac6c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrackIndex: 0
 --- !u!114 &492903798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -599,6 +598,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e88561c0ca4e639a6c83653b6897aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AudioFilePath: E:/_Projects/Haptics/ExampleAudioFile.mp3
+  AudioSource: {fileID: 0}
 --- !u!1 &927865631
 GameObject:
   m_ObjectHideFlags: 0
@@ -894,6 +895,7 @@ GameObject:
   - component: {fileID: 1611213307}
   - component: {fileID: 1611213309}
   - component: {fileID: 1611213308}
+  - component: {fileID: 1611213310}
   m_Layer: 0
   m_Name: main
   m_TagString: Untagged
@@ -1000,6 +1002,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FunscriptPath: 
+  FunscriptPathWithoutExtension: 
 --- !u!114 &1611213303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1095,6 +1098,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1407da7cc80973b408b866f018022d66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1611213310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611213295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec2984191c9d4f11b2c61def21bc651d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1701923416

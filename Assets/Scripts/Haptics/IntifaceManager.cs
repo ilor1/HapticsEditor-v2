@@ -2,20 +2,22 @@ using System;
 using System.Collections.Generic;
 using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
+using Buttplug.Core.Messages;
 using Unity.Mathematics;
 using UnityEngine;
+
 
 public class IntifaceManager : MonoBehaviour
 {
     public static IntifaceManager Singleton;
 
-    [SerializeField, Range(0, 1)] private float _intensity = 0.5f;
-
     private ButtplugClient _client;
-    private List<ButtplugClientDevice> _devices { get; } = new List<ButtplugClientDevice>();
+    private List<ButtplugClientDevice> _devices { get; } = new();
 
     private float _timeSinceLastUpdate = 0f;
     private const float _updateInterval = 0f; //0.33f;
+
+    public Dictionary<ButtplugClientDevice, List<GenericDeviceMessageAttributes>> DeviceFeatures = new();
 
     public bool Inverted { get; set; } // This inverted is on top of the "Inverted" value inside the funscript. So you can Invert while you Invert.
 
@@ -45,6 +47,7 @@ public class IntifaceManager : MonoBehaviour
     public async void OnDisable()
     {
         _devices.Clear();
+        DeviceFeatures.Clear();
 
         // On object shutdown, disconnect the client and just kill the server
         // process. Server process shutdown will be cleaner in future builds.
@@ -68,30 +71,52 @@ public class IntifaceManager : MonoBehaviour
         // Update at certain intervals so Intiface can keep up
         if (_timeSinceLastUpdate > _updateInterval)
         {
-            // Only play haptics when playing
-            if (TimelineManager.Instance.IsPlaying)
-            {
-                float value = GetHapticValue();
-                _intensity = Inverted ? 1 - value : value;
-                UpdateDevices();
-            }
-            else
+            // Not playing
+            if (!TimelineManager.Instance.IsPlaying)
             {
                 StopDevices();
                 _timeSinceLastUpdate = 0;
+                return;
+            }
+
+            var haptics = FunscriptRenderer.Singleton.Haptics;
+            for (int i = 0; i < haptics.Count; i++)
+            {
+                // don't play haptics on hidden layers
+                if (!haptics[i].Visible) continue;
+
+                float value = GetHapticValue(haptics[i]);
+
+                // this Inverted is the Inverted Toggle not to be confused with the Funscript inverted
+                float intensity = Inverted ? 1 - value : value;
+
+                // Go through each feat and check if it should play for this layer
+                foreach (var kvp in DeviceFeatures)
+                {
+                    for (int j = 0; j < kvp.Value.Count; j++)
+                    {
+                        int hapticLayer = DeviceContainer.Singleton.DeviceLayers[kvp.Value[j]];
+                        
+                        // this attribute should play on this layer
+                        if (hapticLayer == i)
+                        {
+                            UpdateDevice(kvp.Key, j, intensity);
+                        }
+                    }
+                }
             }
         }
     }
 
-    private float GetHapticValue()
+    private float GetHapticValue(Haptics haptics)
     {
         // No funscript
         if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return 0f;
 
         int at = TimelineManager.Instance.TimeInMilliseconds;
-        var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+        var actions = haptics.Funscript.actions;
 
-        bool inverted = FunscriptRenderer.Singleton.Haptics[0].Funscript.inverted;
+        bool inverted = haptics.Funscript.inverted;
 
         // exit early cases
         if (actions.Count <= 0) return 0f; // no funactions
@@ -119,19 +144,57 @@ public class IntifaceManager : MonoBehaviour
         return 0f;
     }
 
-    private void OnValidate()
+    private void UpdateDevice(ButtplugClientDevice device, int index, float intensity)
     {
-        UpdateDevices();
-    }
+        // Go through the attributes in the order they were stored in the Dictionary
 
-    private void UpdateDevices()
-    {
-        foreach (ButtplugClientDevice device in _devices)
+        int attributeIndex = 0;
+        for (int i = 0; i < device.LinearAttributes.Count; i++)
         {
-            // TODO: linear
-            if (device.OscillateAttributes.Count > 0) device.OscillateAsync(_intensity);
-            if (device.RotateAttributes.Count > 0) device.RotateAsync(_intensity, true);
-            if (device.VibrateAttributes.Count > 0) device.VibrateAsync(_intensity);
+            // found correct command
+            if (attributeIndex == index)
+            {
+                // TODO: linear
+                return;
+            }
+
+            attributeIndex++;
+        }
+
+        for (int i = 0; i < device.OscillateAttributes.Count; i++)
+        {
+            // found correct command
+            if (attributeIndex == index)
+            {
+                device.OscillateAsync(intensity);
+                return;
+            }
+
+            attributeIndex++;
+        }
+
+        for (int i = 0; i < device.RotateAttributes.Count; i++)
+        {
+            // found correct command
+            if (attributeIndex == index)
+            {
+                device.RotateAsync(intensity, true);
+                return;
+            }
+
+            attributeIndex++;
+        }
+
+        for (int i = 0; i < device.VibrateAttributes.Count; i++)
+        {
+            // found correct command
+            if (attributeIndex == index)
+            {
+                device.VibrateAsync(intensity);
+                return;
+            }
+
+            attributeIndex++;
         }
     }
 
@@ -147,14 +210,26 @@ public class IntifaceManager : MonoBehaviour
     {
         Log($"Device {e.Device.Name} Connected!");
         _devices.Add(e.Device);
-        UpdateDevices();
+
+        // Get GenericDeviceMessageAttributes
+        var features = new List<GenericDeviceMessageAttributes>();
+        features.AddRange(e.Device.LinearAttributes);
+        features.AddRange(e.Device.OscillateAttributes);
+        features.AddRange(e.Device.RotateAttributes);
+        features.AddRange(e.Device.VibrateAttributes);
+        DeviceFeatures.Add(e.Device, features);
+
+        // UpdateDevices();
     }
 
     private void RemoveDevice(object sender, DeviceRemovedEventArgs e)
     {
         Log($"Device {e.Device.Name} Removed!");
+
+        DeviceFeatures.Remove(e.Device);
         _devices.Remove(e.Device);
-        UpdateDevices();
+
+        // UpdateDevices();
     }
 
     private void ScanFinished(object sender, EventArgs e)

@@ -1,12 +1,17 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+
+
+
 public class LayersContainer : UIBehaviour
 {
     public static LayersContainer Singleton;
 
+    private VisualElement _title;
     private VisualElement _layersContainer;
     private VisualElement _internalLayersContainer;
 
@@ -15,6 +20,8 @@ public class LayersContainer : UIBehaviour
     private List<VisualElement> _selectedLayers = new();
 
     private int _layerRunningNumber = 1;
+
+    
 
     private void Awake()
     {
@@ -40,7 +47,8 @@ public class LayersContainer : UIBehaviour
 
         // Layers Title
         // show/hide, layer, toy1, toy2, toy3, toy4
-        _layersContainer.Add(CreateTitle());
+        _title = CreateTitle();
+        _layersContainer.Add(_title);
 
         _internalLayersContainer = Create<ScrollView>();
         _layersContainer.Add(_internalLayersContainer);
@@ -164,7 +172,7 @@ public class LayersContainer : UIBehaviour
                 break;
             }
         }
-        
+
         // Update OverallHaptics
         FunscriptOverview.Singleton.RenderHaptics();
     }
@@ -224,7 +232,7 @@ public class LayersContainer : UIBehaviour
 
         SetHapticVisibilities();
         SetHapticSelections();
-        
+
         // Update OverallHaptics
         FunscriptOverview.Singleton.RenderHaptics();
     }
@@ -286,7 +294,7 @@ public class LayersContainer : UIBehaviour
 
         SetHapticVisibilities();
         SetHapticSelections();
-        
+
         // Update OverallHaptics
         FunscriptOverview.Singleton.RenderHaptics();
     }
