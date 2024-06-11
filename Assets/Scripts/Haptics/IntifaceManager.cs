@@ -18,6 +18,7 @@ public class IntifaceManager : MonoBehaviour
     private const float _updateInterval = 0f; //0.33f;
 
     public Dictionary<ButtplugClientDevice, List<GenericDeviceMessageAttributes>> DeviceFeatures = new();
+    public Dictionary<GenericDeviceMessageAttributes, double> PositionTargets = new();
 
     public bool Inverted { get; set; } // This inverted is on top of the "Inverted" value inside the funscript. So you can Invert while you Invert.
 
@@ -86,6 +87,7 @@ public class IntifaceManager : MonoBehaviour
                 if (!haptics[i].Visible) continue;
 
                 float value = GetHapticValue(haptics[i]);
+                GetDurationAndPosition(haptics[i], out uint duration, out double position);
 
                 // this Inverted is the Inverted Toggle not to be confused with the Funscript inverted
                 float intensity = Inverted ? 1 - value : value;
@@ -96,14 +98,65 @@ public class IntifaceManager : MonoBehaviour
                     for (int j = 0; j < kvp.Value.Count; j++)
                     {
                         int hapticLayer = DeviceContainer.Singleton.DeviceLayers[kvp.Value[j]];
-                        
+
                         // this attribute should play on this layer
                         if (hapticLayer == i)
                         {
-                            UpdateDevice(kvp.Key, j, intensity);
+                            UpdateDevice(kvp.Key, j, intensity, duration, position);
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void GetDurationAndPosition(Haptics haptics, out uint duration, out double position)
+    {
+        duration = 0; // duration 0 => do nothing
+        position = 0;
+
+        // No funscript
+        if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return;
+
+        int at = TimelineManager.Instance.TimeInMilliseconds;
+
+        var actions = haptics.Funscript.actions;
+        bool inverted = haptics.Funscript.inverted;
+
+        if (actions.Count <= 0) return; // no funactions
+        if (actions.Count == 1)
+        {
+            // only one funaction
+            duration = (uint)math.max(0, actions[0].at - at);
+            position = inverted ? 1f - actions[0].pos * 0.01 : actions[0].pos * 0.01;
+            return;
+        }
+
+        if (actions[^1].at < at) return; // last action is before current at
+
+        // set last point as target
+        if (actions[^2].at <= at && actions[^1].at > at)
+        {
+            position = inverted ? 1f - actions[^1].pos * 0.01 : actions[^1].pos * 0.01;
+            duration = (uint)math.max(0, actions[^1].at - at);
+            return;
+        }
+
+        // set first point as target
+        if (actions[0].at > at)
+        {
+            position = inverted ? 1f - actions[0].pos * 0.01 : actions[0].pos * 0.01;
+            duration = (uint)math.max(0, actions[0].at - at);
+            return;
+        }
+
+        // other
+        for (int i = 0; i < actions.Count - 1; i++)
+        {
+            if (at >= actions[i].at && at < actions[i + 1].at)
+            {
+                position = inverted ? 1f - actions[i + 1].pos * 0.01 : actions[i + 1].pos * 0.01;
+                duration = (uint)math.max(0, actions[i + 1].at - at);
             }
         }
     }
@@ -144,7 +197,7 @@ public class IntifaceManager : MonoBehaviour
         return 0f;
     }
 
-    private void UpdateDevice(ButtplugClientDevice device, int index, float intensity)
+    private void UpdateDevice(ButtplugClientDevice device, int index, float intensity, uint duration, double position)
     {
         // Go through the attributes in the order they were stored in the Dictionary
 
@@ -152,9 +205,34 @@ public class IntifaceManager : MonoBehaviour
         for (int i = 0; i < device.LinearAttributes.Count; i++)
         {
             // found correct command
-            if (attributeIndex == index)
+            if (attributeIndex == index && duration > 0)
             {
-                // TODO: linear
+                // store position targets..
+                if (PositionTargets.TryGetValue(device.LinearAttributes[i], out double currentPosition))
+                {
+                    // position target is the same...
+                    if (math.abs(currentPosition - position) < 0.01)
+                    {
+                        PositionTargets[device.LinearAttributes[i]] = position;
+                    }
+                    else
+                    {
+                        device.LinearAsync(duration, position);
+                        Debug.Log($"Sent LinearAsync(duration:{duration}, position:{position})");
+
+                        // update position target
+                        PositionTargets[device.LinearAttributes[i]] = position;
+                    }
+                }
+                else
+                {
+                    device.LinearAsync(duration, position);
+                    Debug.Log($"Sent LinearAsync(duration:{duration}, position:{position})");
+
+                    // store new position target
+                    PositionTargets.Add(device.LinearAttributes[i], position);
+                }
+
                 return;
             }
 
