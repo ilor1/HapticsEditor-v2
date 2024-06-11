@@ -9,7 +9,7 @@
     }
   ],
   "dependencies": {
-    "com.nonpolynomial.buttplug-unity": "3.0.0",
+    "com.nonpolynomial.buttplug-unity": "3.0.2",
     "com.unity.ai.navigation": "2.0.0",
     "com.unity.collab-proxy": "2.3.1",
     "com.unity.entities": "1.2.0",

@@ -120,6 +120,7 @@ public class IntifaceManager : MonoBehaviour
 
         int at = TimelineManager.Instance.TimeInMilliseconds;
 
+
         var actions = haptics.Funscript.actions;
         bool inverted = haptics.Funscript.inverted;
 
@@ -207,7 +208,7 @@ public class IntifaceManager : MonoBehaviour
             // found correct command
             if (attributeIndex == index && duration > 0)
             {
-                // store position targets..
+                // // store position targets..
                 if (PositionTargets.TryGetValue(device.LinearAttributes[i], out double currentPosition))
                 {
                     // position target is the same...
@@ -218,7 +219,6 @@ public class IntifaceManager : MonoBehaviour
                     else
                     {
                         device.LinearAsync(duration, position);
-                        Debug.Log($"Sent LinearAsync(duration:{duration}, position:{position})");
 
                         // update position target
                         PositionTargets[device.LinearAttributes[i]] = position;
@@ -227,7 +227,6 @@ public class IntifaceManager : MonoBehaviour
                 else
                 {
                     device.LinearAsync(duration, position);
-                    Debug.Log($"Sent LinearAsync(duration:{duration}, position:{position})");
 
                     // store new position target
                     PositionTargets.Add(device.LinearAttributes[i], position);

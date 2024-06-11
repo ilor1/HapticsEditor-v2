@@ -406,7 +406,7 @@ public class FunscriptMouseInput : UIBehaviour
         return haptics.Funscript.actions[index].at;
     }
 
-    private int GetPosAtTime(int at, Haptics haptics)
+    public int GetPosAtTime(int at, Haptics haptics)
     {
         var actions = haptics.Funscript.actions;
 
@@ -443,11 +443,11 @@ public class FunscriptMouseInput : UIBehaviour
             if (!haptics.Selected) continue;
 
             int tmpIndex = targetPrevModifier ? GetPreviousFunActionIndex(MouseAt, haptics) : GetNextFunActionIndex(MouseAt, haptics);
-            
+
             if (tmpIndex != -1)
             {
                 int tmpAt = haptics.Funscript.actions[tmpIndex].at;
-                
+
                 if (targetPrevModifier)
                 {
                     if (index == -1 || tmpAt > at)
@@ -481,10 +481,10 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptOverview.Singleton.RenderHaptics();
     }
 
-    private int GetNextFunActionIndex(int at, Haptics haptics)
+    public int GetNextFunActionIndex(int at, Haptics haptics, bool ignoreSelection = false)
     {
         // No funscript
-        if (!haptics.Selected) return -1;
+        if (!haptics.Selected && !ignoreSelection) return -1;
 
         // we assume fun actions are sorted in correct order
         var actions = haptics.Funscript.actions;
