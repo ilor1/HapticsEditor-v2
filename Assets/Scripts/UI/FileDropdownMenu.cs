@@ -122,15 +122,6 @@ public class FileDropdownMenu : MonoBehaviour
                 Debug.Log($"FileDropdownMenu: No matching funscript for: ({result})");
 
                 FunscriptPathLoaded?.Invoke(FunscriptPath);
-                
-                // // Create new haptics layer if there are none
-                // if (FunscriptRenderer.Singleton.Haptics.Count <= 0)
-                // {
-                //     FunscriptRenderer.Singleton.Haptics.Clear();
-                //     FunscriptSaver.Singleton.Save(FunscriptPath);
-                //
-                //     FunscriptPathLoaded?.Invoke(FunscriptPath);
-                // }
             }
         }
         else

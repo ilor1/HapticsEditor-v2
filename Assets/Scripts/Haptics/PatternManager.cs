@@ -57,11 +57,8 @@ public class PatternManager : MonoBehaviour
 
         if (Directory.Exists(_patternsFolder))
         {
-            //Debug.Log($"PatternManager: found directory: ({_patternsFolder})");
-
             // Get all files in the directory
             string[] files = Directory.GetFiles(_patternsFolder);
-            //Debug.Log($"PatternManager: found {files.Length} patterns");
 
             foreach (string file in files)
             {
@@ -70,7 +67,6 @@ public class PatternManager : MonoBehaviour
                 {
                     var pattern = JsonUtility.FromJson<Pattern>(File.ReadAllText(file));
                     Patterns.Add(pattern);
-                    //Debug.Log($"PatternManager: Added Pattern: ({file})");
                 }
             }
 

@@ -258,6 +258,8 @@ public class FunscriptMouseInput : UIBehaviour
 
         int repeatCounter = 0;
 
+        int prevAt = -1;
+        
         for (int i = 0; i < funactions.Length; i++)
         {
             var funaction = funactions[i];
@@ -277,6 +279,17 @@ public class FunscriptMouseInput : UIBehaviour
 
             // mouse offset
             funaction.at += MouseAt;
+            
+            if (i > 0)
+            {
+                // offset by one so the patterns don't break
+                while (funaction.at <= prevAt)
+                {
+                    funaction.at += 1;
+                }
+            }
+            
+            prevAt = funaction.at;
 
             // scale 
             funaction.pos = (int)math.round(funaction.pos * PatternManager.Singleton.ScaleY);
