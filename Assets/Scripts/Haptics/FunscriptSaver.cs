@@ -69,7 +69,6 @@ public class FunscriptSaver : MonoBehaviour
         // No haptics to save
         if (_hapticsManager.Haptics.Count <= 0) return;
 
-
         string noExtension = string.IsNullOrEmpty(funscriptPath)
             ? $"{Application.streamingAssetsPath}/New_Funscript"
             : funscriptPath.Substring(0, funscriptPath.Length - 10);
@@ -80,13 +79,14 @@ public class FunscriptSaver : MonoBehaviour
 
             Haptics combinedHaptics = new Haptics();
 
-            funscriptPath = $"{noExtension}_MergedLayers.funscript";
+            funscriptPath = $"{noExtension}[Merged].funscript";
 
             foreach (var haptics in _hapticsManager.Haptics)
             {
                 if (!haptics.Visible) continue; // only merge visible layers
 
                 // get metadata from the first haptics
+                // TODO: allow editing metadata per layer
                 if (!hapticsFound)
                 {
                     combinedHaptics.Funscript.metadata = haptics.Funscript.metadata;
@@ -97,23 +97,28 @@ public class FunscriptSaver : MonoBehaviour
                 // from the rest we copy only the actions
 
                 HashSet<int> atValuesAdded = new HashSet<int>();
-                
+
                 foreach (var action in haptics.Funscript.actions)
                 {
                     if (atValuesAdded.Contains(action.at)) continue;
-                    
-                    int pos = action.pos;
+
                     // get highest pos value
+                    int pos = action.pos;
+                    int at = action.at;
+
                     for (int i = 0; i < _hapticsManager.Haptics.Count; i++)
                     {
-                        int pos0 = GetPosAtTime(action.at, _hapticsManager.Haptics[i]);
+                        if (!_hapticsManager.Haptics[i].Visible) continue;
+                        if (_hapticsManager.Haptics[i] == haptics) continue;
+
+                        int pos0 = GetPosAtTime(at, _hapticsManager.Haptics[i]);
                         pos = math.max(pos, pos0);
                     }
 
                     // add new action
                     combinedHaptics.Funscript.actions.Add(new FunAction
                     {
-                        at = action.at,
+                        at = at,
                         pos = pos
                     });
 
@@ -125,8 +130,8 @@ public class FunscriptSaver : MonoBehaviour
             combinedHaptics.Funscript.actions.Sort();
 
             // process
-            var actions = ProcessFunscriptForSaving(combinedHaptics.Funscript);
-            combinedHaptics.Funscript.actions = actions;
+            // var actions = ProcessFunscriptForSaving(combinedHaptics.Funscript);
+            // combinedHaptics.Funscript.actions = actions;
 
             string json = JsonUtility.ToJson(combinedHaptics.Funscript);
             File.WriteAllText(funscriptPath, json);
@@ -137,7 +142,7 @@ public class FunscriptSaver : MonoBehaviour
             for (int hapticIndex = 0; hapticIndex < _hapticsManager.Haptics.Count; hapticIndex++)
             {
                 // The first haptic will be saved as the audio filename, the rest will have [#] in the end.
-                funscriptPath = hapticIndex == 0 ? funscriptPath : $"{noExtension}[{hapticIndex}].funscript";
+                funscriptPath = _hapticsManager.Haptics.Count == 1 ? $"{noExtension}.funscript" : $"{noExtension}[{hapticIndex}].funscript";
 
                 var haptic = _hapticsManager.Haptics[hapticIndex];
                 var funscript = haptic.Funscript;
@@ -162,24 +167,22 @@ public class FunscriptSaver : MonoBehaviour
         var actions = haptics.Funscript.actions;
 
         if (actions.Count == 0) return -1;
+        if (at >= actions[^1].at) return actions[^1].pos;
 
-        for (int i = actions.Count - 1; i >= 0; i--)
+        for (int i = 0; i < actions.Count - 1; i++)
         {
-            if (at > actions[i].at)
+            if (at == actions[i].at)
             {
-                if (i < actions.Count - 1)
-                {
-                    // lerp
-                    int at0 = actions[i].at;
-                    int at1 = actions[i + 1].at;
-                    float t = (float)(at1 - at) / (float)(at1 - at0);
-                    return (int)math.round(math.lerp(actions[i].pos, actions[i + 1].pos, t));
-                }
-                else
-                {
-                    // the at is later than the last action
-                    return actions[i].pos;
-                }
+                return actions[i].pos;
+            }
+
+            if (actions[i].at < at && actions[i + 1].at > at)
+            {
+                int at0 = actions[i].at;
+                int at1 = actions[i + 1].at;
+
+                float t = (float)(at - at0) / (at1 - at0);
+                return (int)math.round(math.lerp(actions[i].pos, actions[i + 1].pos, t));
             }
         }
 
