@@ -160,5 +160,7 @@ public class FileDropdownMenu : MonoBehaviour
         {
             // cancel
         }
+        
+        InputManager.InputBlocked = false;
     }
 }
