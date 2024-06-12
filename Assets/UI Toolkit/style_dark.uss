@@ -475,6 +475,10 @@
     background-color: #262626;
 }
 
+.layers-bottom-bar Button {
+    background-color: #262626;
+}
+
 .layers-add-button {
 }
 

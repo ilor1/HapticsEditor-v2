@@ -32,7 +32,8 @@ alternatively:
 3. a .funscript file with a matching name gets created/loaded automatically
 
 #### Bindings
-* 'Ctrl-S' - saves the funscript
+* 'Ctrl-S' - saves the funscript (one file per layer)
+* 'Shift-Ctrl-S' - saves the funscript (merges all layers to single file)
 * 'Space' - toggles playback 
 * 'D' - skips forward 8 seconds
 * 'A' - skips backward 8 seconds
@@ -69,6 +70,7 @@ alternatively:
 * [Pattern-Mode](./_Documentation/pattern-mode.md)
 * [Freeform-Mode](./_Documentation/freeform-mode.md)
 * [Cut/Copy-And-Paste](./_Documentation/cutcopypaste.md)
+* [Layers](./_Documentation/layers.md)
 
 ## Misc features
 * On-Load: Automatic funscript loading/creation
