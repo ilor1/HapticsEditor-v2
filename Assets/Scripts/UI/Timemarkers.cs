@@ -1,4 +1,5 @@
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -101,10 +102,10 @@ public class Timemarkers : UIBehaviour
     {
         _startAt = _startAt == -1 ? 0 : _startAt;
         _endAt = _endAt == -1 ? TimelineManager.Instance.LengthInMilliseconds : _endAt;
-        
+
         _dragStartMarker = false;
         _dragEndMarker = false;
-        
+
         // swap the markers if the end is before start
         if (_endAt < _startAt)
         {
@@ -143,28 +144,43 @@ public class Timemarkers : UIBehaviour
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
             && Input.GetKeyDown(KeyCode.X))
         {
-            FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
-            FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
-            FunscriptCutPaste.Singleton.Cut();
-            sortFunscript = true;
+            int selectedHapticLayer = GetSelectedHapticLayer();
+
+            if (selectedHapticLayer != -1)
+            {
+                FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
+                FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
+                FunscriptCutPaste.Singleton.Cut(selectedHapticLayer);
+                sortFunscript = true;
+            }
         }
 
         // Copy (CTRL-C)
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
             && Input.GetKeyDown(KeyCode.C))
         {
-            FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
-            FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
-            FunscriptCutPaste.Singleton.Copy();
+            int selectedHapticLayer = GetSelectedHapticLayer();
+
+            if (selectedHapticLayer != -1)
+            {
+                FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
+                FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
+                FunscriptCutPaste.Singleton.Copy(selectedHapticLayer);
+            }
         }
 
         // Paste from the start (CTRL-V), if SHIFT is pressed paste ending at the cursor location
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
             && Input.GetKeyDown(KeyCode.V))
         {
-            FunscriptCutPaste.Singleton.PointerAt = _pointerAt;
-            FunscriptCutPaste.Singleton.Paste(!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift));
-            sortFunscript = true;
+            int selectedHapticLayer = GetSelectedHapticLayer();
+
+            if (selectedHapticLayer != -1)
+            {
+                FunscriptCutPaste.Singleton.PointerAt = _pointerAt;
+                FunscriptCutPaste.Singleton.Paste(selectedHapticLayer, !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift));
+                sortFunscript = true;
+            }
         }
 
         if (sortFunscript)
@@ -181,6 +197,25 @@ public class Timemarkers : UIBehaviour
         ShowHideStartMarker(time0, time1);
         ShowHideEndMarker(time0, time1);
         ShowHideVerticalMarkers(time0);
+    }
+
+    private int GetSelectedHapticLayer()
+    {
+        int selectedHapticLayerCount = 0;
+        int selectedHapticLayer = -1;
+
+        for (int i = 0; i < FunscriptRenderer.Singleton.Haptics.Count; i++)
+        {
+            if (FunscriptRenderer.Singleton.Haptics[i].Selected)
+            {
+                selectedHapticLayerCount++;
+                selectedHapticLayer = i;
+            }
+
+            if (selectedHapticLayerCount > 1) return -1;
+        }
+
+        return selectedHapticLayer;
     }
 
     private void ShowHideVerticalMarkers(int time0)

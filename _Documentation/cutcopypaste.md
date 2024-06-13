@@ -3,7 +3,8 @@
 documentation in work...
 
 1. Place markers by `Left-Clicking` and `Shift-Left-Clicking` on the `timelabel-bar` between the funscript area and the waveform.
-2. `Cut` or `Copy` the funscript between the markers by pressing `Ctrl-X` or `Ctrl-V`.
+2. `Cut` or `Copy` the funscript between the markers by pressing `Ctrl-X` or `Ctrl-V`.    
 3. Paste the funscript starting from where the cursor is by pressing `Ctrl-V`, or ending where the cursor is by pressing `Shift-Ctrl-V`
 
+#### Note: Cut-Copy-Paste works only when a single layer is selected. You can however (as an example) `Cut from Layer1` and then `Paste to Layer2` by juggling the selections.
 

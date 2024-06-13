@@ -5,7 +5,6 @@ public class FunscriptCutPaste : MonoBehaviour
 {
     public static FunscriptCutPaste Singleton;
 
-    public int TrackIndex = 0;
     public int StartTimeInMilliseconds;
     public int EndTimeInMilliseconds;
     public int PointerAt;
@@ -21,13 +20,13 @@ public class FunscriptCutPaste : MonoBehaviour
         else if (Singleton != this) Destroy(this);
     }
 
-    public void Cut()
+    public void Cut(int hapticLayer)
     {
         // Clear clipboard
         _clipboardActions.Clear();
 
         // Get FunActions
-        GetFunactions(out var allActions);
+        GetFunactions(hapticLayer, out var allActions);
 
         for (int i = 0; i < allActions.Count; i++)
         {
@@ -53,18 +52,18 @@ public class FunscriptCutPaste : MonoBehaviour
 
         // apply
         _haptics.Funscript.actions = filteredActions;
-        _hapticsManager.Haptics[TrackIndex] = _haptics;
+        _hapticsManager.Haptics[hapticLayer] = _haptics;
 
         Debug.Log($"FunscriptCutPaste: Cut done! [{StartTimeInMilliseconds}-{EndTimeInMilliseconds}], {_clipboardActions.Count} actions in clipboard");
     }
 
-    public void Copy()
+    public void Copy(int hapticLayer)
     {
         // Clear clipboard
         _clipboardActions.Clear();
 
         // Get FunActions
-        GetFunactions(out var allActions);
+        GetFunactions(hapticLayer, out var allActions);
 
         for (int i = 0; i < allActions.Count; i++)
         {
@@ -83,12 +82,12 @@ public class FunscriptCutPaste : MonoBehaviour
         Debug.Log($"FunscriptCutPaste: Copy done! [{StartTimeInMilliseconds}-{EndTimeInMilliseconds}], {_clipboardActions.Count} actions in clipboard");
     }
 
-    public void Paste(bool start = true)
+    public void Paste(int hapticLayer, bool start = true)
     {
         if (_clipboardActions == null || _clipboardActions.Count <= 0) return;
 
         // Get FunActions
-        GetFunactions(out var allActions);
+        GetFunactions(hapticLayer, out var allActions);
 
         int amountToMove = start ? PointerAt - _clipboardActions[0].at : PointerAt - _clipboardActions[_clipboardActions.Count - 1].at;
 
@@ -119,13 +118,13 @@ public class FunscriptCutPaste : MonoBehaviour
 
         // apply
         _haptics.Funscript.actions = filteredActions;
-        _hapticsManager.Haptics[TrackIndex] = _haptics;
+        _hapticsManager.Haptics[hapticLayer] = _haptics;
 
         Debug.Log($"FunscriptCutPaste: Paste done! {_clipboardActions.Count} actions in clipboard");
     }
 
 
-    private void GetFunactions(out List<FunAction> allActions)
+    private void GetFunactions(int hapticLayer, out List<FunAction> allActions)
     {
         // Validate funscript
         if (_hapticsManager == null)
@@ -134,12 +133,12 @@ public class FunscriptCutPaste : MonoBehaviour
         }
 
         // get haptics
-        _haptics = _hapticsManager.Haptics[TrackIndex];
+        _haptics = _hapticsManager.Haptics[hapticLayer];
 
         // get all funactions
         allActions = _haptics.Funscript.actions;
     }
-    
+
     private bool ActionIsInsideRange(int at, int a, int b)
     {
         // at is inside [a,b]
