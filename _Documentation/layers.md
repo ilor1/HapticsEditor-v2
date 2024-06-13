@@ -2,7 +2,7 @@
 
 documentation in work...
 
-<img src="./Images/layers.png" alt="" height="720"/>
+<img src="./Images/layers.png" alt="" height="543"/>
 
 #### Adding Layers
 
