@@ -412,7 +412,6 @@
 
 }
 
-
 .layers-container {
     width: 300px;
     height: 150px;
@@ -430,6 +429,11 @@
     border-color: #3e3e42;
     border-bottom-width: 3px;
     background-color: #262626;
+    -unity-text-align: middle-left;
+}
+
+.layers-items {
+    height: 90px;
 }
 
 .layers-item {
@@ -445,13 +449,15 @@
     background-color: #323232;
 }
 
-.layers-item-label {
-    width: 150px;
+.layers-item-label {    
+    width: 220px;
     text-overflow: ellipsis;
     overflow: hidden;
+    -unity-text-align: middle-left;
 }
 
 .layers-eye {
+    align-self: center;
     height: 30px;
     width: 30px;
 }
@@ -462,6 +468,12 @@
 
 .layers-eye.closed {
     background-image: resource("Images/eye_closed");
+}
+
+.layers-color {
+    align-self: center;
+    width: 15px;
+    height: 15px;
 }
 
 .layers-bottom-bar {

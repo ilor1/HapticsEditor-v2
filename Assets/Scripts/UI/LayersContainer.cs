@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 
-
-
 public class LayersContainer : UIBehaviour
 {
     public static LayersContainer Singleton;
@@ -21,7 +19,6 @@ public class LayersContainer : UIBehaviour
 
     private int _layerRunningNumber = 1;
 
-    
 
     private void Awake()
     {
@@ -50,7 +47,7 @@ public class LayersContainer : UIBehaviour
         _title = CreateTitle();
         _layersContainer.Add(_title);
 
-        _internalLayersContainer = Create<ScrollView>();
+        _internalLayersContainer = Create<ScrollView>("layers-items");
         _layersContainer.Add(_internalLayersContainer);
 
         // Layers
@@ -92,9 +89,6 @@ public class LayersContainer : UIBehaviour
 
     private VisualElement CreateLayer(Haptics haptics = null)
     {
-        // if no Haptics track given, trigger creation of a new one
-        if (haptics == null) { }
-
         var layer = Create("layers-item", "selected");
         Layers.Add(layer);
         _visibleLayers.Add(layer);
@@ -104,6 +98,11 @@ public class LayersContainer : UIBehaviour
         var eye = Create("layers-eye", "open");
         eye.RegisterCallback<ClickEvent>(OnLayerEyeClick);
         layer.Add(eye);
+
+        // color
+        var layerColor = Create("layers-color");
+        layerColor.style.backgroundColor = haptics.LineRenderSettings.StrokeColor;
+        layer.Add(layerColor);
 
         // label
         var label = Create<Label>("layers-item-label");
@@ -149,7 +148,7 @@ public class LayersContainer : UIBehaviour
         var haptics = FunscriptSaver.Singleton.CreateNewHaptics(path);
         FunscriptRenderer.Singleton.Haptics.Add(haptics);
 
-        _internalLayersContainer.Add(CreateLayer());
+        _internalLayersContainer.Add(CreateLayer(haptics));
     }
 
     private void OnRemoveLayerClicked()

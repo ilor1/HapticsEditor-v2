@@ -363,7 +363,7 @@
 .devices-title > Label{
     width: 25px;
     height: 25px;
-    margin: 0 2 0 7;
+    margin: 0px 2px 0px 7px;
     padding: 0;
     align-self: center;
     justify-content: center;
@@ -384,7 +384,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
-    padding: 0 0 0 4;
+    padding: 0px 0px 0px 4px;
     align-self: center;
 }
 
@@ -415,18 +415,23 @@
     height: 150px;
     bottom: 93px;
     background-color: #000000;
-    border-width: 3 3 3 0;
+    border-width: 3px 3px 3px 0px;
     border-color: #3e3e42;
     position: absolute;
 }
 
-.layers-title {
+.layers-title {    
     height: 30px;
     width: 100%;
     flex-direction: row;
     border-color: #3e3e42;
     border-bottom-width: 3px;
     background-color: #000000;
+    -unity-text-align: middle-left;
+}
+
+.layers-items {
+    height: 90px;
 }
 
 .layers-item {
@@ -442,10 +447,11 @@
     background-color: #202020;
 }
 
-.layers-item-label {
-    width: 150px;
+.layers-item-label {    
+    width: 220px;
     text-overflow: ellipsis;
     overflow: hidden;
+    -unity-text-align: middle-left;
 }
 
 .layers-eye {
@@ -459,6 +465,12 @@
 
 .layers-eye.closed {
     background-image: resource("Images/eye_closed");
+}
+
+.layers-color {
+    align-self: center;
+    width: 15px;
+    height: 15px;    
 }
 
 .layers-bottom-bar {
