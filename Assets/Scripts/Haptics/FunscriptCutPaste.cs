@@ -55,6 +55,9 @@ public class FunscriptCutPaste : MonoBehaviour
         _hapticsManager.Haptics[hapticLayer] = _haptics;
 
         Debug.Log($"FunscriptCutPaste: Cut done! [{StartTimeInMilliseconds}-{EndTimeInMilliseconds}], {_clipboardActions.Count} actions in clipboard");
+        
+        TitleBar.MarkLabelDirty();
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 
     public void Copy(int hapticLayer)
@@ -105,22 +108,28 @@ public class FunscriptCutPaste : MonoBehaviour
         // Remove actions
         var filteredActions = allActions.FindAll(action => action.pos != -1);
 
+        var actions = new FunAction[_clipboardActions.Count];
+        _clipboardActions.CopyTo(actions);
+        
         // Add AmountToMove to clipboard actions
-        for (int i = 0; i < _clipboardActions.Count; i++)
+        for (int i = 0; i < actions.Length; i++)
         {
-            var action = _clipboardActions[i];
+            var action = actions[i];
             action.at += amountToMove;
-            _clipboardActions[i] = action;
+            actions[i] = action;
         }
 
         // Copy clipboard
-        filteredActions.AddRange(_clipboardActions);
+        filteredActions.AddRange(actions);
 
         // apply
         _haptics.Funscript.actions = filteredActions;
         _hapticsManager.Haptics[hapticLayer] = _haptics;
 
-        Debug.Log($"FunscriptCutPaste: Paste done! {_clipboardActions.Count} actions in clipboard");
+        Debug.Log($"FunscriptCutPaste: Paste done! {actions.Length} actions in clipboard");
+        
+        TitleBar.MarkLabelDirty();
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 
 
