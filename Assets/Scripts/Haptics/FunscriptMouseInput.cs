@@ -203,41 +203,88 @@ public class FunscriptMouseInput : UIBehaviour
 
     private void OnScrollWheel(WheelEvent evt)
     {
-        if (InputManager.Singleton.GetKey(ControlName.PatternRepeat))
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern)
         {
-            // Adjust pattern repeat
-            int amount = PatternManager.Singleton.RepeatAmount;
-            if (evt.delta.y < 0) amount++;
-            if (evt.delta.y > 0) amount--;
+            if (InputManager.Singleton.GetKey(ControlName.PatternRepeat))
+            {
+                // Adjust pattern repeat
+                int amount = PatternManager.Singleton.RepeatAmount;
+                if (evt.delta.y < 0) amount++;
+                if (evt.delta.y > 0) amount--;
 
-            ToolBar.Singleton.SetRepeat(amount);
-        }
-        else if (InputManager.Singleton.GetKey(ControlName.PatternScaleX))
-        {
-            // Adjust pattern length
-            float amount = PatternManager.Singleton.ScaleX;
-            if (evt.delta.y < 0) amount += 0.1f;
-            if (evt.delta.y > 0) amount -= 0.1f;
-            ToolBar.Singleton.SetScaleX(amount);
-        }
-        else if (InputManager.Singleton.GetKey(ControlName.PatternSpacing))
-        {
-            // Adjust pattern spacing
-            int amount = PatternManager.Singleton.Spacing;
-            if (evt.delta.y < 0) amount += 50;
-            if (evt.delta.y > 0) amount -= 50;
-            ToolBar.Singleton.SetSpacing(amount);
+                ToolBar.Singleton.SetRepeat(amount);
+            }
+            else if (InputManager.Singleton.GetKey(ControlName.PatternScaleX))
+            {
+                // Adjust pattern length
+                float amount = PatternManager.Singleton.ScaleX;
+                if (evt.delta.y < 0) amount += 0.1f;
+                if (evt.delta.y > 0) amount -= 0.1f;
+                ToolBar.Singleton.SetScaleX(amount);
+            }
+            else if (InputManager.Singleton.GetKey(ControlName.PatternSpacing))
+            {
+                // Adjust pattern spacing
+                int amount = PatternManager.Singleton.Spacing;
+                if (evt.delta.y < 0) amount += 50;
+                if (evt.delta.y > 0) amount -= 50;
+                ToolBar.Singleton.SetSpacing(amount);
+            }
+            else
+            {
+                // Adjust pattern height
+                float amount = PatternManager.Singleton.ScaleY;
+                if (evt.delta.y < 0) amount += 0.05f;
+                if (evt.delta.y > 0) amount -= 0.05f;
+                ToolBar.Singleton.SetScaleY(amount);
+            }
         }
         else
         {
-            // Adjust pattern height
-            float amount = PatternManager.Singleton.ScaleY;
-            if (evt.delta.y < 0) amount += 0.05f;
-            if (evt.delta.y > 0) amount -= 0.05f;
-            ToolBar.Singleton.SetScaleY(amount);
+            // Scale the actions inside TimeMarkers
+            int startAt = Timemarkers.Singleton.StartAt;
+            int endAt = Timemarkers.Singleton.EndAt;
+
+            bool skip = startAt == -1 || endAt == -1 || startAt >= endAt;
+
+            if (!skip)
+            {
+                float scale = 1f;
+                if (evt.delta.y < 0) scale = 1.1f;
+                if (evt.delta.y > 0) scale = 0.9f;
+
+                foreach (var haptic in FunscriptRenderer.Singleton.Haptics)
+                {
+                    if (!haptic.Selected) continue;
+                    
+                    for (int i = 0; i < haptic.Funscript.actions.Count; i++)
+                    {
+                        if (ActionIsInsideRange(haptic.Funscript.actions[i].at, startAt, endAt))
+                        {
+                            var funaction = haptic.Funscript.actions[i];
+                            // scale 
+                            funaction.pos = (int)math.round(funaction.pos * scale);
+
+                            // clamp
+                            funaction.pos = math.clamp(funaction.pos, 0, 100);
+
+                            haptic.Funscript.actions[i] = funaction;
+                        }
+                    }
+                }
+                TitleBar.MarkLabelDirty();
+                FunscriptOverview.Singleton.RenderHaptics();
+            }
         }
 
         evt.StopPropagation();
+    }
+
+
+    private bool ActionIsInsideRange(int at, int a, int b)
+    {
+        // at is inside [a,b]
+        return at >= a && at <= b;
     }
 
 
@@ -255,11 +302,10 @@ public class FunscriptMouseInput : UIBehaviour
             return;
         }
 
-
         int repeatCounter = 0;
 
         int prevAt = -1;
-        
+
         for (int i = 0; i < funactions.Length; i++)
         {
             var funaction = funactions[i];
@@ -279,7 +325,7 @@ public class FunscriptMouseInput : UIBehaviour
 
             // mouse offset
             funaction.at += MouseAt;
-            
+
             if (i > 0)
             {
                 // offset by one so the patterns don't break
@@ -288,7 +334,7 @@ public class FunscriptMouseInput : UIBehaviour
                     funaction.at += 1;
                 }
             }
-            
+
             prevAt = funaction.at;
 
             // scale 

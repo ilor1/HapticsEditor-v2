@@ -1,13 +1,12 @@
 ﻿using System;
 using Unity.Mathematics;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ToolBar : UIBehaviour
 {
     public static ToolBar Singleton;
 
-    private bool _isInitialized = false;
+    private bool _isInitialized;
 
     private VisualElement _toolBar;
 

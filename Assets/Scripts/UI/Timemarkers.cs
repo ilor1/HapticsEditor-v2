@@ -1,10 +1,11 @@
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Timemarkers : UIBehaviour
 {
+    public static Timemarkers Singleton;
+
     private VisualElement _container;
 
     private VisualElement[] _verticalMarkers;
@@ -13,12 +14,18 @@ public class Timemarkers : UIBehaviour
 
     private int _pointerAt;
     private VisualElement _startMarker;
-    private int _startAt = -1;
+    public int StartAt = -1;
     private VisualElement _endMarker;
-    private int _endAt = -1;
+    public int EndAt = -1;
 
     private bool _dragStartMarker = false;
     private bool _dragEndMarker = false;
+
+    private void Awake()
+    {
+        if (Singleton == null) Singleton = this;
+        else if (Singleton != this) Destroy(this);
+    }
 
     private void OnEnable()
     {
@@ -90,29 +97,29 @@ public class Timemarkers : UIBehaviour
 
         if (_dragStartMarker)
         {
-            _startAt = _pointerAt;
+            StartAt = _pointerAt;
         }
         else if (_dragEndMarker)
         {
-            _endAt = _pointerAt;
+            EndAt = _pointerAt;
         }
     }
 
     private void OnPointerUp(PointerUpEvent evt)
     {
-        _startAt = _startAt == -1 ? 0 : _startAt;
-        _endAt = _endAt == -1 ? TimelineManager.Instance.LengthInMilliseconds : _endAt;
+        StartAt = StartAt == -1 ? 0 : StartAt;
+        EndAt = EndAt == -1 ? TimelineManager.Instance.LengthInMilliseconds : EndAt;
 
         _dragStartMarker = false;
         _dragEndMarker = false;
 
         // swap the markers if the end is before start
-        if (_endAt < _startAt)
+        if (EndAt < StartAt)
         {
-            int start = math.min(_startAt, _endAt);
-            int end = math.max(_startAt, _endAt);
-            _startAt = start;
-            _endAt = end;
+            int start = math.min(StartAt, EndAt);
+            int end = math.max(StartAt, EndAt);
+            StartAt = start;
+            EndAt = end;
         }
     }
 
@@ -125,13 +132,13 @@ public class Timemarkers : UIBehaviour
         {
             // left click + shift, place right marker
             _dragEndMarker = true;
-            _endAt = _pointerAt;
+            EndAt = _pointerAt;
         }
         else if (evt.button == 0)
         {
             // left click, place left marker
             _dragStartMarker = true;
-            _startAt = _pointerAt;
+            StartAt = _pointerAt;
         }
     }
 
@@ -148,8 +155,8 @@ public class Timemarkers : UIBehaviour
 
             if (selectedHapticLayer != -1)
             {
-                FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
-                FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
+                FunscriptCutPaste.Singleton.StartTimeInMilliseconds = StartAt;
+                FunscriptCutPaste.Singleton.EndTimeInMilliseconds = EndAt;
                 FunscriptCutPaste.Singleton.Cut(selectedHapticLayer);
                 sortFunscript = true;
             }
@@ -163,8 +170,8 @@ public class Timemarkers : UIBehaviour
 
             if (selectedHapticLayer != -1)
             {
-                FunscriptCutPaste.Singleton.StartTimeInMilliseconds = _startAt;
-                FunscriptCutPaste.Singleton.EndTimeInMilliseconds = _endAt;
+                FunscriptCutPaste.Singleton.StartTimeInMilliseconds = StartAt;
+                FunscriptCutPaste.Singleton.EndTimeInMilliseconds = EndAt;
                 FunscriptCutPaste.Singleton.Copy(selectedHapticLayer);
             }
         }
@@ -248,14 +255,14 @@ public class Timemarkers : UIBehaviour
 
     private void ShowHideEndMarker(int time0, int time1)
     {
-        if (_endAt < 0 || time0 > _endAt || time1 < _endAt)
+        if (EndAt < 0 || time0 > EndAt || time1 < EndAt)
         {
             _endMarker.style.display = DisplayStyle.None;
         }
         else
         {
             _endMarker.style.display = DisplayStyle.Flex;
-            float x = (_endAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
+            float x = (EndAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
             x *= _container.contentRect.width;
             x -= _endMarker.contentRect.width;
             _endMarker.style.left = x;
@@ -264,14 +271,14 @@ public class Timemarkers : UIBehaviour
 
     private void ShowHideStartMarker(int time0, int time1)
     {
-        if (_startAt < 0 || time0 > _startAt || time1 < _startAt)
+        if (StartAt < 0 || time0 > StartAt || time1 < StartAt)
         {
             _startMarker.style.display = DisplayStyle.None;
         }
         else
         {
             _startMarker.style.display = DisplayStyle.Flex;
-            float x = (_startAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
+            float x = (StartAt - time0) / (float)(TimelineManager.Instance.LengthInMilliseconds);
             x *= _container.contentRect.width;
             _startMarker.style.left = x;
         }
