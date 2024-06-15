@@ -3,22 +3,26 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+[Serializable]
+public struct Pattern
+{
+    public string name;
+    public FunAction[] actions;
+}
+
 public class PatternManager : MonoBehaviour
 {
     public static PatternManager Singleton;
 
-    // public bool PatternMode { get; set; }
     public int RepeatAmount { get; set; }
     public readonly int RepeatAmountDefault = 3;
     public readonly int RepeatAmountMin = 0;
     public readonly int RepeatAmountMax = 100;
 
-
     public int Spacing { get; set; }
     public readonly int SpacingDefault = 1;
     public readonly int SpacingMin = 1;
     public readonly int SpacingMax = 7500;
-
 
     public float ScaleX { get; set; }
     public readonly float ScaleXDefault = 1f;
@@ -34,10 +38,10 @@ public class PatternManager : MonoBehaviour
     public bool InvertX { get; set; }
 
     public Pattern ActivePattern => Patterns[_activePatternIndex];
-    public List<Pattern> Patterns = new List<Pattern>();
+    public List<Pattern> Patterns = new();
 
     private readonly string _patternsFolder = $"{Application.streamingAssetsPath}/Patterns";
-    private int _activePatternIndex = 0;
+    private int _activePatternIndex;
     private const string JSON_EXT = ".json";
 
     private void Awake()
@@ -107,12 +111,4 @@ public class PatternManager : MonoBehaviour
         _activePatternIndex++;
         if (_activePatternIndex > Patterns.Count - 1) _activePatternIndex = 0;
     }
-}
-
-
-[Serializable]
-public struct Pattern
-{
-    public string name;
-    public FunAction[] actions;
 }

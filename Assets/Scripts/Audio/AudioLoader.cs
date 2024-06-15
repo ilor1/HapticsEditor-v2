@@ -10,10 +10,9 @@ public class AudioLoader : UIBehaviour
     public static AudioLoader Singleton;
     public static Action<AudioSource> ClipLoaded;
 
-    [Header("Audio")]
-    public string AudioFilePath = "E:/_Projects/Haptics/ExampleAudioFile.mp3";
-
+    public string AudioFilePath;
     public AudioSource AudioSource;
+    
     private UnityWebRequest _audioRequest;
     private ProgressBar _progressBar;
 

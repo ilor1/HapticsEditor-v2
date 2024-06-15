@@ -9,9 +9,7 @@ public class FunscriptCutPaste : MonoBehaviour
     public int EndTimeInMilliseconds;
     public int PointerAt;
 
-    private FunscriptRenderer _hapticsManager;
     private Haptics _haptics;
-
     private List<FunAction> _clipboardActions = new List<FunAction>();
 
     private void Awake()
@@ -52,10 +50,10 @@ public class FunscriptCutPaste : MonoBehaviour
 
         // apply
         _haptics.Funscript.actions = filteredActions;
-        _hapticsManager.Haptics[hapticLayer] = _haptics;
+        FunscriptRenderer.Singleton.Haptics[hapticLayer] = _haptics;
 
         Debug.Log($"FunscriptCutPaste: Cut done! [{StartTimeInMilliseconds}-{EndTimeInMilliseconds}], {_clipboardActions.Count} actions in clipboard");
-        
+
         TitleBar.MarkLabelDirty();
         FunscriptOverview.Singleton.RenderHaptics();
     }
@@ -110,7 +108,7 @@ public class FunscriptCutPaste : MonoBehaviour
 
         var actions = new FunAction[_clipboardActions.Count];
         _clipboardActions.CopyTo(actions);
-        
+
         // Add AmountToMove to clipboard actions
         for (int i = 0; i < actions.Length; i++)
         {
@@ -124,10 +122,10 @@ public class FunscriptCutPaste : MonoBehaviour
 
         // apply
         _haptics.Funscript.actions = filteredActions;
-        _hapticsManager.Haptics[hapticLayer] = _haptics;
+        FunscriptRenderer.Singleton.Haptics[hapticLayer] = _haptics;
 
         Debug.Log($"FunscriptCutPaste: Paste done! {actions.Length} actions in clipboard");
-        
+
         TitleBar.MarkLabelDirty();
         FunscriptOverview.Singleton.RenderHaptics();
     }
@@ -135,14 +133,8 @@ public class FunscriptCutPaste : MonoBehaviour
 
     private void GetFunactions(int hapticLayer, out List<FunAction> allActions)
     {
-        // Validate funscript
-        if (_hapticsManager == null)
-        {
-            _hapticsManager = GetComponent<FunscriptRenderer>();
-        }
-
         // get haptics
-        _haptics = _hapticsManager.Haptics[hapticLayer];
+        _haptics = FunscriptRenderer.Singleton.Haptics[hapticLayer];
 
         // get all funactions
         allActions = _haptics.Funscript.actions;

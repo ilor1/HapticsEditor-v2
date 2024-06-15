@@ -1,13 +1,13 @@
 ﻿using System;
 using Unity.Mathematics;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ToolBar : UIBehaviour
 {
     public static ToolBar Singleton;
-
+    
     private bool _isInitialized;
-
     private VisualElement _toolBar;
 
     // Shared tools
@@ -23,22 +23,16 @@ public class ToolBar : UIBehaviour
 
     // Pattern tools
     private Button _nextPatternButton;
-
     private VisualElement _repeatContainer;
     private IntegerField _repeatField;
-
     private VisualElement _spacingContainer;
     private Slider _spacingField;
-
     private VisualElement _scaleXContainer;
     private Slider _scaleXField;
-
     private VisualElement _invertXContainer;
     private Toggle _invertXToggle;
-
     private VisualElement _scaleYContainer;
     private Slider _scaleYField;
-
     private VisualElement _invertYContainer;
     private Toggle _invertYToggle;
 
@@ -61,9 +55,7 @@ public class ToolBar : UIBehaviour
     private void Update()
     {
         if (!_isInitialized) return;
-
         if (InputManager.InputBlocked) return;
-
 
         // Hotkeys change the visuals which triggers the events
         if (InputManager.Singleton.GetKeyDown(ControlName.ToggleSnapping))
@@ -107,7 +99,6 @@ public class ToolBar : UIBehaviour
                     break;
             }
 
-            // _patternToggle.value = !_patternToggle.value;
             OnScriptingModeChanged(SettingsManager.ApplicationSettings.Mode);
         }
 
@@ -130,10 +121,6 @@ public class ToolBar : UIBehaviour
         _toolBar = root.Query(className: "tool-bar");
 
         // Shared tools
-        // _patternToggleContainer = CreateItem("Pattern-mode:", out _patternToggle);
-        // _patternToggle.RegisterValueChangedCallback(OnPatternModeChanged);
-        // _toolBar.Add(_patternToggleContainer);
-
         _modeChangeButton = Create<Button>();
         _modeChangeButton.text = "Default";
         _modeChangeButton.AddToClassList("black");

@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,14 +15,10 @@ public class PatternCreatorMenu : UIBehaviour
     private VisualElement _root;
     private VisualElement _popup;
     private VisualElement _container;
-
     private LineDrawer _pattern;
-
-    private List<Pattern> _patterns = new List<Pattern>();
-
-    private int _activePatternIndex = 0;
-
-    private List<FunAction> _activePattern = new List<FunAction>();
+    private List<Pattern> _patterns = new();
+    private int _activePatternIndex;
+    private List<FunAction> _activePattern = new();
 
     private void Awake()
     {
@@ -187,81 +185,54 @@ public class PatternCreatorMenu : UIBehaviour
     private int GetPosValue(Vector2 relativeCoords, bool snapping)
     {
         float value = 100 * relativeCoords.y;
-        if (snapping)
-        {
-            return (int)(math.round(value / 5f) * 5);
-        }
-        else
-        {
-            return (int)math.round(value);
-        }
+        return snapping ? (int)(math.round(value / 5f) * 5) : (int)math.round(value);
     }
 
     private int GetNextFunActionIndex(int at)
     {
-        // No funscript
-        if (_activePattern.Count <= 0)
+        var actions = new NativeArray<FunAction>(_activePattern.Count, Allocator.TempJob);
+        actions.CopyFrom(_activePattern.ToArray());
+
+        var indexRef = new NativeReference<int>(Allocator.TempJob);
+
+        new GetNextFunActionIndexJob
         {
-            return -1;
-        }
+            IgnoreSelection = true,
+            Selected = true,
+            At = at,
+            Actions = actions,
+            Index = indexRef
+        }.Schedule().Complete();
 
-        // no funActions
-        if (_activePattern.Count == 0) return -1;
+        int index = indexRef.Value;
 
-        // Go through funActions
-        for (int i = 0; i < _activePattern.Count; i++)
-        {
-            if (_activePattern[i].at >= at)
-            {
-                // found funAction that is later than current
-                return i;
-            }
-        }
+        indexRef.Dispose();
+        actions.Dispose();
 
-        // failed to find next funAction
-        return -1;
+        return index;
     }
 
     private int GetPreviousFunActionIndex(int at)
     {
-        // No funscript
-        if (_activePattern.Count <= 0)
+        var actions = new NativeArray<FunAction>(_activePattern.Count, Allocator.TempJob);
+        actions.CopyFrom(_activePattern.ToArray());
+
+        var indexRef = new NativeReference<int>(Allocator.TempJob);
+
+        new GetPreviousFunActionIndexJob
         {
-            return -1;
-        }
+            Selected = true,
+            At = at,
+            Actions = actions,
+            Index = indexRef
+        }.Schedule().Complete();
 
-        // no funActions
-        if (_activePattern.Count == 0) return -1;
+        int index = indexRef.Value;
 
-        // If there's only one action check if cursor is after it
-        if (_activePattern.Count == 1)
-        {
-            return _activePattern[0].at < at ? 0 : -1;
-        }
+        indexRef.Dispose();
+        actions.Dispose();
 
-        // Go through funActions
-        for (int i = 0; i < _activePattern.Count; i++)
-        {
-            if (i == _activePattern.Count - 1 && _activePattern[i].at <= at)
-            {
-                return i;
-            }
-
-            if (_activePattern[i].at <= at && _activePattern[i + 1].at > at)
-            {
-                // found next
-                return i;
-            }
-
-            if (_activePattern[i].at > at)
-            {
-                // failed to find next funAction
-                return -1;
-            }
-        }
-
-        // failed to find next funAction
-        return -1;
+        return index;
     }
 
     private int GetAtValue(Vector2 relativeCoords)
@@ -290,8 +261,8 @@ public class PatternCreatorMenu : UIBehaviour
         _pattern.TimeInMilliseconds = 500;
 
         _root.Add(_popup);
-        
-        // Load the pattern with one frame delay. Otherwise it won't show up
+
+        // Load the pattern with one frame delay. Otherwise, it won't show up
         StartCoroutine(LoadPatternWithDelay());
     }
 
@@ -348,8 +319,7 @@ public class PatternCreatorMenu : UIBehaviour
         {
             name = Guid.NewGuid().ToString(),
             actions = new FunAction[]
-            {
-            }
+                { }
         });
 
         _activePatternIndex = _patterns.Count - 1;

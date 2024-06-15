@@ -8,10 +8,8 @@ public class MetadataMenu : UIBehaviour
     private VisualElement _root;
     private VisualElement _popup;
     private VisualElement _container;
-
     private Metadata _data;
     private bool _inverted;
-
     private Toggle _invertedField;
     private TextField _creatorField;
     private TextField _descriptionField;

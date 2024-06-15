@@ -9,8 +9,6 @@ public class FunscriptLoader : MonoBehaviour
     public static FunscriptLoader Singleton;
     public static Action<string> FunscriptLoaded;
 
-    private FunscriptRenderer _hapticsManager;
-
     private void Awake()
     {
         if (Singleton == null) Singleton = this;
@@ -27,27 +25,9 @@ public class FunscriptLoader : MonoBehaviour
         FileDropdownMenu.FunscriptPathLoaded -= LoadFunscript;
     }
 
-    public bool TryLoadFunscript(string path)
-    {
-        if (File.Exists(path))
-        {
-            LoadFunscript(path);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     private void LoadFunscript(string path)
     {
         FileDropdownMenu.Singleton.FunscriptPath = path;
-
-        if (_hapticsManager == null)
-        {
-            _hapticsManager = GetComponent<FunscriptRenderer>();
-        }
 
         Haptics haptics = null;
         bool markLabelDirty = false;
@@ -85,7 +65,7 @@ public class FunscriptLoader : MonoBehaviour
 
         // Create a new layer for the loaded haptics
         LayersContainer.Singleton.CreateHapticsLayer(haptics);
-        _hapticsManager.Haptics.Add(haptics);
+        FunscriptRenderer.Singleton.Haptics.Add(haptics);
         FunscriptLoaded?.Invoke(path);
 
         // mark label dirty if we created a new funscript track

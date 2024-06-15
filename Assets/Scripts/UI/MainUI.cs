@@ -8,13 +8,12 @@ public class MainUI : UIBehaviour
     public static MainUI Singleton;
     public static Action<VisualElement> RootCreated;
 
-    [Header("UI Panel")] [SerializeField] protected UIDocument _document;
-
     public StyleSheet StyleSheet;
+    
+    [SerializeField] protected UIDocument _document;
 
     private VisualElement _funscriptContainer;
     private VisualElement _funscriptHapticContainer;
-
     private VisualElement _valueLabels;
 
     private void Awake()

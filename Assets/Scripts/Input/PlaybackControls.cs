@@ -5,15 +5,13 @@ using UnityEngine.UIElements;
 public class PlaybackControls : MonoBehaviour
 {
     private AudioSource _audioSource;
-
+    private Label _timelineLength;
+    
     private const float _minSpeed = 0.5f;
     private const float _maxSpeed = 4f;
-
     private const int _minZoom = 15000 / 8;
     private const int _maxZoom = 15000 * 8;
-
-    private Label _timelineLength;
-
+    
     private void OnEnable()
     {
         AudioLoader.ClipLoaded += OnClipLoaded;

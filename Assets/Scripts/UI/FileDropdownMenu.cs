@@ -7,18 +7,18 @@ using UnityEngine;
 public class FileDropdownMenu : MonoBehaviour
 {
     public static FileDropdownMenu Singleton;
-
     public static Action<string> AudioPathLoaded;
     public static Action<string> FunscriptPathLoaded;
+    
+    [HideInInspector] public string FunscriptPath;
+    [HideInInspector] public string FunscriptPathWithoutExtension;
 
+    private string _audioPath;
+    
     private const string MP3_EXT = ".mp3";
     private const string WAV_EXT = ".wav";
     private const string FUNSCRIPT_EXT = ".funscript";
-
-    [HideInInspector] public string FunscriptPath;
-    [HideInInspector] public string FunscriptPathWithoutExtension;
-    private string _audioPath;
-
+    
     private void Awake()
     {
         if (Singleton == null)

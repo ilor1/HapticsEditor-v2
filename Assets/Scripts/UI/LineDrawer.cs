@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,12 +9,10 @@ public class LineDrawer : VisualElement
 {
     public int LengthInMilliseconds { get; set; }
     public int TimeInMilliseconds { get; set; }
-
     public Color StrokeColor { get; set; }
-
     public float LineWidth { get; set; }
 
-    private List<Vector2> _coords = new List<Vector2>();
+    private List<Vector2> _coords = new();
 
     public LineDrawer()
     {
@@ -23,82 +22,24 @@ public class LineDrawer : VisualElement
     public void RenderFunActions(List<FunAction> actions)
     {
         _coords.Clear();
+
         VisualElement parentContainer = parent;
+        var actionsNative = actions.ToNativeArray(Allocator.TempJob);
+        var coords = new NativeList<Vector2>(actions.Count + 4, Allocator.TempJob);
 
-        bool firstPoint = false;
-        float2 coord = float2.zero;
-
-        // Get size from container 
-        float2 size = new float2(parentContainer.contentRect.width, parentContainer.contentRect.height);
-
-        for (int i = 0; i < actions.Count; i++)
+        new RenderFunActionJob
         {
-            float at = actions[i].at;
-            float pos = actions[i].pos;
+            Size = new float2(parentContainer.contentRect.width, parentContainer.contentRect.height),
+            TimeInMilliseconds = TimeInMilliseconds,
+            LengthInMilliseconds = LengthInMilliseconds,
+            Actions = actionsNative,
+            Coords = coords
+        }.Schedule().Complete();
 
-            // Action.Pos is before timeline
-            if (at < TimeInMilliseconds - 0.5f * LengthInMilliseconds)
-            {
-                // if the last point is before the timeline start, draw a flat line
-                if (i == actions.Count - 1)
-                {
-                    coord.y = pos * -(size.y / 100);
-                    coord.x = 0;
-                    _coords.Add(coord);
+        _coords.AddRange(coords.AsArray());
 
-                    coord.x = LengthInMilliseconds * (size.x / LengthInMilliseconds);
-                    _coords.Add(coord);
-                }
-
-                continue;
-            }
-
-            // Get first point that is outside the screen
-            if (!firstPoint && i > 0)
-            {
-                firstPoint = true;
-
-                // Draw value at the start of the screen
-                int at0 = actions[i - 1].at;
-
-                // if the first point is inside the timeline, we need to draw a separate coordinate at 0
-                if (at0 > TimeInMilliseconds - 0.5f * LengthInMilliseconds)
-                {
-                    coord.x = 0;
-                    coord.y = actions[i - 1].pos * -(size.y / 100);
-                    _coords.Add(coord);
-                }
-
-                coord.x = (actions[i - 1].at - TimeInMilliseconds + LengthInMilliseconds * 0.5f) * (size.x / LengthInMilliseconds);
-                coord.y = actions[i - 1].pos * -(size.y / 100);
-                _coords.Add(coord);
-            }
-
-            // Draw point
-            coord.x = (at - TimeInMilliseconds + LengthInMilliseconds * 0.5f) * (size.x / LengthInMilliseconds);
-            coord.y = pos * -(size.y / 100);
-            _coords.Add(coord);
-
-            // Draw value at the end of the screen, when the last point is beyond timeline end
-            if (i > 0 && at > TimeInMilliseconds + 0.5f * LengthInMilliseconds)
-            {
-                float t = (TimeInMilliseconds + 0.5f * LengthInMilliseconds - actions[i - 1].at) / (actions[i].at - actions[i - 1].at);
-                coord.x = LengthInMilliseconds * (size.x / LengthInMilliseconds);
-                coord.y = math.lerp(actions[i - 1].pos, actions[i].pos, t) * -(size.y / 100);
-                _coords.Add(coord);
-                break;
-            }
-
-            // Draw value at the end of the screen, when the last point is inside timeline end
-            if (i == actions.Count - 1 && at < TimeInMilliseconds + 0.5f * LengthInMilliseconds)
-            {
-                // Add point to the end
-                coord.x = LengthInMilliseconds * (size.x / LengthInMilliseconds);
-                coord.y = pos * -(size.y / 100);
-                _coords.Add(coord);
-            }
-        }
-
+        actionsNative.Dispose();
+        coords.Dispose();
         MarkDirtyRepaint();
     }
 

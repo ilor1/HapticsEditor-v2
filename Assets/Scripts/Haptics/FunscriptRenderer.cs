@@ -1,33 +1,18 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class FunscriptRenderer : UIBehaviour
 {
     public static FunscriptRenderer Singleton;
 
-    [Header("Haptics")] public List<Haptics> Haptics = new List<Haptics>();
+    public List<Haptics> Haptics = new();
 
-    private bool _uiGenerated = false;
+    private bool _uiGenerated;
     private VisualElement _funscriptContainer;
-    private List<LineDrawer> _lineDrawers = new List<LineDrawer>();
-
-    public ActionComparer ActionComparer
-    {
-        get
-        {
-            if (_actionComparer == null)
-                _actionComparer = new ActionComparer();
-
-            return _actionComparer;
-        }
-        set { _actionComparer = value; }
-    }
-
-    private ActionComparer _actionComparer;
-
+    private List<LineDrawer> _lineDrawers = new();
+    private VisualElement _verticalGrid;
 
     private void Awake()
     {
@@ -46,69 +31,6 @@ public class FunscriptRenderer : UIBehaviour
         MainUI.RootCreated -= Generate;
         FunscriptLoader.FunscriptLoaded -= OnFunscriptLoaded;
     }
-
-    public void OnFunscriptLoaded(string path)
-    {
-        SortFunscript();
-        CleanupExcessPoints();
-    }
-
-    public void SortFunscript()
-    {
-        foreach (var haptic in Haptics)
-        {
-            if (!haptic.Selected) continue;
-            
-            haptic.Funscript.actions.Sort();
-        }
-    }
-
-    public void CleanupExcessPoints()
-    {
-        foreach (var haptic in Haptics)
-        {
-            if (!haptic.Selected) continue;
-            
-            var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
-
-            var cleanupPointsJob = new DouglasPeuckerJob
-            {
-                Actions = actionsNative,
-            };
-            cleanupPointsJob.Schedule().Complete();
-
-            haptic.Funscript.actions.Clear();
-            haptic.Funscript.actions.AddRange(actionsNative.AsArray());
-
-            actionsNative.Dispose();
-        }
-    }
-
-    public void RemovePointsBetween(int at0, int at1)
-    {
-        foreach (var haptic in Haptics)
-        {
-            if (!haptic.Selected) continue;
-            
-            var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
-
-            var removePointsJob = new RemovePointsJob
-            {
-                Start = at0,
-                End = at1,
-                Actions = actionsNative
-            };
-            removePointsJob.Schedule().Complete();
-
-            haptic.Funscript.actions.Clear();
-            haptic.Funscript.actions.AddRange(actionsNative.ToArray(Allocator.Temp));
-
-            actionsNative.Dispose();
-        }
-    }
-
-
-    private VisualElement _verticalGrid;
 
     private void Generate(VisualElement root)
     {
@@ -155,7 +77,6 @@ public class FunscriptRenderer : UIBehaviour
         while (_lineDrawers.Count < Haptics.Count)
         {
             var lineDrawer = new LineDrawer();
-            // lineDrawer.AddToClassList("funscript-line");
             _lineDrawers.Add(lineDrawer);
             _funscriptContainer.Add(lineDrawer);
         }
@@ -183,6 +104,66 @@ public class FunscriptRenderer : UIBehaviour
                 _lineDrawers[i].TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
                 _lineDrawers[i].RenderFunActions(Haptics[i].Funscript.actions);
             }
+        }
+    }
+
+    private void OnFunscriptLoaded(string path)
+    {
+        SortFunscript();
+        CleanupExcessPoints();
+    }
+
+    public void SortFunscript()
+    {
+        foreach (var haptic in Haptics)
+        {
+            if (!haptic.Selected) continue;
+
+            haptic.Funscript.actions.Sort();
+        }
+    }
+
+    public void CleanupExcessPoints()
+    {
+        foreach (var haptic in Haptics)
+        {
+            if (!haptic.Selected) continue;
+
+            var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
+
+            var cleanupPointsJob = new DouglasPeuckerJob
+            {
+                Actions = actionsNative,
+            };
+            cleanupPointsJob.Schedule().Complete();
+
+            haptic.Funscript.actions.Clear();
+            haptic.Funscript.actions.AddRange(actionsNative.AsArray());
+
+            actionsNative.Dispose();
+        }
+    }
+
+    public void RemovePointsBetween(int at0, int at1)
+    {
+        foreach (var haptic in Haptics)
+        {
+            if (!haptic.Selected) continue;
+
+            var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
+
+            var removePointsJob = new RemovePointsJob
+            {
+                Start = at0,
+                End = at1,
+                Actions = actionsNative
+            };
+            removePointsJob.Schedule().Complete();
+
+            haptic.Funscript.actions.Clear();
+            haptic.Funscript.actions.AddRange(actionsNative.ToArray(Allocator.Temp));
+
+            actionsNative.Dispose();
         }
     }
 }

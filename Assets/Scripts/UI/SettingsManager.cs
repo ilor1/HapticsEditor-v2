@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -110,7 +109,10 @@ public class SettingsManager : UIBehaviour
 
     private void SaveAppSettings()
     {
-        string json = JsonUtility.ToJson(ApplicationSettings);
+        var settingsToSave = ApplicationSettings;
+        settingsToSave.Mode = ScriptingMode.Default; // Don't store the scripting mode changes.
+        
+        string json = JsonUtility.ToJson(settingsToSave);
         PlayerPrefs.SetString("AppSettings", json);
         PlayerPrefs.Save();
     }

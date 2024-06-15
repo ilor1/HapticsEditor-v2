@@ -3,21 +3,19 @@ using UnityEngine.UIElements;
 
 public class StyleSheetChanger : MonoBehaviour
 {
+    [SerializeField] private StyleSheet[] _stylesheets;
+    
     private UIDocument _document;
     private MainUI _mainUI;
+    private int _currentStylesheet;
 
-    [SerializeField] private StyleSheet[] _stylesheets;
-
-    private int _currentStylesheet = 0;
-
-    void Awake()
+    private void Awake()
     {
         _document = GetComponent<UIDocument>();
         _mainUI = GetComponent<MainUI>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F5))
         {

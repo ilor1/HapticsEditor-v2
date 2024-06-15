@@ -9,7 +9,7 @@ public class InputManager : MonoBehaviour
 
     private string _bindingsPath = $"{Application.streamingAssetsPath}/bindings.json";
     private Bindings _bindings;
-    private Dictionary<ControlName, KeyCode> _keyboardControls = new Dictionary<ControlName, KeyCode>();
+    private Dictionary<ControlName, KeyCode> _keyboardControls = new();
 
     // To create a new binding:
     // 1. Add it to Bindings.cs -> ControlName enum
@@ -48,7 +48,7 @@ public class InputManager : MonoBehaviour
         Debug.Log($"InputManager: Bindings saved: ({_bindingsPath})");
     }
 
-    public void LoadBindings()
+    private void LoadBindings()
     {
         if (File.Exists(_bindingsPath))
         {

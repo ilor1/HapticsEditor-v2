@@ -10,12 +10,10 @@ public class BindingsMenu : UIBehaviour
     private VisualElement _root;
     private VisualElement _popup;
     private VisualElement _container;
-
     private bool _isListeningForKey = false;
     private ControlName _currentControlName;
-
-    private Dictionary<ControlName, Button> _buttonDictionary = new Dictionary<ControlName, Button>();
-    private Dictionary<ControlName, KeyCode> _keyCodeDictionary = new Dictionary<ControlName, KeyCode>();
+    private Dictionary<ControlName, Button> _buttonDictionary = new();
+    private Dictionary<ControlName, KeyCode> _keyCodeDictionary = new();
 
     private void Awake()
     {
@@ -71,11 +69,6 @@ public class BindingsMenu : UIBehaviour
         _container.Add(bindingsButtons);
     }
 
-    private void StartListeningForKey(ControlName controlName)
-    {
-        _isListeningForKey = true;
-        _currentControlName = controlName;
-    }
 
     private void Update()
     {
@@ -101,6 +94,12 @@ public class BindingsMenu : UIBehaviour
                 break;
             }
         }
+    }
+
+    private void StartListeningForKey(ControlName controlName)
+    {
+        _isListeningForKey = true;
+        _currentControlName = controlName;
     }
 
     private void SetBindingKey(ControlName controlName, KeyCode pressedKey)

@@ -8,8 +8,8 @@ public class TimeLineBar : UIBehaviour
     private VisualElement _timeline;
     private VisualElement _fill;
     private Label _label;
-    private bool _isDragging = false;
-    private bool _initialized = false;
+    private bool _isDragging;
+    private bool _initialized;
 
     private const string TIME_FORMAT = @"hh\:mm\:ss\.f";
 

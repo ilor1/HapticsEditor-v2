@@ -7,10 +7,10 @@ public class PatternRenderer : UIBehaviour
 {
     private VisualElement _funscriptContainer;
     private VisualElement _patternContainer;
-    private bool _isInitialized = false;
-    private bool _patternMode = false;
+    private bool _isInitialized;
+    private bool _patternMode;
     private LineDrawer _pattern;
-    private List<FunAction> _funActions = new List<FunAction>();
+    private List<FunAction> _funActions = new();
 
     private void OnEnable()
     {
@@ -38,10 +38,42 @@ public class PatternRenderer : UIBehaviour
         _isInitialized = true;
     }
 
+    private void Update()
+    {
+        // root not created
+        if (!_isInitialized) return;
+
+        // Toggle pattern element
+        if (_patternMode != (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern))
+        {
+            _patternMode = SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern;
+
+            if (_patternMode)
+            {
+                // Start rendering pattern on top of funscriptContainer    
+                _funscriptContainer.Add(_patternContainer);
+                _funscriptContainer.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
+                _funscriptContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
+            }
+            else
+            {
+                // Stop rendering pattern on top of funscriptContainer    
+                _funscriptContainer.Remove(_patternContainer);
+                _funscriptContainer.UnregisterCallback<PointerEnterEvent>(OnPointerEnter);
+                _funscriptContainer.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
+            }
+        }
+
+        // not in pattern mode
+        if (!_patternMode) return;
+
+        Render();
+    }
+
     private void Render()
     {
         _funActions.Clear();
-        
+
         // Get the active pattern
         var funactions = PatternManager.Singleton.ActivePattern.actions;
 
@@ -110,38 +142,6 @@ public class PatternRenderer : UIBehaviour
         _pattern.LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
         _pattern.TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
         _pattern.RenderFunActions(_funActions);
-    }
-
-    private void Update()
-    {
-        // root not created
-        if (!_isInitialized) return;
-
-        // Toggle pattern element
-        if (_patternMode !=  (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern))
-        {
-            _patternMode = SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern;
-
-            if (_patternMode)
-            {
-                // Start rendering pattern on top of funscriptContainer    
-                _funscriptContainer.Add(_patternContainer);
-                _funscriptContainer.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
-                _funscriptContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
-            }
-            else
-            {
-                // Stop rendering pattern on top of funscriptContainer    
-                _funscriptContainer.Remove(_patternContainer);
-                _funscriptContainer.UnregisterCallback<PointerEnterEvent>(OnPointerEnter);
-                _funscriptContainer.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
-            }
-        }
-
-        // not in pattern mode
-        if (!_patternMode) return;
-
-        Render();
     }
 
     private void OnPointerLeave(PointerLeaveEvent evt)

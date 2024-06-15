@@ -1,44 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class FunscriptMouseInput : UIBehaviour
 {
     public static FunscriptMouseInput Singleton;
-
-    private VisualElement _funscriptContainer;
-
     public static int MouseAt;
     public static int MousePos;
 
-    public static int PreviousMouseAt;
-    public static int PreviousMousePos;
-
-    private Vector2 _mouseRelativePosition;
-
-    private bool _mouseInsideContainer;
-
-    private bool _isDrawing;
-    private bool _isErasing;
-
     public bool Snapping { get; set; }
-
     public bool StepMode { get; set; }
 
+    private Vector2 _mouseRelativePosition;
+    private bool _mouseInsideContainer;
+    private bool _isDrawing;
+    private bool _isErasing;
+    private VisualElement _funscriptContainer;
     private float _freeformTimeUntilAddingNextPoint = 0f;
     private float _freeformTimeUntilRemovingNextPoint = 0f;
-
-
     private List<FunAction> _patternActions = new List<FunAction>();
-
-
     private int _previousAddedPointAt = -1;
-
-    //private int _previousRemovedPointAt = -1;
     private int _startRemovePointAt = -1;
 
     private void Awake()
@@ -78,6 +63,7 @@ public class FunscriptMouseInput : UIBehaviour
         {
             if (!_isDrawing && Input.GetMouseButton(0))
             {
+                Debug.Log("Started Drawing");
                 // start drawing if: LMB down, inside container, in free mode
                 StartDrawing();
             }
@@ -119,9 +105,6 @@ public class FunscriptMouseInput : UIBehaviour
             // erase while: RMB down, inside container, in free mode
             Erase();
         }
-
-        PreviousMouseAt = MouseAt;
-        PreviousMousePos = MousePos;
     }
 
     private void StartErasing()
@@ -184,7 +167,6 @@ public class FunscriptMouseInput : UIBehaviour
         _previousAddedPointAt = at;
 
         FunscriptRenderer.Singleton.SortFunscript();
-        FunscriptOverview.Singleton.RenderHaptics();
     }
 
     private void StopDrawing()
@@ -193,8 +175,9 @@ public class FunscriptMouseInput : UIBehaviour
         TitleBar.MarkLabelDirty();
         FunscriptRenderer.Singleton.CleanupExcessPoints();
         _previousAddedPointAt = -1;
+        FunscriptOverview.Singleton.RenderHaptics();
     }
-    
+
     private void OnMouseEnter(MouseEnterEvent evt)
     {
         _mouseInsideContainer = true;
@@ -203,20 +186,6 @@ public class FunscriptMouseInput : UIBehaviour
     private void OnMouseLeave(MouseLeaveEvent evt)
     {
         _mouseInsideContainer = false;
-
-        // if (PatternManager.Singleton.InvertY)
-        // {
-        //     _mouseRelativePosition = new Vector2(0.5f, 1f);
-        //     MouseAt = GetAtValue(_mouseRelativePosition);
-        //     MousePos = GetPosValue(_mouseRelativePosition, Snapping);
-        // }
-        // else
-        // {
-        //     _mouseRelativePosition = new Vector2(0.5f, 0f);
-        //     MouseAt = GetAtValue(_mouseRelativePosition);
-        //     MousePos = GetPosValue(_mouseRelativePosition, Snapping);
-        // }
-
         FunscriptRenderer.Singleton.CleanupExcessPoints();
     }
 
@@ -239,7 +208,6 @@ public class FunscriptMouseInput : UIBehaviour
         // Get coords
         VisualElement target = evt.target as VisualElement;
         var relativeCoords = GetRelativeCoords(evt.localPosition, target);
-        // Debug.Log($"FunscriptMouseInput: funscript-container clicked (coords:{coords}, relativeCoords{relativeCoords})");
 
         // PatternMode, not in default mode
         if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Pattern)
@@ -344,7 +312,6 @@ public class FunscriptMouseInput : UIBehaviour
         // at is inside [a,b]
         return at >= a && at <= b;
     }
-
 
     private void AddPattern(Vector2 relativeCoords)
     {
@@ -523,7 +490,7 @@ public class FunscriptMouseInput : UIBehaviour
         return haptics.Funscript.actions[index].at;
     }
 
-    public int GetPosAtTime(int at, Haptics haptics)
+    private int GetPosAtTime(int at, Haptics haptics)
     {
         var actions = haptics.Funscript.actions;
 
@@ -565,23 +532,17 @@ public class FunscriptMouseInput : UIBehaviour
             {
                 int tmpAt = haptics.Funscript.actions[tmpIndex].at;
 
-                if (targetPrevModifier)
+                if (targetPrevModifier && (index == -1 || tmpAt > at))
                 {
-                    if (index == -1 || tmpAt > at)
-                    {
-                        at = tmpAt;
-                        index = tmpIndex;
-                        hapticsIndex = i;
-                    }
+                    at = tmpAt;
+                    index = tmpIndex;
+                    hapticsIndex = i;
                 }
-                else
+                else if (index == -1 || tmpAt < at)
                 {
-                    if (index == -1 || tmpAt < at)
-                    {
-                        at = tmpAt;
-                        index = tmpIndex;
-                        hapticsIndex = i;
-                    }
+                    at = tmpAt;
+                    index = tmpIndex;
+                    hapticsIndex = i;
                 }
             }
         }
@@ -592,75 +553,56 @@ public class FunscriptMouseInput : UIBehaviour
             var haptics = FunscriptRenderer.Singleton.Haptics[hapticsIndex];
             var actions = haptics.Funscript.actions;
             actions.RemoveAt(index);
-        }
 
-        TitleBar.MarkLabelDirty();
-        FunscriptOverview.Singleton.RenderHaptics();
+            TitleBar.MarkLabelDirty();
+            FunscriptOverview.Singleton.RenderHaptics();
+        }
     }
 
-    public int GetNextFunActionIndex(int at, Haptics haptics, bool ignoreSelection = false)
+    private int GetNextFunActionIndex(int at, Haptics haptics, bool ignoreSelection = false)
     {
-        // No funscript
-        if (!haptics.Selected && !ignoreSelection) return -1;
+        var actions = new NativeArray<FunAction>(haptics.Funscript.actions.Count, Allocator.TempJob);
+        actions.CopyFrom(haptics.Funscript.actions.ToArray());
 
-        // we assume fun actions are sorted in correct order
-        var actions = haptics.Funscript.actions;
+        var indexRef = new NativeReference<int>(Allocator.TempJob);
 
-        // no funActions
-        if (actions.Count == 0) return -1;
-
-        // Go through funActions
-        for (int i = 0; i < actions.Count; i++)
+        new GetNextFunActionIndexJob
         {
-            if (actions[i].at >= at)
-            {
-                // found funAction that is later than current
-                return i;
-            }
-        }
+            IgnoreSelection = ignoreSelection,
+            Selected = haptics.Selected,
+            At = at,
+            Actions = actions,
+            Index = indexRef
+        }.Schedule().Complete();
 
-        // failed to find next funAction
-        return -1;
+        int index = indexRef.Value;
+
+        indexRef.Dispose();
+        actions.Dispose();
+
+        return index;
     }
 
     private int GetPreviousFunActionIndex(int at, Haptics haptics)
     {
-        if (!haptics.Selected) return -1;
+        var actions = new NativeArray<FunAction>(haptics.Funscript.actions.Count, Allocator.TempJob);
+        actions.CopyFrom(haptics.Funscript.actions.ToArray());
 
-        // we assume fun actions are sorted in correct order
-        var actions = haptics.Funscript.actions;
+        var indexRef = new NativeReference<int>(Allocator.TempJob);
 
-        // no funActions
-        if (actions.Count == 0) return -1;
-
-        // If there's only one action check if cursor is after it
-        if (actions.Count == 1)
+        new GetPreviousFunActionIndexJob
         {
-            return actions[0].at < at ? 0 : -1;
-        }
+            Selected = haptics.Selected,
+            At = at,
+            Actions = actions,
+            Index = indexRef
+        }.Schedule().Complete();
 
-        // Go through funActions
-        for (int i = 0; i < actions.Count; i++)
-        {
-            if (i == actions.Count - 1 && actions[i].at <= at)
-            {
-                return i;
-            }
+        int index = indexRef.Value;
 
-            if (actions[i].at <= at && actions[i + 1].at > at)
-            {
-                // found next
-                return i;
-            }
+        indexRef.Dispose();
+        actions.Dispose();
 
-            if (actions[i].at > at)
-            {
-                // failed to find next funAction
-                return -1;
-            }
-        }
-
-        // failed to find next funAction
-        return -1;
+        return index;
     }
 }

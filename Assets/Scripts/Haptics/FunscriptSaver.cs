@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -8,10 +7,9 @@ using Random = UnityEngine.Random;
 public class FunscriptSaver : MonoBehaviour
 {
     public static FunscriptSaver Singleton;
-    private FunscriptRenderer _hapticsManager;
 
-    private bool _addTimeoutFunactions = true;
-    private int _maxDurationBetweenFunactions = 30000;
+    private readonly bool _addTimeoutFunactions = true;
+    private readonly int _maxDurationBetweenFunactions = 30000;
 
     private void Awake()
     {
@@ -31,15 +29,10 @@ public class FunscriptSaver : MonoBehaviour
 
     private void OnAudioClipLoaded(AudioSource audioSource)
     {
-        if (_hapticsManager == null)
-        {
-            _hapticsManager = GetComponent<FunscriptRenderer>();
-        }
-
         // Update MetaData lengths 
-        if (_hapticsManager.Haptics != null && _hapticsManager.Haptics.Count > 0)
+        if (FunscriptRenderer.Singleton.Haptics != null && FunscriptRenderer.Singleton.Haptics.Count > 0)
         {
-            foreach (Haptics haptic in _hapticsManager.Haptics)
+            foreach (Haptics haptic in FunscriptRenderer.Singleton.Haptics)
             {
                 haptic.Funscript.metadata.duration = math.max((int)math.round(audioSource.clip.length), haptic.Funscript.metadata.duration);
             }
@@ -61,13 +54,8 @@ public class FunscriptSaver : MonoBehaviour
 
     public void Save(string funscriptPath, bool mergeLayers = false)
     {
-        if (_hapticsManager == null)
-        {
-            _hapticsManager = GetComponent<FunscriptRenderer>();
-        }
-
         // No haptics to save
-        if (_hapticsManager.Haptics.Count <= 0) return;
+        if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return;
 
         string noExtension = string.IsNullOrEmpty(funscriptPath)
             ? $"{Application.streamingAssetsPath}/New_Funscript"
@@ -81,7 +69,7 @@ public class FunscriptSaver : MonoBehaviour
 
             funscriptPath = $"{noExtension}[Merged].funscript";
 
-            foreach (var haptics in _hapticsManager.Haptics)
+            foreach (var haptics in FunscriptRenderer.Singleton.Haptics)
             {
                 if (!haptics.Visible) continue; // only merge visible layers
 
@@ -106,12 +94,12 @@ public class FunscriptSaver : MonoBehaviour
                     int pos = action.pos;
                     int at = action.at;
 
-                    for (int i = 0; i < _hapticsManager.Haptics.Count; i++)
+                    for (int i = 0; i < FunscriptRenderer.Singleton.Haptics.Count; i++)
                     {
-                        if (!_hapticsManager.Haptics[i].Visible) continue;
-                        if (_hapticsManager.Haptics[i] == haptics) continue;
+                        if (!FunscriptRenderer.Singleton.Haptics[i].Visible) continue;
+                        if (FunscriptRenderer.Singleton.Haptics[i] == haptics) continue;
 
-                        int pos0 = GetPosAtTime(at, _hapticsManager.Haptics[i]);
+                        int pos0 = GetPosAtTime(at, FunscriptRenderer.Singleton.Haptics[i]);
                         pos = math.max(pos, pos0);
                     }
 
@@ -139,12 +127,12 @@ public class FunscriptSaver : MonoBehaviour
         }
         else
         {
-            for (int hapticIndex = 0; hapticIndex < _hapticsManager.Haptics.Count; hapticIndex++)
+            for (int hapticIndex = 0; hapticIndex < FunscriptRenderer.Singleton.Haptics.Count; hapticIndex++)
             {
                 // The first haptic will be saved as the audio filename, the rest will have [#] in the end.
-                funscriptPath = _hapticsManager.Haptics.Count == 1 ? $"{noExtension}.funscript" : $"{noExtension}[{hapticIndex}].funscript";
+                funscriptPath = FunscriptRenderer.Singleton.Haptics.Count == 1 ? $"{noExtension}.funscript" : $"{noExtension}[{hapticIndex}].funscript";
 
-                var haptic = _hapticsManager.Haptics[hapticIndex];
+                var haptic = FunscriptRenderer.Singleton.Haptics[hapticIndex];
                 var funscript = haptic.Funscript;
 
                 // process

@@ -7,19 +7,16 @@ public class Timemarkers : UIBehaviour
     public static Timemarkers Singleton;
 
     private VisualElement _container;
-
     private VisualElement[] _verticalMarkers;
     private Label[] _labels;
-    private bool _initialized = false;
-
+    private bool _initialized;
     private int _pointerAt;
     private VisualElement _startMarker;
     public int StartAt = -1;
     private VisualElement _endMarker;
     public int EndAt = -1;
-
-    private bool _dragStartMarker = false;
-    private bool _dragEndMarker = false;
+    private bool _dragStartMarker;
+    private bool _dragEndMarker;
 
     private void Awake()
     {

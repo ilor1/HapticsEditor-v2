@@ -7,9 +7,9 @@ using UnityEngine.UIElements;
 
 public class WaveformRenderer : UIBehaviour
 {
-    [Header("Waveform")] public Color32 RMSColor;
-
+    public Color32 RMSColor;
     public Color32 PeakColor;
+
     [SerializeField] private Texture2D _texture;
     private VisualElement _waveformContainer;
     private float _maxSample = -1f;
@@ -25,7 +25,6 @@ public class WaveformRenderer : UIBehaviour
     private NativeArray<float> _rightHigh;
     private NativeArray<float> _rightRMS;
     private bool _isDragging = false;
-
     private float _downX;
     private int _downTime;
 
@@ -41,47 +40,6 @@ public class WaveformRenderer : UIBehaviour
         MainUI.RootCreated -= OnRootCreated;
         AudioLoader.ClipLoaded -= OnAudioClipLoaded;
         TimelineManager.ZoomLevelChanged -= OnZoomLevelChanged;
-    }
-
-    private void ClearWaveforms()
-    {
-        if (_texture == null)
-        {
-            _texture = new Texture2D(_outputWidth, _outputHeight, TextureFormat.RGBA32, false);
-        }
-        else
-        {
-            _texture.width = _outputWidth;
-            _texture.height = _outputHeight;
-        }
-
-        var colors = _texture.GetRawTextureData<Color32>();
-        _texture.filterMode = FilterMode.Bilinear;
-
-        int divider = (int)math.round(_outputHeight / 4f);
-        for (int x = 0; x < _outputWidth; x++)
-        {
-            for (int y = 0; y < _outputHeight; y++)
-            {
-                // Draw line in center
-                if (y > 0 && y < _outputHeight - 1 && y % divider == 0 && y != _outputHeight / 2) //== _texture.height / 2)
-                {
-                    colors[y * _outputWidth + x] = RMSColor;
-                }
-                else
-                {
-                    colors[y * _outputWidth + x] = Color.clear;
-                }
-            }
-        }
-
-        _texture.Apply();
-    }
-
-    private void OnZoomLevelChanged()
-    {
-        if (!_clipLoaded) return;
-        _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
     }
 
     private void OnRootCreated(VisualElement root)
@@ -112,54 +70,6 @@ public class WaveformRenderer : UIBehaviour
 
         var redLine = Create("red-line");
         waveform.Add(redLine);
-    }
-
-    private void OnPointerDown(PointerDownEvent evt)
-    {
-        _isDragging = true;
-        var relativeCoords = GetRelativeCoords(evt.localPosition, _waveformContainer.contentRect);
-        _downX = relativeCoords.x;
-        _downTime = TimelineManager.Instance.TimeInMilliseconds;
-    }
-
-    private void OnPointerMove(PointerMoveEvent evt)
-    {
-        if (_isDragging)
-        {
-            float x = GetRelativeCoords(evt.localPosition, _waveformContainer.contentRect).x;
-            float delta = x - _downX;
-
-            int newTime = _downTime - (int)math.round(delta * TimelineManager.Instance.LengthInMilliseconds);
-            TimelineManager.Instance.SetTimeInMilliseconds(newTime);
-        }
-    }
-
-    private void OnPointerUp(PointerUpEvent evt)
-    {
-        _isDragging = false;
-    }
-
-    private void OnPointerLeave(PointerLeaveEvent evt)
-    {
-        _isDragging = false;
-    }
-
-    private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)
-    {
-        var relativeCoords = new Vector2(coords.x / contentRect.width, 1f - (coords.y) / contentRect.height);
-        relativeCoords.x = math.clamp(relativeCoords.x, 0f, 1f);
-        relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);
-        return relativeCoords;
-    }
-
-    private void OnAudioClipLoaded(AudioSource audioSource)
-    {
-        _audioSource = audioSource;
-        _clip = _audioSource.clip;
-
-        _samples = new NativeArray<float>(_clip.samples * _clip.channels, Allocator.Persistent);
-        _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
-        _clipLoaded = true;
     }
 
     private void Update()
@@ -241,7 +151,7 @@ public class WaveformRenderer : UIBehaviour
         }
 
         // Get colors
-        var colors = _texture.GetRawTextureData<Color32>();
+        NativeArray<Color32> colors = _texture.GetRawTextureData<Color32>();
         new GetColorsParallelJob
         {
             ColorCenter = RMSColor,
@@ -264,6 +174,95 @@ public class WaveformRenderer : UIBehaviour
         rightHighestValues.Dispose();
         leftRmsValues.Dispose();
         rightRmsValues.Dispose();
+    }
+
+    private void ClearWaveforms()
+    {
+        if (_texture == null)
+        {
+            _texture = new Texture2D(_outputWidth, _outputHeight, TextureFormat.RGBA32, false);
+        }
+        else
+        {
+            _texture.width = _outputWidth;
+            _texture.height = _outputHeight;
+        }
+
+        var colors = _texture.GetRawTextureData<Color32>();
+        _texture.filterMode = FilterMode.Bilinear;
+
+        int divider = (int)math.round(_outputHeight / 4f);
+        for (int x = 0; x < _outputWidth; x++)
+        {
+            for (int y = 0; y < _outputHeight; y++)
+            {
+                // Draw line in center
+                if (y > 0 && y < _outputHeight - 1 && y % divider == 0 && y != _outputHeight / 2) //== _texture.height / 2)
+                {
+                    colors[y * _outputWidth + x] = RMSColor;
+                }
+                else
+                {
+                    colors[y * _outputWidth + x] = Color.clear;
+                }
+            }
+        }
+
+        _texture.Apply();
+    }
+
+    private void OnZoomLevelChanged()
+    {
+        if (!_clipLoaded) return;
+        _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
+    }
+
+    private void OnPointerDown(PointerDownEvent evt)
+    {
+        _isDragging = true;
+        var relativeCoords = GetRelativeCoords(evt.localPosition, _waveformContainer.contentRect);
+        _downX = relativeCoords.x;
+        _downTime = TimelineManager.Instance.TimeInMilliseconds;
+    }
+
+    private void OnPointerMove(PointerMoveEvent evt)
+    {
+        if (_isDragging)
+        {
+            float x = GetRelativeCoords(evt.localPosition, _waveformContainer.contentRect).x;
+            float delta = x - _downX;
+
+            int newTime = _downTime - (int)math.round(delta * TimelineManager.Instance.LengthInMilliseconds);
+            TimelineManager.Instance.SetTimeInMilliseconds(newTime);
+        }
+    }
+
+    private void OnPointerUp(PointerUpEvent evt)
+    {
+        _isDragging = false;
+    }
+
+    private void OnPointerLeave(PointerLeaveEvent evt)
+    {
+        _isDragging = false;
+    }
+
+    private Vector2 GetRelativeCoords(Vector2 coords, Rect contentRect)
+    {
+        var relativeCoords = new Vector2(coords.x / contentRect.width, 1f - (coords.y) / contentRect.height);
+        relativeCoords.x = math.clamp(relativeCoords.x, 0f, 1f);
+        relativeCoords.y = math.clamp(relativeCoords.y, 0f, 1f);
+        return relativeCoords;
+    }
+
+    private void OnAudioClipLoaded(AudioSource audioSource)
+    {
+        _audioSource = audioSource;
+        _clip = _audioSource.clip;
+
+        _samples = new NativeArray<float>(_clip.samples * _clip.channels, Allocator.Persistent);
+        _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
+        _clipLoaded = true;
     }
 
     private int GetSamplesPerPixel()

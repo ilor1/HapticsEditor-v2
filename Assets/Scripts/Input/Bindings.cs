@@ -36,10 +36,10 @@ public enum ControlName
 public class SerializableDictionary<TKey, TValue>
 {
     [SerializeField]
-    private List<TKey> keys = new List<TKey>();
+    private List<TKey> keys = new();
 
     [SerializeField]
-    private List<TValue> values = new List<TValue>();
+    private List<TValue> values = new();
 
     public Dictionary<TKey, TValue> ToDictionary()
     {

@@ -1,19 +1,17 @@
 using System.Collections.Generic;
 using Buttplug.Core.Messages;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class DeviceContainer : UIBehaviour
 {
     public static DeviceContainer Singleton;
 
-    private VisualElement _devicesContainer;
-    private int _previousFrameDeviceCount = 0;
-    private int _previousLayerCount = 0;
-
     public Dictionary<GenericDeviceMessageAttributes, int> DeviceLayers = new();
-
-
+    
+    private VisualElement _devicesContainer;
+    private int _previousFrameDeviceCount;
+    private int _previousLayerCount;
+    
     private void Awake()
     {
         if (Singleton == null) Singleton = this;
@@ -29,7 +27,6 @@ public class DeviceContainer : UIBehaviour
     {
         MainUI.RootCreated -= Generate;
     }
-
 
     private void Generate(VisualElement root)
     {

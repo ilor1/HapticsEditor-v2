@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
 using Buttplug.Core.Messages;
+using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-
 
 public class IntifaceManager : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public class IntifaceManager : MonoBehaviour
         _client.DeviceAdded += AddDevice;
         _client.DeviceRemoved += RemoveDevice;
         _client.ScanningFinished += ScanFinished;
+
         // Creating a Websocket Connector is as easy as using the right
         // options object.
         var connector = new ButtplugWebsocketConnector(new Uri("ws://localhost:12345/buttplug"));
@@ -115,51 +117,26 @@ public class IntifaceManager : MonoBehaviour
         duration = 0; // duration 0 => do nothing
         position = 0;
 
-        // No funscript
-        if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return;
-
-        int at = TimelineManager.Instance.TimeInMilliseconds;
-
-
-        var actions = haptics.Funscript.actions;
-        bool inverted = haptics.Funscript.inverted;
-
-        if (actions.Count <= 0) return; // no funactions
-        if (actions.Count == 1)
+        var actions = new NativeArray<FunAction>(haptics.Funscript.actions.Count, Allocator.TempJob);
+        actions.CopyFrom(haptics.Funscript.actions.ToArray());
+        var durationRef = new NativeReference<uint>(Allocator.TempJob);
+        var positionRef = new NativeReference<double>(Allocator.TempJob);
+        
+        new GetDurationAndPositionJob
         {
-            // only one funaction
-            duration = (uint)math.max(0, actions[0].at - at);
-            position = inverted ? 1f - actions[0].pos * 0.01 : actions[0].pos * 0.01;
-            return;
-        }
+            At = TimelineManager.Instance.TimeInMilliseconds,
+            Inverted = haptics.Funscript.inverted,
+            Actions = actions,
+            Duration = durationRef,
+            Position = positionRef
+        }.Schedule().Complete();
 
-        if (actions[^1].at < at) return; // last action is before current at
-
-        // set last point as target
-        if (actions[^2].at <= at && actions[^1].at > at)
-        {
-            position = inverted ? 1f - actions[^1].pos * 0.01 : actions[^1].pos * 0.01;
-            duration = (uint)math.max(0, actions[^1].at - at);
-            return;
-        }
-
-        // set first point as target
-        if (actions[0].at > at)
-        {
-            position = inverted ? 1f - actions[0].pos * 0.01 : actions[0].pos * 0.01;
-            duration = (uint)math.max(0, actions[0].at - at);
-            return;
-        }
-
-        // other
-        for (int i = 0; i < actions.Count - 1; i++)
-        {
-            if (at >= actions[i].at && at < actions[i + 1].at)
-            {
-                position = inverted ? 1f - actions[i + 1].pos * 0.01 : actions[i + 1].pos * 0.01;
-                duration = (uint)math.max(0, actions[i + 1].at - at);
-            }
-        }
+        duration = durationRef.Value;
+        position = positionRef.Value;
+        
+        actions.Dispose();
+        durationRef.Dispose();
+        positionRef.Dispose();
     }
 
     private float GetHapticValue(Haptics haptics)
@@ -167,35 +144,25 @@ public class IntifaceManager : MonoBehaviour
         // No funscript
         if (FunscriptRenderer.Singleton.Haptics.Count <= 0) return 0f;
 
-        int at = TimelineManager.Instance.TimeInMilliseconds;
-        var actions = haptics.Funscript.actions;
+        var actions = new NativeArray<FunAction>(haptics.Funscript.actions.Count, Allocator.TempJob);
+        actions.CopyFrom(haptics.Funscript.actions.ToArray());
 
-        bool inverted = haptics.Funscript.inverted;
+        var hapticRef = new NativeReference<float>(Allocator.TempJob);
 
-        // exit early cases
-        if (actions.Count <= 0) return 0f; // no funactions
-        if (actions.Count == 1) return actions[0].pos * 0.01f; // only one funaction
-        if (actions[^1].at < at) return actions[^1].pos * 0.01f; // last action is before current at
-
-        // find the range where "at" is 
-        for (int i = 0; i < actions.Count - 1; i++)
+        new GetHapticValueJob
         {
-            if (actions[i].at >= at)
-            {
-                float value = actions[i].pos * 0.01f;
-                return inverted ? 1f - value : value;
-            }
+            At = TimelineManager.Instance.TimeInMilliseconds,
+            Inverted = haptics.Funscript.inverted,
+            actions = actions,
+            Haptic = hapticRef,
+        }.Schedule().Complete();
 
-            if (actions[i + 1].at > at)
-            {
-                float t = (at - actions[i].at) / (float)(actions[i + 1].at - actions[i].at);
-                float value = math.lerp(actions[i].pos, actions[i + 1].pos, t) * 0.01f;
-                return inverted ? 1f - value : value;
-            }
-        }
+        float haptic = hapticRef.Value;
 
-        // failed somehow
-        return 0f;
+        actions.Dispose();
+        hapticRef.Dispose();
+
+        return haptic;
     }
 
     private void UpdateDevice(ButtplugClientDevice device, int index, float intensity, uint duration, double position)
@@ -295,8 +262,6 @@ public class IntifaceManager : MonoBehaviour
         features.AddRange(e.Device.RotateAttributes);
         features.AddRange(e.Device.VibrateAttributes);
         DeviceFeatures.Add(e.Device, features);
-
-        // UpdateDevices();
     }
 
     private void RemoveDevice(object sender, DeviceRemovedEventArgs e)
@@ -305,8 +270,6 @@ public class IntifaceManager : MonoBehaviour
 
         DeviceFeatures.Remove(e.Device);
         _devices.Remove(e.Device);
-
-        // UpdateDevices();
     }
 
     private void ScanFinished(object sender, EventArgs e)
