@@ -22,6 +22,9 @@ public class FunscriptMouseInput : UIBehaviour
 
     private bool _mouseInsideContainer;
 
+    private bool _isDrawing;
+    private bool _isErasing;
+
     public bool Snapping { get; set; }
 
     public bool StepMode { get; set; }
@@ -61,7 +64,8 @@ public class FunscriptMouseInput : UIBehaviour
         _funscriptContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
         _funscriptContainer.RegisterCallback<WheelEvent>(OnScrollWheel);
 
-        _funscriptContainer.RegisterCallback<MouseMoveEvent>(OnMouseMove);
+        root.RegisterCallback<MouseMoveEvent>(OnMouseMove);
+        _funscriptContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
         _funscriptContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
     }
 
@@ -72,105 +76,159 @@ public class FunscriptMouseInput : UIBehaviour
 
         if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free && _mouseInsideContainer)
         {
-            if (Input.GetMouseButton(0))
+            if (!_isDrawing && Input.GetMouseButton(0))
             {
-                int at = TimelineManager.Instance.IsPlaying ? TimelineManager.Instance.TimeInMilliseconds : MouseAt;
-
-                // remove any points between MouseAt and _previousAddedPointAt
-                if (_previousAddedPointAt != -1)
-                {
-                    if (_previousAddedPointAt < at)
-                    {
-                        FunscriptRenderer.Singleton.RemovePointsBetween(_previousAddedPointAt + 1, at);
-                    }
-                    else
-                    {
-                        FunscriptRenderer.Singleton.RemovePointsBetween(at, _previousAddedPointAt - 1);
-                    }
-                }
-
-                AddFunAction(at, false);
-
-                _previousAddedPointAt = at;
-
-                FunscriptRenderer.Singleton.SortFunscript();
-                FunscriptOverview.Singleton.RenderHaptics();
+                // start drawing if: LMB down, inside container, in free mode
+                StartDrawing();
             }
 
-            // Reset _previousAddedPointAt value
-            if (Input.GetMouseButtonUp(0))
+            if (!_isErasing && Input.GetMouseButton(1))
             {
-                TitleBar.MarkLabelDirty();
-                FunscriptRenderer.Singleton.CleanupExcessPoints();
-                _previousAddedPointAt = -1;
+                // start erasing if: RMB down, inside container, in free mode
+                StartErasing();
             }
+        }
 
-            if (Input.GetMouseButtonDown(1))
+        if (_isDrawing)
+        {
+            // stop drawing if: LMB up OR not in free mode
+            // note: we allow cursor to exit container while drawing, but not while erasing
+            if (Input.GetMouseButtonUp(0) || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Free)
             {
-                _startRemovePointAt = MouseAt;
+                StopDrawing();
             }
+        }
 
-            if (Input.GetMouseButtonUp(1))
+        if (_isErasing)
+        {
+            // stop erasing if: RMB up OR outside container OR not in free mode
+            if (Input.GetMouseButtonUp(1) || !_mouseInsideContainer || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Free)
             {
-                TitleBar.MarkLabelDirty();
-                _startRemovePointAt = -1;
+                StopErasing();
             }
+        }
 
-            if (Input.GetMouseButton(1))
-            {
-                if (_freeformTimeUntilRemovingNextPoint <= 0f)
-                {
-                    // once a point is removed, wait this long until removing another. (performance optimization)
-                    _freeformTimeUntilRemovingNextPoint = 0.1f;
+        if (_isDrawing)
+        {
+            // draw while: LMB down, inside container, in free mode
+            Draw();
+        }
 
-                    if (_startRemovePointAt < MouseAt)
-                    {
-                        FunscriptRenderer.Singleton.RemovePointsBetween(_startRemovePointAt, MouseAt);
-                    }
-                    else
-                    {
-                        FunscriptRenderer.Singleton.RemovePointsBetween(MouseAt, _startRemovePointAt);
-                    }
-
-                    FunscriptOverview.Singleton.RenderHaptics();
-                }
-            }
+        if (_isErasing)
+        {
+            // erase while: RMB down, inside container, in free mode
+            Erase();
         }
 
         PreviousMouseAt = MouseAt;
         PreviousMousePos = MousePos;
     }
 
+    private void StartErasing()
+    {
+        _isErasing = true;
+        _startRemovePointAt = MouseAt;
+    }
+
+    private void StopErasing()
+    {
+        TitleBar.MarkLabelDirty();
+        _startRemovePointAt = -1;
+        _isErasing = false;
+    }
+
+    private void Erase()
+    {
+        if (_freeformTimeUntilRemovingNextPoint <= 0f)
+        {
+            // once a point is removed, wait this long until removing another. (performance optimization)
+            _freeformTimeUntilRemovingNextPoint = 0.1f;
+
+            if (_startRemovePointAt < MouseAt)
+            {
+                FunscriptRenderer.Singleton.RemovePointsBetween(_startRemovePointAt, MouseAt);
+            }
+            else
+            {
+                FunscriptRenderer.Singleton.RemovePointsBetween(MouseAt, _startRemovePointAt);
+            }
+
+            FunscriptOverview.Singleton.RenderHaptics();
+        }
+    }
+
+    private void StartDrawing()
+    {
+        _isDrawing = true;
+    }
+
+    private void Draw()
+    {
+        int at = TimelineManager.Instance.IsPlaying ? TimelineManager.Instance.TimeInMilliseconds : MouseAt;
+
+        // remove any points between MouseAt and _previousAddedPointAt
+        if (_previousAddedPointAt != -1)
+        {
+            if (_previousAddedPointAt < at)
+            {
+                FunscriptRenderer.Singleton.RemovePointsBetween(_previousAddedPointAt + 1, at);
+            }
+            else
+            {
+                FunscriptRenderer.Singleton.RemovePointsBetween(at, _previousAddedPointAt - 1);
+            }
+        }
+
+        AddFunAction(at, false);
+
+        _previousAddedPointAt = at;
+
+        FunscriptRenderer.Singleton.SortFunscript();
+        FunscriptOverview.Singleton.RenderHaptics();
+    }
+
+    private void StopDrawing()
+    {
+        _isDrawing = false;
+        TitleBar.MarkLabelDirty();
+        FunscriptRenderer.Singleton.CleanupExcessPoints();
+        _previousAddedPointAt = -1;
+    }
+    
+    private void OnMouseEnter(MouseEnterEvent evt)
+    {
+        _mouseInsideContainer = true;
+    }
 
     private void OnMouseLeave(MouseLeaveEvent evt)
     {
         _mouseInsideContainer = false;
 
-        if (PatternManager.Singleton.InvertY)
-        {
-            _mouseRelativePosition = new Vector2(0.5f, 1f);
-            MouseAt = GetAtValue(_mouseRelativePosition);
-            MousePos = GetPosValue(_mouseRelativePosition, Snapping);
-        }
-        else
-        {
-            _mouseRelativePosition = new Vector2(0.5f, 0f);
-            MouseAt = GetAtValue(_mouseRelativePosition);
-            MousePos = GetPosValue(_mouseRelativePosition, Snapping);
-        }
+        // if (PatternManager.Singleton.InvertY)
+        // {
+        //     _mouseRelativePosition = new Vector2(0.5f, 1f);
+        //     MouseAt = GetAtValue(_mouseRelativePosition);
+        //     MousePos = GetPosValue(_mouseRelativePosition, Snapping);
+        // }
+        // else
+        // {
+        //     _mouseRelativePosition = new Vector2(0.5f, 0f);
+        //     MouseAt = GetAtValue(_mouseRelativePosition);
+        //     MousePos = GetPosValue(_mouseRelativePosition, Snapping);
+        // }
 
         FunscriptRenderer.Singleton.CleanupExcessPoints();
     }
 
     private void OnMouseMove(MouseMoveEvent evt)
     {
-        _mouseInsideContainer = true;
-        _mouseRelativePosition = GetRelativeCoords(evt.localMousePosition, _funscriptContainer);
+        var localMousePosition = _funscriptContainer.WorldToLocal(evt.mousePosition);
+        _mouseRelativePosition = GetRelativeCoords(localMousePosition, _funscriptContainer);
         MouseAt = GetAtValue(_mouseRelativePosition);
         MousePos = GetPosValue(_mouseRelativePosition, Snapping);
     }
 
-    public void OnLeftClick(ClickEvent evt)
+    private void OnLeftClick(ClickEvent evt)
     {
         if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free)
         {
@@ -256,7 +314,7 @@ public class FunscriptMouseInput : UIBehaviour
                 foreach (var haptic in FunscriptRenderer.Singleton.Haptics)
                 {
                     if (!haptic.Selected) continue;
-                    
+
                     for (int i = 0; i < haptic.Funscript.actions.Count; i++)
                     {
                         if (ActionIsInsideRange(haptic.Funscript.actions[i].at, startAt, endAt))
@@ -272,6 +330,7 @@ public class FunscriptMouseInput : UIBehaviour
                         }
                     }
                 }
+
                 TitleBar.MarkLabelDirty();
                 FunscriptOverview.Singleton.RenderHaptics();
             }
@@ -279,7 +338,6 @@ public class FunscriptMouseInput : UIBehaviour
 
         evt.StopPropagation();
     }
-
 
     private bool ActionIsInsideRange(int at, int a, int b)
     {

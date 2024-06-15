@@ -135,8 +135,6 @@ public class LayersContainer : UIBehaviour
 
     private void OnAddLayerClicked()
     {
-        Debug.Log("Add Layer");
-
         int hapticsCount = FunscriptRenderer.Singleton.Haptics.Count;
         string pathWithoutExtension = FileDropdownMenu.Singleton.FunscriptPathWithoutExtension;
 
@@ -153,8 +151,6 @@ public class LayersContainer : UIBehaviour
 
     private void OnRemoveLayerClicked()
     {
-        Debug.Log("Remove Layer");
-
         for (int i = _selectedLayers.Count - 1; i >= 0; i--)
         {
             // Also remove the haptic when the layer gets removed
