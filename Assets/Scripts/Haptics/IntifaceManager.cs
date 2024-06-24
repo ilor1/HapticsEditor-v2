@@ -14,6 +14,7 @@ public class IntifaceManager : MonoBehaviour
 
     private ButtplugClient _client;
     private List<ButtplugClientDevice> _devices { get; } = new();
+    private static (uint, double)[] cmds = new (uint, double)[1];
 
     private float _timeSinceLastUpdate = 0f;
     private const float _updateInterval = 0f; //0.33f;
@@ -234,7 +235,11 @@ public class IntifaceManager : MonoBehaviour
             // found correct command
             if (attributeIndex == index)
             {
-                device.VibrateAsync(intensity);
+                cmds[0] = ((uint)index, intensity);
+                // TODO: this might overwrite currently running haptics, or might not work with multi-haptic devices
+                // TODO: if this works, replicate it for other attributes as well.
+                device.VibrateAsync(cmds);
+               // device.VibrateAsync(intensity);
                 return;
             }
 
