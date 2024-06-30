@@ -428,7 +428,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8e85c71724256a42a4997947729b78b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrackIndex: 0
   StartTimeInMilliseconds: 0
   EndTimeInMilliseconds: 2520000
   PointerAt: 0
@@ -670,7 +669,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fcc0d2a04c749eda82262d394b02732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Smoothness: 10
   IsPlaying: 0
   TimeInMilliseconds: 0
   LengthInMilliseconds: 15000
@@ -815,7 +813,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76177eb910efc6d4792c74c549c92aeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _intensity: 0.5
 --- !u!1 &1566223044
 GameObject:
   m_ObjectHideFlags: 0
@@ -930,9 +927,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e589f989743499489f7ca16c6a33df8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _document: {fileID: 1611213298}
   StyleSheet: {fileID: 7433441132597879392, guid: 2a3083695929d9d43b370ab2eee2900d,
     type: 3}
+  _document: {fileID: 1611213298}
 --- !u!114 &1611213298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1027,6 +1024,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 245ce977cb3160d438098a38d3201761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StartAt: -1
+  EndAt: -1
 --- !u!114 &1611213305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1063,7 +1062,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e049c62577b4deaac64ed07d96ff977, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _texture: {fileID: 0}
   HighColor:
     serializedVersion: 2
     rgba: 4278190335
@@ -1073,6 +1071,7 @@ MonoBehaviour:
   Clear:
     serializedVersion: 2
     rgba: 0
+  _texture: {fileID: 0}
 --- !u!114 &1611213308
 MonoBehaviour:
   m_ObjectHideFlags: 0

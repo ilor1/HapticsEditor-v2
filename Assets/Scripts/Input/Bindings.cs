@@ -30,6 +30,7 @@ public enum ControlName
     DefaultMode,
     PatternMode,
     FreeMode,
+    AddNote
 }
 
 [Serializable]

@@ -59,6 +59,11 @@ public class FunscriptMouseInput : UIBehaviour
         _freeformTimeUntilAddingNextPoint -= Time.deltaTime;
         _freeformTimeUntilRemovingNextPoint -= Time.deltaTime;
 
+        if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer)
+        {
+            AddNote();
+        }
+
         if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free && _mouseInsideContainer)
         {
             if (!_isDrawing && Input.GetMouseButton(0))
@@ -106,6 +111,7 @@ public class FunscriptMouseInput : UIBehaviour
             Erase();
         }
     }
+
 
     private void StartErasing()
     {
@@ -405,6 +411,40 @@ public class FunscriptMouseInput : UIBehaviour
 
             haptics.Funscript.actions.AddRange(_patternActions);
         }
+    }
+
+
+    private void AddNote()
+    {
+        int at = MouseAt;
+
+        Debug.Log("AddNote");
+
+        foreach (Haptics haptic in FunscriptRenderer.Singleton.Haptics)
+        {
+            // Only add points to selected haptics layers
+            if (!haptic.Selected) continue;
+
+            // Add note
+            if (at < 0)
+            {
+                //Debug.LogWarning("FunscriptMouseInput: Can't add points to negative time");
+                return;
+            }
+
+            var note = new Note
+            {
+                at = at,
+                text = $"lorem ipsum, {at}"
+            };
+
+            if (haptic.Funscript.notes == null) haptic.Funscript.notes = new List<Note>();
+            haptic.Funscript.notes.Add(note);
+        }
+
+        TitleBar.MarkLabelDirty();
+        FunscriptRenderer.Singleton.SortFunscript();
+        //FunscriptOverview.Singleton.RenderHaptics();
     }
 
     private void AddFunAction(int at, bool stepmode)

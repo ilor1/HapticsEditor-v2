@@ -16,20 +16,36 @@ public class Haptics
 public struct Funscript
 {
     public List<FunAction> actions;
+    public List<Note> notes;
     public bool inverted;
     public Metadata metadata;
 }
 
 [Serializable]
-public struct FunAction: IComparable<FunAction>
+public struct FunAction : IComparable<FunAction>
 {
     public int at;
     public int pos;
+
     public int CompareTo(FunAction other)
     {
         // Compare based on Value1, and if equal, compare based on Value2
         int value1Comparison = at.CompareTo(other.at);
         return (value1Comparison != 0) ? value1Comparison : pos.CompareTo(other.pos);
+    }
+}
+
+[Serializable]
+public struct Note : IComparable<Note>
+{
+    public int at;
+    public string text;
+
+    public int CompareTo(Note other)
+    {
+        // Compare based on Value1, and if equal, compare based on Value2
+        int value1Comparison = at.CompareTo(other.at);
+        return value1Comparison;
     }
 }
 
