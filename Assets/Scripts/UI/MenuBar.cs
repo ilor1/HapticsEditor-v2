@@ -5,6 +5,9 @@ public class MenuBar : UIBehaviour
     private CustomDropDownMenu _fileDropdown;
     private CustomDropDownMenu _editDropdown;
 
+    private VisualElement _layersWindow;
+    private VisualElement _devicesContainer;
+
     private void OnEnable()
     {
         MainUI.RootCreated += Generate;
@@ -58,10 +61,7 @@ public class MenuBar : UIBehaviour
 
         var patternsButton = Create<Button>("menu-button");
         patternsButton.text = "Patterns";
-        patternsButton.clicked += () =>
-        {
-            PatternCreatorMenu.Singleton.Open();
-        };
+        patternsButton.clicked += () => { PatternCreatorMenu.Singleton.Open(); };
         menuBar.Add(patternsButton);
 
         var metadataButton = Create<Button>("menu-button");
@@ -69,22 +69,39 @@ public class MenuBar : UIBehaviour
         metadataButton.clicked += () => { MetadataMenu.Singleton.Open(root); };
         menuBar.Add(metadataButton);
 
+        var toggleLayersLabel = Create<Label>();
+        toggleLayersLabel.text = "Show Layers";
+        var toggleLayers = Create<Toggle>();
+        toggleLayers.SetValueWithoutNotify(true);
+        toggleLayers.RegisterValueChangedCallback(OnToggleLayers);
+        _layersWindow = root.Query(className: "layers-container");
+        _devicesContainer = root.Query(className: "devices-container");
+        menuBar.Add(toggleLayersLabel);
+        menuBar.Add(toggleLayers);
+
         var intifaceContainer = Create("intiface-container");
         var intifaceLabel = Create<Label>();
-        intifaceLabel.text = "Intiface Central:";
+        intifaceLabel.text = "Intiface Central";
         var intifaceToggle = Create<Toggle>();
         intifaceToggle.RegisterValueChangedCallback(OnIntifaceToggle);
-        
-        var invertedLabel = Create<Label>();
-        invertedLabel.text = "Inverted";
-        var invertedToggle = Create<Toggle>();
-        invertedToggle.RegisterValueChangedCallback(OnInvertHapticsToggle);
-        
-        intifaceContainer.Add(invertedToggle);
-        intifaceContainer.Add(invertedLabel);
+
+        // inverted is useless.
+        // var invertedLabel = Create<Label>();
+        // invertedLabel.text = "Inverted";
+        // var invertedToggle = Create<Toggle>();
+        // invertedToggle.RegisterValueChangedCallback(OnInvertHapticsToggle);
+        //
+        // intifaceContainer.Add(invertedToggle);
+        // intifaceContainer.Add(invertedLabel);
         intifaceContainer.Add(intifaceToggle);
         intifaceContainer.Add(intifaceLabel);
         menuBar.Add(intifaceContainer);
+    }
+
+    private void OnToggleLayers(ChangeEvent<bool> evt)
+    {
+        _layersWindow.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+        _devicesContainer.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     private void OnIntifaceToggle(ChangeEvent<bool> evt)
@@ -92,11 +109,11 @@ public class MenuBar : UIBehaviour
         IntifaceManager.Singleton.enabled = evt.newValue;
     }
 
-    private void OnInvertHapticsToggle(ChangeEvent<bool> evt)
-    {
-        IntifaceManager.Singleton.Inverted = evt.newValue;
-    }
-    
+    // private void OnInvertHapticsToggle(ChangeEvent<bool> evt)
+    // {
+    //     IntifaceManager.Singleton.Inverted = evt.newValue;
+    // }
+
     private CustomDropDownMenu CreateDropdownMenu(VisualElement root)
     {
         var dropdown = Create<CustomDropDownMenu>("menu-dropdown");

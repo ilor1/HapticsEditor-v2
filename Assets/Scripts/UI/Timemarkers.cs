@@ -181,7 +181,6 @@ public class Timemarkers : UIBehaviour
 
             if (selectedHapticLayer != -1)
             {
-                FunscriptCutPaste.Singleton.PointerAt = _pointerAt;
                 FunscriptCutPaste.Singleton.Paste(selectedHapticLayer, !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift));
                 sortFunscript = true;
             }

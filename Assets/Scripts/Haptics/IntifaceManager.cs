@@ -14,7 +14,6 @@ public class IntifaceManager : MonoBehaviour
 
     private ButtplugClient _client;
     private List<ButtplugClientDevice> _devices { get; } = new();
-    private static (uint, double)[] cmds = new (uint, double)[1];
 
     private float _timeSinceLastUpdate = 0f;
     private const float _updateInterval = 0f; //0.33f;
@@ -122,7 +121,7 @@ public class IntifaceManager : MonoBehaviour
         actions.CopyFrom(haptics.Funscript.actions.ToArray());
         var durationRef = new NativeReference<uint>(Allocator.TempJob);
         var positionRef = new NativeReference<double>(Allocator.TempJob);
-        
+
         new GetDurationAndPositionJob
         {
             At = TimelineManager.Instance.TimeInMilliseconds,
@@ -134,7 +133,7 @@ public class IntifaceManager : MonoBehaviour
 
         duration = durationRef.Value;
         position = positionRef.Value;
-        
+
         actions.Dispose();
         durationRef.Dispose();
         positionRef.Dispose();
@@ -235,11 +234,7 @@ public class IntifaceManager : MonoBehaviour
             // found correct command
             if (attributeIndex == index)
             {
-                cmds[0] = ((uint)index, intensity);
-                // TODO: this might overwrite currently running haptics, or might not work with multi-haptic devices
-                // TODO: if this works, replicate it for other attributes as well.
-                device.VibrateAsync(cmds);
-               // device.VibrateAsync(intensity);
+                device.VibrateAsync(intensity);
                 return;
             }
 

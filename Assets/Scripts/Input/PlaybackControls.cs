@@ -79,13 +79,13 @@ public class PlaybackControls : MonoBehaviour
         if (InputManager.Singleton.GetKeyDown(ControlName.ZoomIn))
         {
             ZoomIn();
-            _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}";
+            _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}s";
         }
 
         if (InputManager.Singleton.GetKeyDown(ControlName.ZoomOut))
         {
             ZoomOut();
-            _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}";
+            _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}s";
         }
 
         if (InputManager.Singleton.GetKeyDown(ControlName.Reset))

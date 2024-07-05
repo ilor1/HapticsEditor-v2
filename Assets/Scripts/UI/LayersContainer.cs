@@ -6,16 +6,16 @@ using UnityEngine.UIElements;
 public class LayersContainer : UIBehaviour
 {
     public static LayersContainer Singleton;
-    
+
     public List<VisualElement> Layers = new();
-    
+
     private VisualElement _title;
     private VisualElement _layersContainer;
     private VisualElement _internalLayersContainer;
     private HashSet<VisualElement> _visibleLayers = new();
     private List<VisualElement> _selectedLayers = new();
     private int _layerRunningNumber = 1;
-    
+
     private void Awake()
     {
         if (Singleton == null) Singleton = this;
@@ -323,6 +323,10 @@ public class LayersContainer : UIBehaviour
             }
         }
 
+        SetHapticVisibilities();
         SetHapticSelections();
+
+        // Update OverallHaptics
+        FunscriptOverview.Singleton.RenderHaptics();
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public class FunscriptCutPaste : MonoBehaviour
@@ -7,7 +8,7 @@ public class FunscriptCutPaste : MonoBehaviour
 
     public int StartTimeInMilliseconds;
     public int EndTimeInMilliseconds;
-    public int PointerAt;
+    //public int PointerAt;
 
     private Haptics _haptics;
     private List<FunAction> _clipboardActions = new List<FunAction>();
@@ -90,7 +91,8 @@ public class FunscriptCutPaste : MonoBehaviour
         // Get FunActions
         GetFunactions(hapticLayer, out var allActions);
 
-        int amountToMove = start ? PointerAt - _clipboardActions[0].at : PointerAt - _clipboardActions[_clipboardActions.Count - 1].at;
+        int pointerAt = FunscriptMouseInput.MouseAt;
+        int amountToMove = start ? pointerAt - _clipboardActions[0].at : pointerAt - _clipboardActions[_clipboardActions.Count - 1].at;
 
         for (int i = 0; i < allActions.Count; i++)
         {
@@ -124,7 +126,14 @@ public class FunscriptCutPaste : MonoBehaviour
         _haptics.Funscript.actions = filteredActions;
         FunscriptRenderer.Singleton.Haptics[hapticLayer] = _haptics;
 
-        Debug.Log($"FunscriptCutPaste: Paste done! {actions.Length} actions in clipboard");
+        // var sb = new StringBuilder();
+        // for (int i = 0; i < actions.Length; i++)
+        // {
+        //     sb.Append($"at:{actions[i].at}, pos:{actions[i].pos}\n");
+        // }
+
+        Debug.Log($"FunscriptCutPaste: Paste done! start: {start}, pointerAt: {pointerAt}");
+       // Debug.Log($"{sb.ToString()}");
 
         TitleBar.MarkLabelDirty();
         FunscriptOverview.Singleton.RenderHaptics();

@@ -117,7 +117,7 @@ public class FunscriptRenderer : UIBehaviour
         foreach (var haptics in Haptics)
         {
             if (haptics.Funscript.notes == null) continue;
-            
+
             for (int i = 0; i < haptics.Funscript.notes.Count; i++)
             {
                 var note = haptics.Funscript.notes[i];
@@ -144,8 +144,8 @@ public class FunscriptRenderer : UIBehaviour
         {
             if (!haptic.Selected) continue;
 
-            haptic.Funscript.actions.Sort();
-            haptic.Funscript.notes.Sort();
+            haptic.Funscript.actions?.Sort();
+            haptic.Funscript.notes?.Sort();
         }
     }
 

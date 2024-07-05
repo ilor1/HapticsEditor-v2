@@ -36,6 +36,11 @@ public class TimeLineBar : UIBehaviour
         _label.pickingMode = PickingMode.Ignore;
         _timeline.Add(_label);
 
+        var timelineLengthLabel = Create<Label>("timeline-length-label");
+        timelineLengthLabel.focusable = false;
+        timelineLengthLabel.pickingMode = PickingMode.Ignore;
+        _timeline.Add(timelineLengthLabel);
+        
         // Drag timeline
         _timeline.RegisterCallback<PointerDownEvent>(OnPointerDown);
         _timeline.RegisterCallback<PointerMoveEvent>(OnPointerMove);

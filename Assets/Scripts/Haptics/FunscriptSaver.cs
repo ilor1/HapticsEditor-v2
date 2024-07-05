@@ -261,6 +261,9 @@ public class FunscriptSaver : MonoBehaviour
             actions = new List<FunAction>()
         };
 
+        // add a point to 0,0
+        funscript.actions.Add(new FunAction { at = 0, pos = 0 });
+
         //ColorUtility.TryParseHtmlString("#C840C0", out var color); // TODO: pre-determined colors
         Color color = new Color(Random.value, Random.value, Random.value, 1.0f);
         var lineRenderSettings = new LineRenderSettings
