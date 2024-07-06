@@ -59,7 +59,11 @@ public class FunscriptMouseInput : UIBehaviour
         _freeformTimeUntilAddingNextPoint -= Time.deltaTime;
         _freeformTimeUntilRemovingNextPoint -= Time.deltaTime;
 
-        if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer)
+        if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+        {
+            RemoveNote();
+        }
+        else if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer)
         {
             AddNote();
         }
@@ -111,7 +115,6 @@ public class FunscriptMouseInput : UIBehaviour
             Erase();
         }
     }
-
 
     private void StartErasing()
     {
@@ -418,7 +421,7 @@ public class FunscriptMouseInput : UIBehaviour
     {
         int at = MouseAt;
 
-        Debug.Log("AddNote");
+        // Debug.Log("AddNote");
 
         foreach (Haptics haptic in FunscriptRenderer.Singleton.Haptics)
         {
@@ -435,7 +438,7 @@ public class FunscriptMouseInput : UIBehaviour
             var note = new Note
             {
                 at = at,
-                text = $"lorem ipsum, {at}"
+                text = MousePos
             };
 
             if (haptic.Funscript.notes == null) haptic.Funscript.notes = new List<Note>();
@@ -446,6 +449,40 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptRenderer.Singleton.SortFunscript();
         //FunscriptOverview.Singleton.RenderHaptics();
     }
+
+    /// <summary>
+    /// Removes the closest Note
+    /// </summary>
+    private void RemoveNote()
+    {
+        int closestIndex = -1;
+        int distance = int.MaxValue;
+        Haptics closestHaptic = null;
+
+        foreach (Haptics haptic in FunscriptRenderer.Singleton.Haptics)
+        {
+            // Only remove notes from selected haptics layers
+            if (!haptic.Selected) continue;
+
+            for (int i = 0; i < haptic.Funscript.notes.Count; i++)
+            {
+                int d = math.abs(MouseAt - haptic.Funscript.notes[i].at);
+                if (d < distance)
+                {
+                    distance = d;
+                    closestIndex = i;
+                    closestHaptic = haptic;
+                }
+            }
+        }
+
+        if (closestHaptic != null && closestIndex != -1)
+        {
+            // Debug.Log("RemoveNote");
+            closestHaptic.Funscript.notes.RemoveAt(closestIndex);
+        }
+    }
+
 
     private void AddFunAction(int at, bool stepmode)
     {

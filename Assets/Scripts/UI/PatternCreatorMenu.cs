@@ -149,7 +149,7 @@ public class PatternCreatorMenu : UIBehaviour
         pattern.actions = _activePattern.ToArray();
         _patterns[_activePatternIndex] = pattern;
 
-        _pattern.RenderFunActions(_activePattern);
+        _pattern.RenderFunActions(_activePattern, null);
     }
 
     private void OnRightClick(PointerDownEvent evt)
@@ -179,7 +179,7 @@ public class PatternCreatorMenu : UIBehaviour
         pattern.actions = _activePattern.ToArray();
         _patterns[_activePatternIndex] = pattern;
 
-        _pattern.RenderFunActions(_activePattern);
+        _pattern.RenderFunActions(_activePattern, null);
     }
 
     private int GetPosValue(Vector2 relativeCoords, bool snapping)
@@ -271,7 +271,7 @@ public class PatternCreatorMenu : UIBehaviour
         yield return null;
         _activePatternIndex = 0;
         _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern);
+        _pattern.RenderFunActions(_activePattern, null);
     }
 
     private void Save()
@@ -297,7 +297,7 @@ public class PatternCreatorMenu : UIBehaviour
         }
 
         _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern);
+        _pattern.RenderFunActions(_activePattern, null);
     }
 
     private void PrevPattern()
@@ -310,7 +310,7 @@ public class PatternCreatorMenu : UIBehaviour
         }
 
         _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern);
+        _pattern.RenderFunActions(_activePattern, null);
     }
 
     private void NewPattern()
@@ -324,7 +324,7 @@ public class PatternCreatorMenu : UIBehaviour
 
         _activePatternIndex = _patterns.Count - 1;
         _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern);
+        _pattern.RenderFunActions(_activePattern, null);
     }
 
     private void RemovePattern()
@@ -335,7 +335,7 @@ public class PatternCreatorMenu : UIBehaviour
             _activePatternIndex = math.max(0, _activePatternIndex - 1);
 
             _activePattern = _patterns[_activePatternIndex].actions.ToList();
-            _pattern.RenderFunActions(_activePattern);
+            _pattern.RenderFunActions(_activePattern, null);
         }
     }
 }

@@ -26,7 +26,7 @@ public struct RenderFunActionJob : IJob
             float at = Actions[i].at;
             float pos = Actions[i].pos;
 
-            // Action.Pos is before timeline
+            // Action.At is before timeline
             if (at < TimeInMilliseconds - 0.5f * LengthInMilliseconds)
             {
                 // if the last point is before the timeline start, draw a flat line

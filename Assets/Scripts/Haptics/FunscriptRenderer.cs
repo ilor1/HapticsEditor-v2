@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class FunscriptRenderer : UIBehaviour
@@ -104,30 +102,7 @@ public class FunscriptRenderer : UIBehaviour
                 _lineDrawers[i].LineWidth = Haptics[i].LineRenderSettings.LineWidth;
                 _lineDrawers[i].LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
                 _lineDrawers[i].TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
-                _lineDrawers[i].RenderFunActions(Haptics[i].Funscript.actions);
-            }
-        }
-
-        // Draw notes
-        int startAt = TimelineManager.Instance.TimeInMilliseconds - (int)math.round(0.5f * TimelineManager.Instance.LengthInMilliseconds);
-        int endAt = startAt + TimelineManager.Instance.LengthInMilliseconds;
-
-        // TODO: hide all notes first...
-
-        foreach (var haptics in Haptics)
-        {
-            if (haptics.Funscript.notes == null) continue;
-
-            for (int i = 0; i < haptics.Funscript.notes.Count; i++)
-            {
-                var note = haptics.Funscript.notes[i];
-
-                // check that note is inside the currently displayed time range
-                if (note.at > endAt) break;
-                if (note.at < startAt) continue;
-
-                // TODO: draw note
-                Debug.Log($"[{note.at}]:{note.text}");
+                _lineDrawers[i].RenderFunActions(Haptics[i].Funscript.actions, Haptics[i].Funscript.notes);
             }
         }
     }

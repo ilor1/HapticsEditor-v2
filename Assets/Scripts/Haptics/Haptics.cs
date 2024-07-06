@@ -39,7 +39,7 @@ public struct FunAction : IComparable<FunAction>
 public struct Note : IComparable<Note>
 {
     public int at;
-    public string text;
+    public int text;
 
     public int CompareTo(Note other)
     {

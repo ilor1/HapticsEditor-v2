@@ -141,7 +141,7 @@ public class PatternRenderer : UIBehaviour
         // Redraw the line
         _pattern.LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
         _pattern.TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
-        _pattern.RenderFunActions(_funActions);
+        _pattern.RenderFunActions(_funActions, null);
     }
 
     private void OnPointerLeave(PointerLeaveEvent evt)
