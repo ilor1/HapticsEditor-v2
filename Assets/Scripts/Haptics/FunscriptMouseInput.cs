@@ -171,7 +171,7 @@ public class FunscriptMouseInput : UIBehaviour
             }
         }
 
-        AddFunAction(at, false);
+        AddFunAction(at, MousePos, false);
 
         _previousAddedPointAt = at;
 
@@ -225,7 +225,7 @@ public class FunscriptMouseInput : UIBehaviour
         }
         else if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Default)
         {
-            AddFunAction(MouseAt, StepMode);
+            AddFunAction(MouseAt, MousePos, StepMode);
         }
 
         FunscriptRenderer.Singleton.SortFunscript();
@@ -484,8 +484,13 @@ public class FunscriptMouseInput : UIBehaviour
     }
 
 
-    private void AddFunAction(int at, bool stepmode)
+    public void AddFunAction(int at, int pos = -1, bool stepMode = false)
     {
+        if (pos == -1)
+        {
+            pos = MousePos;
+        }
+
         foreach (Haptics haptic in FunscriptRenderer.Singleton.Haptics)
         {
             // Only add points to selected haptics layers
@@ -501,11 +506,11 @@ public class FunscriptMouseInput : UIBehaviour
             var funaction = new FunAction
             {
                 at = at,
-                pos = MousePos
+                pos = pos
             };
 
             // On StepMode add an FunAction to create a step 
-            if (stepmode)
+            if (stepMode)
             {
                 int at0 = at - 1;
                 int pos0 = GetPosAtTime(at0, haptic);

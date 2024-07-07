@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: 2554
+    x: 768
     y: 51
     width: 2558
     height: 1381
@@ -119,7 +119,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 99
+  controlID: 38
   draggingID: 0
 --- !u!114 &6
 MonoBehaviour:
@@ -167,7 +167,7 @@ MonoBehaviour:
     x: 0
     y: 0
     width: 2054
-    height: 956
+    height: 955
   m_MinSize: {x: 200, y: 50}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
@@ -191,7 +191,7 @@ MonoBehaviour:
     x: 0
     y: 0
     width: 336
-    height: 956
+    height: 955
   m_MinSize: {x: 201, y: 226}
   m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 13}
@@ -217,7 +217,7 @@ MonoBehaviour:
     x: 336
     y: 0
     width: 1718
-    height: 956
+    height: 955
   m_MinSize: {x: 202, y: 226}
   m_MaxSize: {x: 4002, y: 4026}
   m_ActualView: {fileID: 14}
@@ -243,9 +243,9 @@ MonoBehaviour:
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 956
+    y: 955
     width: 2054
-    height: 369
+    height: 370
   m_MinSize: {x: 231, y: 276}
   m_MaxSize: {x: 10001, y: 10026}
   m_ActualView: {fileID: 17}
@@ -302,10 +302,10 @@ MonoBehaviour:
     m_TextWithWhitespace: "Console\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 2561
-    y: 1048
-    width: 2053
-    height: 345
+    x: 0
+    y: 672
+    width: 4109
+    height: 722
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -342,7 +342,7 @@ MonoBehaviour:
     x: 0
     y: 24
     width: 335
-    height: 930
+    height: 929
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -359,7 +359,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 429effff089fffff9ca1fffffca7ffffc2a8ffff7cabffffd2faffff
+      m_ExpandedIDs: d49dffff9a9effff54a1ffff38b7fffffeb7ffffc0baffffd2fafffffeba0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -409,7 +409,7 @@ MonoBehaviour:
     x: 337
     y: 24
     width: 1716
-    height: 930
+    height: 929
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -464,22 +464,22 @@ MonoBehaviour:
       x: 0
       y: 21
       width: 1716
-      height: 914
-    m_Scale: {x: 0.8462963, y: 0.8462963}
-    m_Translation: {x: 858, y: 457}
+      height: 908
+    m_Scale: {x: 0.84074074, y: 0.84074074}
+    m_Translation: {x: 858, y: 454}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -1013.8293
+      x: -1020.5286
       y: -540
-      width: 2027.6586
+      width: 2041.0573
       height: 1080
     m_MinimalGUI: 1
-  m_defaultScale: 0.8462963
-  m_LastWindowPixelSize: {x: 1716, y: 935}
+  m_defaultScale: 0.84074074
+  m_LastWindowPixelSize: {x: 1716, y: 929}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000
@@ -1140,9 +1140,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 980
+    y: 979
     width: 2053
-    height: 343
+    height: 344
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -1175,16 +1175,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Resources
+  - Assets
   m_LastFoldersGridSize: 16
   m_LastProjectPath: E:\Unity_Projects\HapticsModifier
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: b6bb0000
-    m_LastClickedID: 48054
-    m_ExpandedIDs: 00000000babb0000bcbb0000bebb0000c0bb0000c2bb0000c4bb0000c6bb0000
+    m_SelectedIDs: babb0000
+    m_LastClickedID: 48058
+    m_ExpandedIDs: 00000000bebb0000c0bb0000c2bb0000c4bb0000c6bb0000c8bb0000cabb0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1213,7 +1213,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000babb0000bcbb0000bebb0000c0bb0000c2bb0000c4bb0000c6bb0000
+    m_ExpandedIDs: 00000000bebb0000c0bb0000c2bb0000c4bb0000c6bb0000c8bb0000cabb0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

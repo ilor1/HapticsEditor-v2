@@ -430,7 +430,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StartTimeInMilliseconds: 0
   EndTimeInMilliseconds: 2520000
-  PointerAt: 0
 --- !u!114 &492903799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -466,6 +465,7 @@ GameObject:
   - component: {fileID: 562365842}
   - component: {fileID: 562365841}
   - component: {fileID: 562365843}
+  - component: {fileID: 562365844}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -599,6 +599,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AudioFilePath: E:/_Projects/Haptics/ExampleAudioFile.mp3
   AudioSource: {fileID: 0}
+--- !u!114 &562365844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 562365840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db9014e790d449046bf0ca86c72ecf7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _clip: {fileID: 0}
+  sampleSegmentMilliseconds: 100
+  _threshold: 50
 --- !u!1 &927865631
 GameObject:
   m_ObjectHideFlags: 0
