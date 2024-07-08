@@ -613,7 +613,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _clip: {fileID: 0}
   sampleSegmentMilliseconds: 100
-  _threshold: 50
+  _threshold: 0.05
 --- !u!1 &927865631
 GameObject:
   m_ObjectHideFlags: 0

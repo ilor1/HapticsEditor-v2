@@ -45,11 +45,7 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
             FunscriptMouseInput.Singleton.AddFunAction(i, pos, false);
         }
 
-        FunscriptRenderer.Singleton.SortFunscript();
-        FunscriptRenderer.Singleton.CleanupExcessPoints();
-
-        TitleBar.MarkLabelDirty();
-        FunscriptOverview.Singleton.RenderHaptics();
+        RefreshFunscript();
     }
     
     [ContextMenu("Mid")]
@@ -72,11 +68,7 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
             FunscriptMouseInput.Singleton.AddFunAction(i, pos, false);
         }
 
-        FunscriptRenderer.Singleton.SortFunscript();
-        FunscriptRenderer.Singleton.CleanupExcessPoints();
-
-        TitleBar.MarkLabelDirty();
-        FunscriptOverview.Singleton.RenderHaptics();
+        RefreshFunscript();
     }
     
     [ContextMenu("High")]
@@ -99,12 +91,20 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
             FunscriptMouseInput.Singleton.AddFunAction(i, pos, false);
         }
 
+        RefreshFunscript();
+    }
+
+
+    void RefreshFunscript()
+    {
         FunscriptRenderer.Singleton.SortFunscript();
         FunscriptRenderer.Singleton.CleanupExcessPoints();
 
         TitleBar.MarkLabelDirty();
         FunscriptOverview.Singleton.RenderHaptics();
     }
+    
+
     void AnalyzeSegment(int timeInMilliseconds, out float lowFreq, out float midFreq, out float highFreq)
     {
         int sampleRate = _clip.frequency;
@@ -135,9 +135,10 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
         // Apply FFT
         Fourier.Forward(complexSamples, FourierOptions.Matlab);
 
-        // Get magnitude spectrum
-        float[] spectrum = new float[sampleSize];
-        for (int i = 0; i < sampleSize; i++)
+        // Get magnitude spectrum (only first half)
+        int halfSize = sampleSize / 2;
+        float[] spectrum = new float[halfSize];
+        for (int i = 0; i < halfSize; i++)
         {
             spectrum[i] = (float)complexSamples[i].Magnitude;
         }
@@ -145,14 +146,16 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
         return spectrum;
     }
 
-    void ProcessFrequencyBands(float[] spectrumData, int sampleSize, out float lowFreq, out float midFreq, out float highFreq)
+    public static void ProcessFrequencyBands(float[] spectrumData, int sampleSize, out float lowFreq, out float midFreq, out float highFreq)
     {
         lowFreq = 0f;
         midFreq = 0f;
         highFreq = 0f;
 
-        int lowEnd = sampleSize / 3;
-        int midEnd = 2 * sampleSize / 3;
+        int halfSize = sampleSize / 2;
+
+        int lowEnd = halfSize / 3;
+        int midEnd = 2 * halfSize / 3;
 
         for (int i = 0; i < lowEnd; i++)
         {
@@ -164,13 +167,14 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
             midFreq += spectrumData[i];
         }
 
-        for (int i = midEnd; i < sampleSize; i++)
+        for (int i = midEnd; i < halfSize; i++)
         {
             highFreq += spectrumData[i];
         }
 
-        // Debug.Log("Low: " + lowFreq);
-        // Debug.Log("Mid: " + midFreq);
-        // Debug.Log("High: " + highFreq);
+        // Optional: Normalize the frequency bands by the number of elements in each band
+        lowFreq /= lowEnd;
+        midFreq /= (midEnd - lowEnd);
+        highFreq /= (halfSize - midEnd);
     }
 }
