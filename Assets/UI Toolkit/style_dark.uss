@@ -592,6 +592,117 @@
     width: 100%;
 }
 
+.about-popup {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-container {
+    padding: 40px;
+    position: relative;
+    align-self: center;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    background-color: #262626;
+    border-width: 3px;
+    border-color: #3e3e42;
+    border-radius: 10px;
+}
+
+.about-buttons {
+    margin-top: 40px;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.about-buttons > Button {
+    width: 150px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.about-buttons .unity-button {
+    background-color: #414141;
+}
+
+.about-field {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.about-container .unity-base-field {
+    width: 260px;
+}
+
+.about-container .unity-base-text-field__input {
+    background-color: #1c1c1c;
+    width: 100%;
+}
+
+.haptic-generator-popup {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.haptic-generator-container {
+    padding: 40px;
+    position: relative;
+    align-self: center;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    background-color: #262626;
+    border-width: 3px;
+    border-color: #3e3e42;
+    border-radius: 10px;
+}
+
+.haptic-generator-buttons {
+    margin-top: 40px;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.haptic-generator-buttons > Button {
+    width: 150px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.haptic-generator-buttons .unity-button {
+    background-color: #414141;
+}
+
+.haptic-generator-field {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.haptic-generator-container .unity-base-field {
+    width: 260px;
+}
+
+.haptic-generator-container .unity-base-text-field__input {
+    background-color: #1c1c1c;
+    width: 100%;
+}
+
+
 .bindings-popup {
     width: 100%;
     height: 100%;

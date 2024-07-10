@@ -5,10 +5,16 @@ using Unity.Mathematics;
 
 public class AudioClipFrequencyAnalyzer : MonoBehaviour
 {
+    public static AudioClipFrequencyAnalyzer Singleton;
+
     public AudioClip _clip;
     public int sampleSegmentMilliseconds = 100;
 
-    public float _threshold = 10f;
+    private void Awake()
+    {
+        if (Singleton == null) Singleton = this;
+        else if (Singleton != this) Destroy(this);
+    }
 
     private void OnEnable()
     {
@@ -25,8 +31,7 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
         _clip = audioSource.clip;
     }
 
-    [ContextMenu("Low")]
-    public void AnalyzeClipLow()
+    public void AnalyzeClip(float strength, float min, float max)
     {
         if (_clip == null)
         {
@@ -34,66 +39,25 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
             return;
         }
 
-        int clipLength = (int)math.round(_clip.length * 1000f);
-        FunscriptMouseInput.Singleton.AddFunAction(0, 0, false);
-        for (int i = 1; i < clipLength; i += sampleSegmentMilliseconds)
+        // clear underlying haptics
+        foreach (var haptic in FunscriptRenderer.Singleton.Haptics)
         {
-            AnalyzeSegment(i, out float lowFreq, out float midFreq, out float highFreq);
-
-            // add point at i
-            int pos = (int)math.floor(lowFreq / _threshold);
-            FunscriptMouseInput.Singleton.AddFunAction(i, pos, false);
-        }
-
-        RefreshFunscript();
-    }
-    
-    [ContextMenu("Mid")]
-    public void AnalyzeClipMid()
-    {
-        if (_clip == null)
-        {
-            // Debug.LogError("AudioClip is not assigned.");
-            return;
+            if (haptic.Selected && haptic.Visible) haptic.Funscript.actions.Clear();
         }
 
         int clipLength = (int)math.round(_clip.length * 1000f);
         FunscriptMouseInput.Singleton.AddFunAction(0, 0, false);
         for (int i = 1; i < clipLength; i += sampleSegmentMilliseconds)
         {
-            AnalyzeSegment(i, out float lowFreq, out float midFreq, out float highFreq);
+            AnalyzeSegment(i, min, max, out float freq);
 
             // add point at i
-            int pos = (int)math.floor(midFreq / _threshold);
+            int pos = (int)math.floor(freq * strength);
             FunscriptMouseInput.Singleton.AddFunAction(i, pos, false);
         }
 
         RefreshFunscript();
     }
-    
-    [ContextMenu("High")]
-    public void AnalyzeClipHigh()
-    {
-        if (_clip == null)
-        {
-            // Debug.LogError("AudioClip is not assigned.");
-            return;
-        }
-
-        int clipLength = (int)math.round(_clip.length * 1000f);
-        FunscriptMouseInput.Singleton.AddFunAction(0, 0, false);
-        for (int i = 1; i < clipLength; i += sampleSegmentMilliseconds)
-        {
-            AnalyzeSegment(i, out float lowFreq, out float midFreq, out float highFreq);
-
-            // add point at i
-            int pos = (int)math.floor(highFreq / _threshold);
-            FunscriptMouseInput.Singleton.AddFunAction(i, pos, false);
-        }
-
-        RefreshFunscript();
-    }
-
 
     void RefreshFunscript()
     {
@@ -103,9 +67,9 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
         TitleBar.MarkLabelDirty();
         FunscriptOverview.Singleton.RenderHaptics();
     }
-    
 
-    void AnalyzeSegment(int timeInMilliseconds, out float lowFreq, out float midFreq, out float highFreq)
+
+    void AnalyzeSegment(int timeInMilliseconds, float min, float max, out float freq)
     {
         int sampleRate = _clip.frequency;
         int numSamples = (sampleRate * sampleSegmentMilliseconds) / 1000;
@@ -120,7 +84,7 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
         _clip.GetData(samples, startSampleIndex);
 
         float[] spectrumData = AnalyzeFrequency(samples, numSamples);
-        ProcessFrequencyBands(spectrumData, numSamples, out lowFreq, out midFreq, out highFreq);
+        ProcessFrequencyBands(spectrumData, numSamples, min, max, out freq);
     }
 
     float[] AnalyzeFrequency(float[] samples, int sampleSize)
@@ -146,35 +110,40 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
         return spectrum;
     }
 
-    public static void ProcessFrequencyBands(float[] spectrumData, int sampleSize, out float lowFreq, out float midFreq, out float highFreq)
+    private static void ProcessFrequencyBands(float[] spectrumData, int sampleSize, float min, float max, out float freq)
     {
-        lowFreq = 0f;
-        midFreq = 0f;
-        highFreq = 0f;
+        freq = 0f;
 
         int halfSize = sampleSize / 2;
+        int start = (int)math.floor(halfSize * min);
+        int end = (int)math.ceil(halfSize * max);
 
-        int lowEnd = halfSize / 3;
-        int midEnd = 2 * halfSize / 3;
-
-        for (int i = 0; i < lowEnd; i++)
+        // Debug.Log(start);
+        // Debug.Log(end);
+        // Debug.Log(spectrumData.Length);
+        //
+        // return;
+        
+        if (math.abs(start - end) < 100)
         {
-            lowFreq += spectrumData[i];
+            start = end - 100; // expect at least 100hz range
+
+            if (start < 100)
+            {
+                start = 0;
+                end = 100;
+            }
         }
 
-        for (int i = lowEnd; i < midEnd; i++)
-        {
-            midFreq += spectrumData[i];
-        }
+        // int lowEnd = halfSize / 3;
+        // int midEnd = 2 * halfSize / 3;
 
-        for (int i = midEnd; i < halfSize; i++)
+        for (int i = start; i < end; i++)
         {
-            highFreq += spectrumData[i];
+            freq += spectrumData[i];
         }
 
         // Optional: Normalize the frequency bands by the number of elements in each band
-        lowFreq /= lowEnd;
-        midFreq /= (midEnd - lowEnd);
-        highFreq /= (halfSize - midEnd);
+        //freq /= (end - start);
     }
 }

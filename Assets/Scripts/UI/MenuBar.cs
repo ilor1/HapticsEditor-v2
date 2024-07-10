@@ -64,10 +64,20 @@ public class MenuBar : UIBehaviour
         patternsButton.clicked += () => { PatternCreatorMenu.Singleton.Open(); };
         menuBar.Add(patternsButton);
 
+        var hapticGeneratorButton = Create<Button>("menu-button");
+        hapticGeneratorButton.text = "Generator";
+        hapticGeneratorButton.clicked += () => { HapticGeneratorMenu.Singleton.Open(root); };
+        menuBar.Add(hapticGeneratorButton);
+        
         var metadataButton = Create<Button>("menu-button");
         metadataButton.text = "Metadata";
         metadataButton.clicked += () => { MetadataMenu.Singleton.Open(root); };
         menuBar.Add(metadataButton);
+
+        var aboutButton = Create<Button>("menu-button");
+        aboutButton.text = "About";
+        aboutButton.clicked += () => { AboutMenu.Singleton.Open(root); };
+        menuBar.Add(aboutButton);
 
         var toggleLayersLabel = Create<Label>();
         toggleLayersLabel.text = "Show Layers";

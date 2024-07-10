@@ -9,7 +9,7 @@ Supports only .mp3 audiofiles, for any other formats you should first export it 
 
 Special thanks to u/yaliplover for pre-alpha-testing and supporting this tool since its infancy!
 
-> If you like using this Haptics Editor, and want to donate towards the development of it, or just in general make my day... You can sponsor me here on [github](https://github.com/sponsors/ilor1) or buy me a [ko-fi](https://ko-fi.com/ilori). Not expected, but immensely appreciated!
+> If you like using this Haptics Editor, and want to donate towards its development, or just in general make my day... You can sponsor me here on [github](https://github.com/sponsors/ilor1) or buy me a [ko-fi](https://ko-fi.com/ilori). Not expected, but immensely appreciated!
 
 ## Installation
 

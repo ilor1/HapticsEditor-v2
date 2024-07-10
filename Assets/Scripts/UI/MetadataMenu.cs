@@ -36,7 +36,7 @@ public class MetadataMenu : UIBehaviour
             Destroy(this);
         }
     }
-    
+
     private void OnEnable()
     {
         MainUI.RootCreated += Generate;
