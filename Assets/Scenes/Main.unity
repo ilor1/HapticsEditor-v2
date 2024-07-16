@@ -613,7 +613,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _clip: {fileID: 0}
   sampleSegmentMilliseconds: 100
-  _threshold: 0.05
 --- !u!1 &927865631
 GameObject:
   m_ObjectHideFlags: 0
@@ -1104,7 +1103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stylesheets:
   - {fileID: 7433441132597879392, guid: 2a3083695929d9d43b370ab2eee2900d, type: 3}
-  - {fileID: 7433441132597879392, guid: 7f14e66813c510446a84c5759f9c862f, type: 3}
+  - {fileID: 7433441132597879392, guid: b063df2d7cb4dad4f93b295f77bc74fc, type: 3}
 --- !u!114 &1611213309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1167,7 +1166,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b32342f56a840a6835425c0a606b7e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _projectInfoSo: {fileID: 0}
 --- !u!1 &1701923416
 GameObject:
   m_ObjectHideFlags: 0

@@ -28,7 +28,7 @@ public class TitleBar : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        VisualElement titleBar = root.Query(className: "title-bar");
+        VisualElement titleBar = root.Query("title-bar");
 
         _titleText = Create<Label>("title-label");
         _titleText.text = "No funscript loaded.";

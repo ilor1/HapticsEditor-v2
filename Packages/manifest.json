@@ -11,7 +11,7 @@
   "dependencies": {
     "com.nonpolynomial.buttplug-unity": "3.0.2",
     "com.unity.ai.navigation": "2.0.0",
-    "com.unity.collab-proxy": "2.3.1",
+    "com.unity.collab-proxy": "2.4.3",
     "com.unity.entities": "1.2.0",
     "com.unity.entities.graphics": "1.2.0",
     "com.unity.feature.development": "1.0.2",

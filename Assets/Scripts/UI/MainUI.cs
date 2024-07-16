@@ -9,7 +9,7 @@ public class MainUI : UIBehaviour
     public static Action<VisualElement> RootCreated;
 
     public StyleSheet StyleSheet;
-    
+
     [SerializeField] protected UIDocument _document;
 
     private VisualElement _funscriptContainer;
@@ -37,12 +37,20 @@ public class MainUI : UIBehaviour
         root.styleSheets.Add(StyleSheet);
         root.AddToClassList("root");
 
-        var titleBar = Create("title-bar");
-        var menuBar = Create("menu-bar");
-        var toolBar = Create("tool-bar");
+        var titleBar = Create("row", "background--medium", "no-flexing", "border-top", "border-left", "border-right");
+        titleBar.name = "title-bar";
 
-        _funscriptContainer = Create("funscript-container");
-        var funscriptValuesContainer = Create("funscript-values-container");
+        var menuBar = Create("row", "background--medium", "no-flexing", "border-left", "border-right");
+        menuBar.name = "menu-bar";
+
+        var toolBar = Create("row", "background--light", "no-flexing", "border-top", "border-bottom", "border-left", "border-right");
+        toolBar.name = "tool-bar";
+
+        _funscriptContainer = Create("row", "background--dark", "hide-overflow", "border-right");
+        _funscriptContainer.name = "funscript-container";
+        var funscriptValuesContainer = Create("column", "background--medium", "values", "border-left");
+        funscriptValuesContainer.name = "funscript-values-container";
+
         var label100 = Create<Label>();
         label100.text = "100";
         var label90 = Create<Label>();
@@ -99,7 +107,7 @@ public class MainUI : UIBehaviour
         var waveformContainer = Create("waveform-container");
         var waveformLabels = Create("waveform-labels");
         waveformContainer.Add(waveformLabels);
-        
+
         var layersContainer = Create("layers-container");
         var devicesContainer = Create("devices-container");
 

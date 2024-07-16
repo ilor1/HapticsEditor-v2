@@ -72,7 +72,7 @@
 
 .intiface-container {
     width: 100%;
-    flex-direction: row-reverse;
+    flex-direction: row-reverse;    
 }
 
 .intiface-container > Label {

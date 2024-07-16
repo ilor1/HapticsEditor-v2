@@ -1,0 +1,258 @@
+/* Unity elements */
+
+Label {
+    color: rgb(255, 255, 255);
+    overflow: visible;
+    text-overflow: ellipsis;
+    -unity-text-align: middle-left;
+}
+
+Button {
+    padding: 4px 10px;
+    color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0);
+    font-size: 14px;
+}
+
+Button:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.unity-toggle__checkmark {
+    height: 20px;
+    width: 20px;
+    background-color: rgb(50, 50, 50);
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+    -unity-background-image-tint-color: white;
+}
+
+Toggle {
+    margin: 0;
+    padding: 0;
+}
+
+Slider {
+    align-self: center;
+    align-items: center;
+    width: 100px;
+    margin: 0;
+    padding: 0;
+}
+
+FloatField {
+    margin: 0;
+    padding: 0;
+}
+
+IntegerField {
+    margin: 0;
+    padding: 0;
+}
+
+#unity-text-input {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    background-color: rgb(50, 50, 50);
+    -unity-text-align: middle-center;
+    color: white;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+}
+
+/* Classes */
+.hide-overflow {
+    overflow: hidden;
+}
+
+.no-flexing {
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.align-right {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.background--light {
+    background-color: rgb(50, 50, 50);
+}
+
+.background--medium {
+    background-color: rgb(40, 40, 40);
+}
+
+.background--dark {
+    background-color: rgb(30, 30, 30);
+}
+
+.color--light {
+    background-color: rgb(255, 255, 255);
+}
+
+.color--medium {
+    background-color: rgb(175, 175, 175);
+}
+
+.color--dark {
+    background-color: rgb(100, 100, 100);
+}
+
+.no-border {
+    border-width: 0;
+}
+
+.bordered {
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+}
+
+.border-top {
+    border-top-width: 2px;
+    border-color: rgb(60, 60, 60);
+}
+
+.border-bottom {
+    border-bottom-width: 2px;
+    border-color: rgb(60, 60, 60);
+}
+
+.border-left {
+    border-left-width: 2px;
+    border-color: rgb(60, 60, 60);
+}
+
+.border-right {
+    border-right-width: 2px;
+    border-color: rgb(60, 60, 60);
+}
+
+.rounded {
+    border-radius: 5px;
+}
+
+.column {
+    flex-direction: column;
+}
+
+.row {
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+}
+
+.row-reverse {
+    flex-direction: row-reverse;
+}
+
+.vertical-line {
+    height: 100%;
+    width: 2px;
+}
+
+.horizontal-line {
+    height: 1px;
+    width: 100%;
+}
+
+.layers-eye.open {
+    background-image: resource("Images/eye_open");
+}
+
+.layers-eye.closed {
+    background-image: resource("Images/eye_closed");
+}
+
+.marker-start {
+    height: 100%;
+    width: 16px;
+    position: absolute;
+    background-image: resource("Images/marker-start");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: #C840C0;
+}
+
+.marker-end {
+    height: 100%;
+    width: 16px;
+    position: absolute;
+    background-image: resource("Images/marker-end");
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: #C840C0;
+}
+
+/* specific elements */
+#title-bar {
+    height: 40px;
+    padding-left: 10px;
+}
+
+#menu-bar {
+    height: 40px;
+}
+
+#intiface-container {
+    width: 100%;
+    padding-right: 10px;
+}
+
+#tool-bar {
+    height: 60px;
+}
+
+#tool-bar .unity-button {
+    height: 30px;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+}
+
+#tool-bar .item {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 0;
+    height: 30px;
+    font-size: 12px;
+}
+
+#tool-bar .item #repeat-field {
+    width: 50px;
+    height: 30px;
+}
+
+#tool-bar .unity-button.default-mode {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+#tool-bar .unity-button.pattern-mode {
+    background-color: rgba(40, 40, 100, 255);
+}
+
+#tool-bar .unity-button.free-mode {
+    background-color: rgba(40, 100, 40, 255);
+}
+
+#funscript-container {
+    width: 100%;
+    height: 50%;
+    align-content: flex-end;
+    justify-content: flex-end;
+}
+
+#funscript-values-container.values {
+    padding-top: 4px;
+    padding-bottom: 6px;
+    width: 50px;
+    height: 100%;
+    justify-content: space-around;
+    flex-grow: 1;
+}
+
+#funscript-values-container.values Label {
+    -unity-text-align: middle-right;
+}

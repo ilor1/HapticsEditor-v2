@@ -20,7 +20,7 @@ public class MenuBar : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        VisualElement menuBar = root.Query(className: "menu-bar");
+        VisualElement menuBar = root.Query("menu-bar");
 
         // File Dropdown
         _fileDropdown = CreateDropdownMenu(root);
@@ -29,7 +29,7 @@ public class MenuBar : UIBehaviour
         _fileDropdown.Append("Save Funscript", FileDropdownMenu.OnSaveClick);
         _fileDropdown.Append("Exit", FileDropdownMenu.OnExitClick);
 
-        var fileButton = Create<Button>("menu-button");
+        var fileButton = Create<Button>("no-border");
         fileButton.text = "File";
         fileButton.clicked += () =>
         {
@@ -46,7 +46,7 @@ public class MenuBar : UIBehaviour
         _editDropdown.Append("Settings", EditDropdownMenu.OnSettingsClick);
         _editDropdown.Append("Bindings", EditDropdownMenu.OnBindingsClick);
 
-        var editButton = Create<Button>("menu-button");
+        var editButton = Create<Button>("no-border");
         editButton.text = "Edit";
         editButton.clicked += () =>
         {
@@ -59,22 +59,22 @@ public class MenuBar : UIBehaviour
         };
         menuBar.Add(editButton);
 
-        var patternsButton = Create<Button>("menu-button");
+        var patternsButton = Create<Button>("no-border");
         patternsButton.text = "Patterns";
         patternsButton.clicked += () => { PatternCreatorMenu.Singleton.Open(); };
         menuBar.Add(patternsButton);
 
-        var hapticGeneratorButton = Create<Button>("menu-button");
+        var hapticGeneratorButton = Create<Button>("no-border");
         hapticGeneratorButton.text = "Generator";
         hapticGeneratorButton.clicked += () => { HapticGeneratorMenu.Singleton.Open(root); };
         menuBar.Add(hapticGeneratorButton);
         
-        var metadataButton = Create<Button>("menu-button");
+        var metadataButton = Create<Button>("no-border");
         metadataButton.text = "Metadata";
         metadataButton.clicked += () => { MetadataMenu.Singleton.Open(root); };
         menuBar.Add(metadataButton);
 
-        var aboutButton = Create<Button>("menu-button");
+        var aboutButton = Create<Button>("no-border");
         aboutButton.text = "About";
         aboutButton.clicked += () => { AboutMenu.Singleton.Open(root); };
         menuBar.Add(aboutButton);
@@ -89,7 +89,8 @@ public class MenuBar : UIBehaviour
         menuBar.Add(toggleLayersLabel);
         menuBar.Add(toggleLayers);
 
-        var intifaceContainer = Create("intiface-container");
+        var intifaceContainer = Create("row-reverse");
+        intifaceContainer.name = "intiface-container";
         var intifaceLabel = Create<Label>();
         intifaceLabel.text = "Intiface Central";
         var intifaceToggle = Create<Toggle>();

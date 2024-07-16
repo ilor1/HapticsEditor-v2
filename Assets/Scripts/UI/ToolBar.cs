@@ -118,12 +118,12 @@ public class ToolBar : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        _toolBar = root.Query(className: "tool-bar");
+        _toolBar = root.Query("tool-bar");
 
         // Shared tools
         _modeChangeButton = Create<Button>();
         _modeChangeButton.text = "Default";
-        _modeChangeButton.AddToClassList("black");
+        _modeChangeButton.AddToClassList("default-mode");
         _modeChangeButton.clicked += OnCycleMode;
         _toolBar.Add(_modeChangeButton);
         
@@ -143,6 +143,7 @@ public class ToolBar : UIBehaviour
 
         _repeatContainer = CreateItem("Repeat:", out _repeatField);
         _repeatField.RegisterValueChangedCallback(OnRepeatChanged);
+        _repeatField.name = "repeat-field";
         PatternManager.Singleton.RepeatAmount = PatternManager.Singleton.RepeatAmountDefault;
         _repeatField.value = PatternManager.Singleton.RepeatAmountDefault;
 
@@ -204,9 +205,9 @@ public class ToolBar : UIBehaviour
             // Default mode
             case ScriptingMode.Default:
                 _modeChangeButton.text = "Default";
-                _modeChangeButton.RemoveFromClassList("blue");
-                _modeChangeButton.RemoveFromClassList("green");
-                _modeChangeButton.AddToClassList("black");
+                _modeChangeButton.RemoveFromClassList("pattern-mode");
+                _modeChangeButton.RemoveFromClassList("free-mode");
+                _modeChangeButton.AddToClassList("default-mode");
                 if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
                 if (_toolBar.Contains(_repeatContainer)) _toolBar.Remove(_repeatContainer);
                 if (_toolBar.Contains(_spacingContainer)) _toolBar.Remove(_spacingContainer);
@@ -220,9 +221,9 @@ public class ToolBar : UIBehaviour
             // Pattern mode
             case ScriptingMode.Pattern:
                 _modeChangeButton.text = "Pattern";
-                _modeChangeButton.RemoveFromClassList("green");
-                _modeChangeButton.RemoveFromClassList("black");
-                _modeChangeButton.AddToClassList("blue");
+                _modeChangeButton.RemoveFromClassList("free-mode");
+                _modeChangeButton.RemoveFromClassList("default-mode");
+                _modeChangeButton.AddToClassList("pattern-mode");
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
                 
                 _toolBar.Add(_nextPatternButton);
@@ -235,9 +236,9 @@ public class ToolBar : UIBehaviour
                 break;
             case ScriptingMode.Free:
                 _modeChangeButton.text = "Freeform";
-                _modeChangeButton.RemoveFromClassList("black");
-                _modeChangeButton.RemoveFromClassList("blue");
-                _modeChangeButton.AddToClassList("green");
+                _modeChangeButton.RemoveFromClassList("default-mode");
+                _modeChangeButton.RemoveFromClassList("pattern-mode");
+                _modeChangeButton.AddToClassList("free-mode");
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
                 if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
                 if (_toolBar.Contains(_repeatContainer)) _toolBar.Remove(_repeatContainer);
@@ -341,7 +342,7 @@ public class ToolBar : UIBehaviour
 
     private VisualElement CreateItem(string text, out Toggle toggle)
     {
-        var container = Create("tool-bar-item");
+        var container = Create("item", "row");
 
         var label = Create<Label>();
         label.text = text;
@@ -355,7 +356,7 @@ public class ToolBar : UIBehaviour
 
     private VisualElement CreateItem(string text, out IntegerField integerField)
     {
-        var container = Create("tool-bar-item");
+        var container = Create("item", "row");
 
         var label = Create<Label>();
         label.text = text;
@@ -369,7 +370,7 @@ public class ToolBar : UIBehaviour
 
     private VisualElement CreateItem(string text, out Slider sliderField, float min, float max)
     {
-        var container = Create("tool-bar-item");
+        var container = Create("item", "row");
 
         var label = Create<Label>();
         label.text = text;
@@ -385,7 +386,7 @@ public class ToolBar : UIBehaviour
 
     private VisualElement CreateItem(string text, out FloatField floatField)
     {
-        var container = Create("tool-bar-item");
+        var container = Create("item", "row");
 
         var label = Create<Label>();
         label.text = text;
