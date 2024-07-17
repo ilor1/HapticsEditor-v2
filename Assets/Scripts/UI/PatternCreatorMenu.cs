@@ -40,10 +40,11 @@ public class PatternCreatorMenu : UIBehaviour
     {
         _root = root;
 
-        _popup = Create("pattern-editor-popup");
-        _container = Create("pattern-editor-container");
+        _popup = Create("popup");
+        _container = Create("popup-container", "background--medium", "bordered", "rounded");
+        _container.name = "pattern-editor-popup";
 
-        var topButtons = Create("pattern-editor-buttons-top");
+        var topButtons = Create("popup-container-buttons");
         var prevButton = Create<Button>();
         prevButton.text = "<";
         prevButton.clicked += PrevPattern;
@@ -64,7 +65,7 @@ public class PatternCreatorMenu : UIBehaviour
         nextButton.clicked += NextPattern;
         topButtons.Add(nextButton);
 
-        var patternContainer = Create("pattern-editor-pattern");
+        var patternContainer = Create("pattern-editor-pattern", "background--dark");
         var horizontalGrid = Create("horizontal-grid");
         for (int i = 0; i < 11; i++)
         {
@@ -93,7 +94,7 @@ public class PatternCreatorMenu : UIBehaviour
         patternContainer.RegisterCallback<ClickEvent>(OnLeftClick);
         patternContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
 
-        var bottomButtons = Create("pattern-editor-buttons-bottom");
+        var bottomButtons = Create("popup-container-buttons");
 
         var saveButton = Create<Button>();
         saveButton.text = "Save";

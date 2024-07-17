@@ -41,16 +41,17 @@ public class SettingsManager : UIBehaviour
     private void Generate(VisualElement root)
     {
         _root = root;
-        _popup = Create("settings-popup");
-        _container = Create("settings-container");
+        _popup = Create("popup");
+        _container = Create<ScrollView>("popup-container", "background--medium", "bordered", "rounded");
+        _container.name = "settings-popup";
 
-        Toggle fillModeToggle = CreateInputToggleField("Render funscripts as filled:", _container, "settings-field");
+        Toggle fillModeToggle = CreateInputToggleField("Render funscripts as filled:", _container, "field");
         fillModeToggle.SetValueWithoutNotify(ApplicationSettings.fillMode);
 
         // Subscribe to value change events if needed
         fillModeToggle.RegisterValueChangedCallback(evt => ApplicationSettings.fillMode = evt.newValue);
 
-        var settingsButtons = Create("settings-buttons");
+        var settingsButtons = Create("popup-container-buttons");
         var saveButton = Create<Button>();
         saveButton.clicked += OnSave;
         saveButton.text = "Save";

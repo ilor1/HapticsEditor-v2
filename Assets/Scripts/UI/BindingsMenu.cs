@@ -41,8 +41,9 @@ public class BindingsMenu : UIBehaviour
     {
         _root = root;
 
-        _popup = Create("bindings-popup");
-        _container = Create("bindings-container");
+        _popup = Create("popup");
+        _container = Create<ScrollView>("popup-container", "background--medium", "bordered", "rounded");
+        _container.name = "bindings-popup";
         _popup.Add(_container);
 
         // Create input buttons dynamically for each control
@@ -55,7 +56,7 @@ public class BindingsMenu : UIBehaviour
             _buttonDictionary.Add(controlName, button);
         }
 
-        var bindingsButtons = Create("bindings-buttons");
+        var bindingsButtons = Create("popup-container-buttons");
         var saveButton = Create<Button>();
         saveButton.clicked += OnSave;
         saveButton.text = "Save";
@@ -125,7 +126,7 @@ public class BindingsMenu : UIBehaviour
 
     private Button CreateInputButton(ControlName controlName, VisualElement parent)
     {
-        var container = Create("bindings-field");
+        var container = Create("field");
         var label = Create<Label>();
         label.text = controlName.ToString();
 

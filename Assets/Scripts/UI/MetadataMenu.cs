@@ -50,23 +50,24 @@ public class MetadataMenu : UIBehaviour
     private void Generate(VisualElement root)
     {
         _root = root;
-        _popup = Create("metadata-popup");
-        _container = Create("metadata-container");
+        _popup = Create("popup");
+        _container = Create<ScrollView>("popup-container", "background--medium", "bordered", "rounded");
+        _container.name = "metadata-popup";
 
-        _creatorField = CreateInputTextField("Creator", _container, "metadata-field");
-        _descriptionField = CreateInputTextField("Description", _container, "metadata-field");
-        _durationField = CreateInputIntegerField("Duration", _container, "metadata-field");
-        _licenseField = CreateInputTextField("License", _container, "metadata-field");
-        _notesField = CreateInputTextField("Notes", _container, "metadata-field");
-        _performersField = CreateInputTextField("Performers", _container, "metadata-field");
-        _scriptUrlField = CreateInputTextField("Script-URL", _container, "metadata-field");
-        _tagsField = CreateInputTextField("Tags", _container, "metadata-field");
-        _titleField = CreateInputTextField("Title", _container, "metadata-field");
-        _typeField = CreateInputTextField("Type", _container, "metadata-field");
-        _videoUrlField = CreateInputTextField("Video-URL", _container, "metadata-field");
-        _rangeField = CreateInputIntegerField("Range", _container, "metadata-field");
-        _invertedField = CreateInputToggleField("Inverted", _container, "metadata-field");
-        _versionField = CreateInputTextField("Version", _container, "metadata-field");
+        _creatorField = CreateInputTextField("Creator", _container, "field");
+        _descriptionField = CreateInputTextField("Description", _container, "field");
+        _durationField = CreateInputIntegerField("Duration", _container, "field");
+        _licenseField = CreateInputTextField("License", _container, "field");
+        _notesField = CreateInputTextField("Notes", _container, "field");
+        _performersField = CreateInputTextField("Performers", _container, "field");
+        _scriptUrlField = CreateInputTextField("Script-URL", _container, "field");
+        _tagsField = CreateInputTextField("Tags", _container, "field");
+        _titleField = CreateInputTextField("Title", _container, "field");
+        _typeField = CreateInputTextField("Type", _container, "field");
+        _videoUrlField = CreateInputTextField("Video-URL", _container, "field");
+        _rangeField = CreateInputIntegerField("Range", _container, "field");
+        _invertedField = CreateInputToggleField("Inverted", _container, "field");
+        _versionField = CreateInputTextField("Version", _container, "field");
 
         // Subscribe to value change events if needed
         _creatorField.RegisterValueChangedCallback(evt => _data.creator = evt.newValue);
@@ -84,7 +85,7 @@ public class MetadataMenu : UIBehaviour
         _invertedField.RegisterValueChangedCallback(evt => _inverted = evt.newValue);
         _versionField.RegisterValueChangedCallback(evt => _data.version = evt.newValue);
 
-        var metadataButtons = Create("metadata-buttons");
+        var metadataButtons = Create("popup-container-buttons");
         var saveButton = Create<Button>();
         saveButton.clicked += OnSave;
         saveButton.text = "Save";

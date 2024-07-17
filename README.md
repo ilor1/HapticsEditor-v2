@@ -52,6 +52,8 @@ alternatively:
 * '3' - changes to Free scripting mode
 * 'F2' - toggles Snapping
 * 'F5' - cycles available stylesheets
+* 'MMB' - adds a note (marker that gets exported in the funscript "notes":[])
+* 'Shift-MMB' - removes the closest note
 
 #### Cursor Data
 * 'pos' - Current Pos value

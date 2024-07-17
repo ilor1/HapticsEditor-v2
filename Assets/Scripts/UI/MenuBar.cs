@@ -34,8 +34,6 @@ public class MenuBar : UIBehaviour
         fileButton.clicked += () =>
         {
             _fileDropdown.style.left = new StyleLength(0f); // menu-bar padding-left
-            _fileDropdown.style.top = new StyleLength(64f);
-
             // Toggle dropdown on click
             _fileDropdown.Toggle(fileButton);
         };
@@ -51,8 +49,7 @@ public class MenuBar : UIBehaviour
         editButton.clicked += () =>
         {
             // menu-bar padding-left + fileButton padding-left + padding-right
-            _editDropdown.style.left = new StyleLength(fileButton.contentRect.width + 20);
-            _editDropdown.style.top = new StyleLength(64f);
+            _editDropdown.style.left = new StyleLength(50f);
 
             // Toggle dropdown on click
             _editDropdown.Toggle(editButton);

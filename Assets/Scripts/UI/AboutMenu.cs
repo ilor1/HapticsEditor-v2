@@ -35,11 +35,12 @@ public class AboutMenu : UIBehaviour
     private void Generate(VisualElement root)
     {
         _root = root;
-        _popup = Create("about-popup");
-        _container = Create("about-container");
-
+        _popup = Create("popup");        
+        _container = Create("popup-container", "background--medium", "bordered", "rounded");
+        _container.name = "about-popup";
+        
         // close
-        var aboutButtons = Create("about-buttons");
+        var aboutButtons = Create();
         var closeButton = Create<Button>();
         closeButton.clicked += OnClose;
         closeButton.text = "Close";
@@ -49,7 +50,6 @@ public class AboutMenu : UIBehaviour
         var versionLabel = Create<Label>();
         versionLabel.enableRichText = true;
         versionLabel.text = $"<b>Haptics Editor</b> Version: {_projectInfoSo.Version}";
-        versionLabel.style.alignSelf = new StyleEnum<Align>(Align.Center);
         _container.Add(versionLabel);
         
         // support links
@@ -57,13 +57,10 @@ public class AboutMenu : UIBehaviour
         var kofiLabel = Create<Label>();
         kofiLabel.text = "If you like using this Haptics Editor, and want to donate towards its development, or just in general make my day, you can...";
         kofiLabel.enableRichText = true;
-        kofiLabel.style.marginTop = new StyleLength(30);
-        kofiLabel.style.alignSelf = new StyleEnum<Align>(Align.Center);
         
         var kofiButton = Create<Label>();
-        kofiButton.style.alignSelf = new StyleEnum<Align>(Align.Center);
         kofiButton.enableRichText = true;
-        kofiButton.text = "<b><color=#C840C0><size=24>Buy ilori a ko-fi</size></color></b>\n\n\n";
+        kofiButton.text = "<b><color=#C840C0><size=24>Buy ilori a ko-fi</size></color></b>";
         kofiButton.RegisterCallback<ClickEvent>(evt => Application.OpenURL("https://ko-fi.com/ilori"));
         _container.Add(kofiLabel);
         _container.Add(kofiButton);
@@ -71,8 +68,6 @@ public class AboutMenu : UIBehaviour
         // copyright
         var copyrightLabel = Create<Label>();
         copyrightLabel.text = $"Copyright \u00a9 2024 ilori";
-        copyrightLabel.style.marginTop = new StyleLength(30);
-        copyrightLabel.style.alignSelf = new StyleEnum<Align>(Align.Center);
         _container.Add(copyrightLabel);
         
         _container.Add(aboutButtons);

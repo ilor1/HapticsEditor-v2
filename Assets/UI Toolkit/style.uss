@@ -63,6 +63,19 @@ IntegerField {
     border-color: rgb(60, 60, 60);
 }
 
+.unity-progress-bar__background {
+    background-color: #262626;
+    border-radius: 5px;
+    border-width: 1px;
+    font-size: 12px;
+}
+
+.unity-progress-bar__progress {
+    background-color: #C840C0;
+    margin: 0;
+    border-radius: 5px;
+}
+
 /* Classes */
 .hide-overflow {
     overflow: hidden;
@@ -89,6 +102,23 @@ IntegerField {
 
 .accent-tint-color {
     -unity-background-image-tint-color: #C840C0;
+}
+
+.center-line {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 1px;
+    background-color: red;
+    position: absolute;
+    left: 50%;
+    right: 50%;
+}
+
+.loading-bar {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
 }
 
 .background--light {
@@ -166,6 +196,70 @@ IntegerField {
     flex-direction: row-reverse;
 }
 
+.popup {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-container {
+    padding: 40px;
+    position: relative;
+    align-self: center;
+    bottom: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+}
+
+.popup-container Button {
+    height: 30px;
+    width: 120px;
+    align-self: center;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.popup-container-buttons {
+    margin-top: 20px;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.popup-container .field {
+    flex-direction: row;
+    height: 40px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.horizontal-grid {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
+}
+
+.vertical-grid {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
+    padding-top: 0;
+    padding-bottom: 0;
+    left: 0;
+}
+
 .horizontal-line {
     height: 1px;
     width: 100%;
@@ -173,21 +267,9 @@ IntegerField {
 }
 
 .vertical-line {
-    position: absolute;
     height: 100%;
     width: 1px;
     background-color: rgb(60, 60, 60);
-}
-
-.center-line {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 1px;
-    background-color: red;
-    position: absolute;
-    left: 50%;
-    right: 50%;
 }
 
 .layers-eye {
@@ -221,6 +303,7 @@ IntegerField {
 }
 
 .dropdown-menu {
+    top: 80px;
     position: absolute;
     width: auto;
     height: auto;
@@ -449,4 +532,52 @@ IntegerField {
     position: absolute;
     right: 0;
     -unity-text-align: middle-right;
+}
+
+#about-popup {
+    width: 400px;
+}
+
+#about-popup Label {
+    white-space: normal;
+    flex-wrap: wrap;
+    margin: 20px;
+    align-self: center;
+}
+
+#bindings-popup {
+    width: 500px;
+}
+
+#settings-popup {
+    width: 500px;
+}
+
+#metadata-popup {
+    width: 500px;
+}
+
+#metadata-popup .unity-base-field {
+    height: 34px;
+    width: 250px;
+    margin: 0;
+    padding: 0;
+    justify-content: flex-end;
+}
+
+.pattern-pattern {
+    position: absolute;
+    top: 100%;
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+}
+
+.pattern-editor-pattern {
+    width: 400px;
+    height: 400px;
+    align-content: flex-end;
+    justify-content: flex-end;
+    margin: 20px;
+    align-self: center;
 }

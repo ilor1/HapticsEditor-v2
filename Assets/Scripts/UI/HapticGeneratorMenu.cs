@@ -37,8 +37,9 @@ public class HapticGeneratorMenu : UIBehaviour
     private void Generate(VisualElement root)
     {
         _root = root;
-        _popup = Create("haptic-generator-popup");
-        _container = Create("haptic-generator-container");
+        _popup = Create("popup");
+        _container = Create("popup-container", "background--medium", "bordered", "rounded");
+        _container.name = "haptic-generator-popup";
 
         // min, max -hz
         _minMaxSlider = Create<MinMaxSlider>("min-max-hz");
@@ -57,7 +58,7 @@ public class HapticGeneratorMenu : UIBehaviour
         _container.Add(_strengthSlider);
 
         // Generate!
-        var generatorButtons = Create("haptic-generator-buttons");
+        var generatorButtons = Create("popup-container-buttons");
         var generateButton = Create<Button>();
         generateButton.clicked += GenerateHaptics;
         generateButton.text = "Generate";
