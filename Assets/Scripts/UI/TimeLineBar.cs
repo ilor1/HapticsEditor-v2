@@ -26,27 +26,29 @@ public class TimeLineBar : UIBehaviour
     private void Generate(VisualElement root)
     {
         // Fill
-        _timeline = root.Query(className: "timeline");
-        _fill = Create("timeline-fill");
+        _timeline = root.Query("timeline");
+        _fill = Create("fill", "accent-color");
         _fill.pickingMode = PickingMode.Ignore;
         _timeline.Add(_fill);
 
         // Label
-        _label = Create<Label>("timeline-label");
+        _label = Create<Label>();
+        _label.name = "timeline-time-label";
         _label.pickingMode = PickingMode.Ignore;
         _timeline.Add(_label);
 
-        var timelineLengthLabel = Create<Label>("timeline-length-label");
+        var timelineLengthLabel = Create<Label>();
+        timelineLengthLabel.name = "timeline-length-label";
         timelineLengthLabel.focusable = false;
         timelineLengthLabel.pickingMode = PickingMode.Ignore;
         _timeline.Add(timelineLengthLabel);
-        
+
         // Drag timeline
         _timeline.RegisterCallback<PointerDownEvent>(OnPointerDown);
         _timeline.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _timeline.RegisterCallback<PointerUpEvent>(OnPointerUp);
         _timeline.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
-        
+
         _initialized = true;
     }
 
@@ -89,7 +91,7 @@ public class TimeLineBar : UIBehaviour
     {
         _isDragging = false;
     }
-    
+
     private void OnPointerLeave(PointerLeaveEvent evt)
     {
         _isDragging = false;

@@ -30,7 +30,7 @@ public class DeviceContainer : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        _devicesContainer = root.Query(className: "devices-container");
+        _devicesContainer = root.Query("devices-container");
     }
 
     private void FixedUpdate()
@@ -54,7 +54,7 @@ public class DeviceContainer : UIBehaviour
             _devicesContainer.RemoveAt(0);
         }
 
-        var title = Create("devices-title");
+        var title = Create("row-reverse", "title");
         _devicesContainer.Add(title);
 
         int layerCount = LayersContainer.Singleton.Layers.Count;

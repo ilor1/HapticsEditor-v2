@@ -12,7 +12,7 @@ public class FunscriptOverview : UIBehaviour
     public Color32 HighColor;
     public Color32 LowColor;
     public Color32 Clear;
-    
+
     private AudioSource _audioSource;
     private VisualElement _container;
     [SerializeField] private Texture2D _texture;
@@ -46,7 +46,7 @@ public class FunscriptOverview : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        _container = root.Query(className: "haptic-overview");
+        _container = root.Query("haptic-overview");
 
         ClearHaptics();
         _container.style.backgroundImage = _texture;

@@ -36,13 +36,13 @@ public class Timemarkers : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        _container = root.Query(className: "timemarkers");
+        _container = root.Query("timemarkers");
 
-        _startMarker = Create("marker-start");
+        _startMarker = Create("marker-start", "accent-tint-color");
         _startMarker.style.left = 0;
         _container.Add(_startMarker);
 
-        _endMarker = Create("marker-end");
+        _endMarker = Create("marker-end", "accent-tint-color");
         _endMarker.style.right = 0;
         _container.Add(_endMarker);
 
@@ -51,7 +51,7 @@ public class Timemarkers : UIBehaviour
         for (int i = 0; i < _verticalMarkers.Length; i++)
         {
             _verticalMarkers[i] = Create("timemarker");
-            var line = Create("timemarker-line");
+            var line = Create("vertical-line");
             line.pickingMode = PickingMode.Ignore;
             _verticalMarkers[i].Add(line);
 

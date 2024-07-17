@@ -46,9 +46,9 @@ public class MainUI : UIBehaviour
         var toolBar = Create("row", "background--light", "no-flexing", "border-top", "border-bottom", "border-left", "border-right");
         toolBar.name = "tool-bar";
 
-        _funscriptContainer = Create("row", "background--dark", "hide-overflow", "border-right");
+        _funscriptContainer = Create("row", "background--dark", "hide-overflow", "border-left", "border-right");
         _funscriptContainer.name = "funscript-container";
-        var funscriptValuesContainer = Create("column", "background--medium", "values", "border-left");
+        var funscriptValuesContainer = Create("column", "background--medium", "values");
         funscriptValuesContainer.name = "funscript-values-container";
 
         var label100 = Create<Label>();
@@ -89,29 +89,38 @@ public class MainUI : UIBehaviour
         var containerRight = Create("align-right");
         _funscriptContainer.Add(containerRight);
 
-        _funscriptHapticContainer = Create("funscript-haptic-container");
+        _funscriptHapticContainer = Create("background--dark", "hide-overflow");
+        _funscriptHapticContainer.name = "haptics-container";
         _funscriptContainer.Add(funscriptValuesContainer);
         _funscriptContainer.Add(containerRight);
         containerRight.Add(_funscriptHapticContainer);
 
-        var timemarkersContainer = Create("timemarkers-container");
-        var timemarkersLeft = Create("timemarkers-left");
-        var timemarkers = Create("timemarkers");
-        var timemarkersRedline = Create("red-line");
+        var timemarkersContainer = Create("row", "background--medium", "border-left", "border-right", "no-flexing");
+        timemarkersContainer.name = "timemarkers-container";
+        var timemarkersLeft = Create("values");
+        var timemarkers = Create("background--dark", "hide-overflow");
+        timemarkers.name = "timemarkers";
+        var timemarkersRedline = Create("center-line");
         timemarkersContainer.Add(timemarkersLeft);
         timemarkersContainer.Add(timemarkers);
         timemarkers.Add(timemarkersRedline);
 
-        var hapticOverview = Create("haptic-overview");
-
-        var waveformContainer = Create("waveform-container");
-        var waveformLabels = Create("waveform-labels");
+        var waveformContainer = Create("row", "background--medium", "border-bottom", "border-left", "border-right");
+        waveformContainer.name = "waveform-container";
+        var waveformLabels = Create("values");
         waveformContainer.Add(waveformLabels);
 
-        var layersContainer = Create("layers-container");
-        var devicesContainer = Create("devices-container");
+        var layersContainer = Create("background--medium", "border-top", "border-left", "border-right", "no-flexing");
+        layersContainer.name = "layers-container";
 
-        var timeline = Create("timeline");
+        var devicesContainer = Create("background--medium", "border-top", "border-left", "border-right", "no-flexing");
+        devicesContainer.name = "devices-container";
+
+        var hapticOverview = Create("background--medium", "border-left", "border-right", "no-flexing");
+        hapticOverview.name = "haptic-overview";
+
+        var timeline = Create("background--medium", "bordered", "no-flexing");
+        timeline.name = "timeline";
 
         root.Add(titleBar);
         root.Add(menuBar);

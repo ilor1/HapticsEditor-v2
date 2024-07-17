@@ -26,7 +26,7 @@ public class PlaybackControls : MonoBehaviour
 
     private void OnRootCreated(VisualElement root)
     {
-        _timelineLength = (Label)root.Query(className: "timeline-length-label");
+        _timelineLength = (Label)root.Query("timeline-length-label");
         _timelineLength.text = $"{TimelineManager.Instance.LengthInSeconds}s";
     }
 

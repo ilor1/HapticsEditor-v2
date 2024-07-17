@@ -52,14 +52,15 @@ public class WaveformRenderer : UIBehaviour
         yield return null;
 
         // Create container
-        _waveformContainer = root.Query(className: "waveform-container");
+        _waveformContainer = root.Query("waveform-container");
 
         _outputWidth = (int)math.round(_waveformContainer.resolvedStyle.width);
         _outputHeight = (int)math.round(_waveformContainer.resolvedStyle.height - 20);
 
         ClearWaveforms();
 
-        var waveform = Create("waveform");
+        var waveform = Create("background--dark");
+        waveform.name = "waveform";
         waveform.style.backgroundImage = _texture;
         _waveformContainer.Add(waveform);
 
@@ -68,7 +69,7 @@ public class WaveformRenderer : UIBehaviour
         _waveformContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
         _waveformContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
 
-        var redLine = Create("red-line");
+        var redLine = Create("center-line");
         waveform.Add(redLine);
     }
 

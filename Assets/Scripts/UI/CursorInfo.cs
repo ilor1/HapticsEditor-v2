@@ -47,7 +47,7 @@ public class CursorInfo : UIBehaviour
         root.Add(_posLabel);
         root.Add(_prevLabel);
 
-        _funscriptHapticContainer = root.Query(className: "funscript-haptic-container");
+        _funscriptHapticContainer = root.Query("haptics-container");
         _funscriptHapticContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _funscriptHapticContainer.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
         _funscriptHapticContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);

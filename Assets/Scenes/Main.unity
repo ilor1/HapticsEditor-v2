@@ -944,7 +944,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e589f989743499489f7ca16c6a33df8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StyleSheet: {fileID: 7433441132597879392, guid: 2a3083695929d9d43b370ab2eee2900d,
+  StyleSheet: {fileID: 7433441132597879392, guid: b063df2d7cb4dad4f93b295f77bc74fc,
     type: 3}
   _document: {fileID: 1611213298}
 --- !u!114 &1611213298
@@ -1102,7 +1102,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _stylesheets:
-  - {fileID: 7433441132597879392, guid: 2a3083695929d9d43b370ab2eee2900d, type: 3}
   - {fileID: 7433441132597879392, guid: b063df2d7cb4dad4f93b295f77bc74fc, type: 3}
 --- !u!114 &1611213309
 MonoBehaviour:

@@ -12,7 +12,6 @@ public class FunscriptRenderer : UIBehaviour
     private bool _uiGenerated;
     private VisualElement _funscriptContainer;
     private List<LineDrawer> _lineDrawers = new();
-    private VisualElement _verticalGrid;
 
     private void Awake()
     {
@@ -35,32 +34,23 @@ public class FunscriptRenderer : UIBehaviour
     private void Generate(VisualElement root)
     {
         // Create container
-        _funscriptContainer = root.Query(className: "funscript-haptic-container");
+        _funscriptContainer = root.Query("haptics-container");
 
         // create grid
-        var horizontalGrid = Create("horizontal-grid");
+        var horizontalGrid = Create("column", "space-between");
         horizontalGrid.pickingMode = PickingMode.Ignore;
         _funscriptContainer.Add(horizontalGrid);
 
         for (int i = 0; i < 11; i++)
         {
-            if (i % 2 == 0)
-            {
-                var line = Create("horizontal-line-thick");
-                line.pickingMode = PickingMode.Ignore;
-                horizontalGrid.Add(line);
-            }
-            else
-            {
-                var line = Create("horizontal-line");
-                line.pickingMode = PickingMode.Ignore;
-                horizontalGrid.Add(line);
-            }
+            var line = Create("horizontal-line");
+            line.pickingMode = PickingMode.Ignore;
+            horizontalGrid.Add(line);
         }
 
-        var redLine = Create("red-line");
+        var redLine = Create("center-line");
         redLine.pickingMode = PickingMode.Ignore;
-        _funscriptContainer.Add(redLine);
+        _funscriptContainer.parent.Add(redLine);
 
         _uiGenerated = true;
     }

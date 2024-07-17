@@ -34,7 +34,7 @@ public class LayersContainer : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        _layersContainer = root.Query(className: "layers-container");
+        _layersContainer = root.Query("layers-container");
 
         // limit to three layers for now, just to not have to deal with scrollbars...?
 
@@ -43,7 +43,7 @@ public class LayersContainer : UIBehaviour
         _title = CreateTitle();
         _layersContainer.Add(_title);
 
-        _internalLayersContainer = Create<ScrollView>("layers-items");
+        _internalLayersContainer = Create<ScrollView>("items");
         _layersContainer.Add(_internalLayersContainer);
 
         // Layers
@@ -61,7 +61,7 @@ public class LayersContainer : UIBehaviour
 
     private VisualElement CreateTitle()
     {
-        var layersTitle = Create("layers-title");
+        var layersTitle = Create("title", "border-bottom", "row");
 
         // show/hide
         var eye = Create("layers-eye", "open");
@@ -83,7 +83,7 @@ public class LayersContainer : UIBehaviour
 
     private VisualElement CreateLayer(Haptics haptics = null)
     {
-        var layer = Create("layers-item", "selected");
+        var layer = Create("item", "border-bottom", "row", "background--light");
         Layers.Add(layer);
         _visibleLayers.Add(layer);
         _selectedLayers.Add(layer);
@@ -99,7 +99,7 @@ public class LayersContainer : UIBehaviour
         layer.Add(layerColor);
 
         // label
-        var label = Create<Label>("layers-item-label");
+        var label = Create<Label>();
         label.text = haptics == null ? $"Layer{_layerRunningNumber++}" : haptics.Name;
         label.pickingMode = PickingMode.Ignore;
         layer.Add(label);
@@ -110,16 +110,16 @@ public class LayersContainer : UIBehaviour
 
     private VisualElement CreateBottomBar()
     {
-        var bottomBar = Create("layers-bottom-bar");
+        var bottomBar = Create("row","bottom-bar", "border-top", "background--medium");
 
         // create layer
-        var createButton = Create<Button>("layers-plus-button");
+        var createButton = Create<Button>();
         createButton.text = "+";
         createButton.clicked += OnAddLayerClicked;
         bottomBar.Add(createButton);
 
         // remove layer
-        var removeButton = Create<Button>("layers-minus-button");
+        var removeButton = Create<Button>();
         removeButton.text = "-";
         removeButton.clicked += OnRemoveLayerClicked;
         bottomBar.Add(removeButton);
@@ -182,7 +182,8 @@ public class LayersContainer : UIBehaviour
 
                 // if a layer gets hidden, lets also deselect it to avoid unwanted edits.
                 _selectedLayers.Remove(layer);
-                layer.RemoveFromClassList("selected");
+                layer.RemoveFromClassList("background--light");
+                layer.AddToClassList("background--dark");
 
                 foreach (VisualElement child in layer.Children())
                 {
@@ -264,7 +265,8 @@ public class LayersContainer : UIBehaviour
 
                 // if a layer gets hidden, lets also deselect it to avoid unwanted edits.
                 _selectedLayers.Remove(clickedLayer);
-                clickedLayer.RemoveFromClassList("selected");
+                clickedLayer.RemoveFromClassList("background--light");
+                clickedLayer.AddToClassList("background--dark");
 
                 // eye
                 clickedEye.RemoveFromClassList("open");
@@ -302,13 +304,15 @@ public class LayersContainer : UIBehaviour
             {
                 // deselect
                 _selectedLayers.Remove(clickedLayer);
-                clickedLayer.RemoveFromClassList("selected");
+                clickedLayer.RemoveFromClassList("background--light");
+                clickedLayer.AddToClassList("background--dark");
             }
             else
             {
                 // select
                 _selectedLayers.Add(clickedLayer);
-                clickedLayer.AddToClassList("selected");
+                clickedLayer.AddToClassList("background--light");
+                clickedLayer.RemoveFromClassList("background--dark");
 
                 // force layer visible
                 _visibleLayers.Add(clickedLayer);

@@ -34,7 +34,7 @@ public class PatternRenderer : UIBehaviour
         _pattern.StrokeColor = color;
         _patternContainer.Add(_pattern);
 
-        _funscriptContainer = ((VisualElement)root.Query(className: "funscript-haptic-container")).parent;
+        _funscriptContainer = ((VisualElement)root.Query("haptics-container")).parent;
         _isInitialized = true;
     }
 

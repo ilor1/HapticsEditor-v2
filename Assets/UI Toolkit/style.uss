@@ -79,6 +79,18 @@ IntegerField {
     height: 100%;
 }
 
+.space-between {
+    justify-content: space-between;
+}
+
+.accent-color {
+    background-color: #C840C0;
+}
+
+.accent-tint-color {
+    -unity-background-image-tint-color: #C840C0;
+}
+
 .background--light {
     background-color: rgb(50, 50, 50);
 }
@@ -138,26 +150,50 @@ IntegerField {
 
 .column {
     flex-direction: column;
+    width: 100%;
+    height: 100%;
 }
 
 .row {
     flex-direction: row;
     align-content: center;
     align-items: center;
+    width: 100%;
+    height: 100%;
 }
 
 .row-reverse {
     flex-direction: row-reverse;
 }
 
-.vertical-line {
-    height: 100%;
-    width: 2px;
-}
-
 .horizontal-line {
     height: 1px;
     width: 100%;
+    background-color: rgb(60, 60, 60);
+}
+
+.vertical-line {
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    background-color: rgb(60, 60, 60);
+}
+
+.center-line {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 1px;
+    background-color: red;
+    position: absolute;
+    left: 50%;
+    right: 50%;
+}
+
+.layers-eye {
+    align-self: center;
+    height: 30px;
+    width: 30px;
 }
 
 .layers-eye.open {
@@ -174,7 +210,6 @@ IntegerField {
     position: absolute;
     background-image: resource("Images/marker-start");
     -unity-background-scale-mode: stretch-to-fill;
-    -unity-background-image-tint-color: #C840C0;
 }
 
 .marker-end {
@@ -183,7 +218,17 @@ IntegerField {
     position: absolute;
     background-image: resource("Images/marker-end");
     -unity-background-scale-mode: stretch-to-fill;
-    -unity-background-image-tint-color: #C840C0;
+}
+
+.dropdown-menu {
+    position: absolute;
+    width: auto;
+    height: auto;
+}
+
+.dropdown-menu > Button {
+    border-width: 0;
+    -unity-text-align: middle-left;
 }
 
 /* specific elements */
@@ -218,6 +263,7 @@ IntegerField {
     padding: 0;
     height: 30px;
     font-size: 12px;
+    width: auto;
 }
 
 #tool-bar .item #repeat-field {
@@ -244,7 +290,14 @@ IntegerField {
     justify-content: flex-end;
 }
 
-#funscript-values-container.values {
+#funscript-container #haptics-container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
+    height: 100%;
+}
+
+.values {
     padding-top: 4px;
     padding-bottom: 6px;
     width: 50px;
@@ -253,6 +306,147 @@ IntegerField {
     flex-grow: 1;
 }
 
-#funscript-values-container.values Label {
+.values > Label {
+    -unity-text-align: middle-right;
+}
+
+#timemarkers-container {
+    height: 50px;
+}
+
+#timemarkers {
+    width: 100%;
+    height: 100%;
+}
+
+.timemarker {
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    justify-content: center;
+    align-content: center;
+}
+
+.timemarker > Label {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    -unity-text-align: middle-center;
+}
+
+#waveform-container {
+    width: 100%;
+    height: 50%;
+}
+
+#waveform {
+    width: 100%;
+    height: 100%;
+}
+
+.line-cursor-vertical {
+    margin-top: 94px;
+    position: absolute;
+    height: 100%;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.line-cursor-horizontal {
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 1);
+    margin: 0;
+    padding: 0;
+}
+
+.line-cursor-label {
+    position: absolute;
+    align-self: flex-end;
+    padding-right: 7px;
+}
+
+#layers-container {
+    width: 300px;
+    height: 150px;
+    bottom: 122px;
+    position: absolute;
+}
+
+#layers-container .items {
+    height: 90px;
+}
+
+#layers-container .items .item {
+    height: 30px;
+    width: 100%;
+}
+
+#layers-container .items .item > Label {
+    width: 220px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+#layers-container .title {
+    height: 30px;
+    width: 100%;
+}
+
+#layers-container .bottom-bar {
+    bottom: 0px;
+    position: absolute;
+    height: 30px;
+    width: 100%;
+}
+
+.layers-color {
+    align-self: center;
+    width: 15px;
+    height: 15px;
+}
+
+#devices-container {
+    position: absolute;
+    width: 300px;
+    height: 150px;
+    bottom: 272px;
+}
+
+#devices-container .title {
+    height: 30px;
+    width: 100%;
+}
+
+#haptic-overview {
+    width: 100%;
+    height: 80px;
+}
+
+#timeline {
+    width: 100%;
+    height: 40px;
+    align-self: flex-end;
+}
+
+#timeline .fill {
+    position: absolute;
+    height: 40px;
+    width: 0;
+}
+
+#timeline-time-label {
+    padding: 0;
+    margin: 0;
+    width: 180px;
+    height: 100%;
+    align-self: center;
+    -unity-text-align: middle-right;
+}
+
+#timeline-length-label {
+    position: absolute;
+    right: 0;
     -unity-text-align: middle-right;
 }

@@ -84,8 +84,8 @@ public class MenuBar : UIBehaviour
         var toggleLayers = Create<Toggle>();
         toggleLayers.SetValueWithoutNotify(true);
         toggleLayers.RegisterValueChangedCallback(OnToggleLayers);
-        _layersWindow = root.Query(className: "layers-container");
-        _devicesContainer = root.Query(className: "devices-container");
+        _layersWindow = root.Query("layers-container");
+        _devicesContainer = root.Query("devices-container");
         menuBar.Add(toggleLayersLabel);
         menuBar.Add(toggleLayers);
 
@@ -96,14 +96,6 @@ public class MenuBar : UIBehaviour
         var intifaceToggle = Create<Toggle>();
         intifaceToggle.RegisterValueChangedCallback(OnIntifaceToggle);
 
-        // inverted is useless.
-        // var invertedLabel = Create<Label>();
-        // invertedLabel.text = "Inverted";
-        // var invertedToggle = Create<Toggle>();
-        // invertedToggle.RegisterValueChangedCallback(OnInvertHapticsToggle);
-        //
-        // intifaceContainer.Add(invertedToggle);
-        // intifaceContainer.Add(invertedLabel);
         intifaceContainer.Add(intifaceToggle);
         intifaceContainer.Add(intifaceLabel);
         menuBar.Add(intifaceContainer);
@@ -120,14 +112,9 @@ public class MenuBar : UIBehaviour
         IntifaceManager.Singleton.enabled = evt.newValue;
     }
 
-    // private void OnInvertHapticsToggle(ChangeEvent<bool> evt)
-    // {
-    //     IntifaceManager.Singleton.Inverted = evt.newValue;
-    // }
-
     private CustomDropDownMenu CreateDropdownMenu(VisualElement root)
     {
-        var dropdown = Create<CustomDropDownMenu>("menu-dropdown");
+        var dropdown = Create<CustomDropDownMenu>("dropdown-menu", "column", "background--medium", "border-bottom", "border-left", "border-right", "rounded", "hide-overflow");
         dropdown.style.display = DisplayStyle.None;
         root.Add(dropdown);
         return dropdown;
