@@ -47,11 +47,7 @@ public class FunscriptRenderer : UIBehaviour
             line.pickingMode = PickingMode.Ignore;
             horizontalGrid.Add(line);
         }
-
-        var redLine = Create("center-line");
-        redLine.pickingMode = PickingMode.Ignore;
-        _funscriptContainer.parent.Add(redLine);
-
+        
         _uiGenerated = true;
     }
 

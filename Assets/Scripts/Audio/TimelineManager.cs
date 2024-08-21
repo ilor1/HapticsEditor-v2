@@ -6,7 +6,7 @@ public class TimelineManager : MonoBehaviour
 {
     public static TimelineManager Instance;
     public static Action ZoomLevelChanged;
-    
+
     public bool IsPlaying;
     public int TimeInMilliseconds;
     public float TimeInSeconds => TimeInMilliseconds * 0.001f;
@@ -22,7 +22,7 @@ public class TimelineManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(this);
     }
-    
+
     private void OnEnable()
     {
         AudioLoader.ClipLoaded += OnClipLoaded;
@@ -92,7 +92,7 @@ public class TimelineManager : MonoBehaviour
                 int timeSamples = (int)math.round(TimeInMilliseconds * 0.001f * _audioSource.clip.frequency);
                 if (_audioSource.timeSamples != timeSamples)
                 {
-                    _audioSource.timeSamples = timeSamples;
+                    _audioSource.timeSamples = timeSamples % _audioSource.clip.samples;
                 }
             }
         }

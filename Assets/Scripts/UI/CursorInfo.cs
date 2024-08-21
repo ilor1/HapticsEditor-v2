@@ -47,7 +47,7 @@ public class CursorInfo : UIBehaviour
         root.Add(_posLabel);
         root.Add(_prevLabel);
 
-        _funscriptHapticContainer = root.Query("haptics-container");
+        _funscriptHapticContainer = root.Query("funscript-container-right");
         _funscriptHapticContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _funscriptHapticContainer.RegisterCallback<PointerEnterEvent>(OnPointerEnter);
         _funscriptHapticContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
@@ -75,8 +75,8 @@ public class CursorInfo : UIBehaviour
     {
         // cross
         _lineCursorVertical.style.top = _funscriptHapticContainer.contentRect.y;
-        _lineCursorVertical.style.left = evt.position.x - 3;
-        _lineCursorHorizontal.style.top = evt.position.y - 3;
+        _lineCursorVertical.style.left = evt.position.x;
+        _lineCursorHorizontal.style.top = evt.position.y;
         _lineCursorHorizontal.style.left = 0;
 
         // at-label

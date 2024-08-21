@@ -7,11 +7,11 @@ public class DeviceContainer : UIBehaviour
     public static DeviceContainer Singleton;
 
     public Dictionary<GenericDeviceMessageAttributes, int> DeviceLayers = new();
-    
+
     private VisualElement _devicesContainer;
     private int _previousFrameDeviceCount;
     private int _previousLayerCount;
-    
+
     private void Awake()
     {
         if (Singleton == null) Singleton = this;
@@ -71,7 +71,7 @@ public class DeviceContainer : UIBehaviour
             {
                 var deviceItem = Create("device-item");
 
-                var deviceName = Create<Label>("device-name");
+                var deviceName = Create<Label>();
                 deviceName.text = $"{kvp.Key.Name}[{feat.Index}]";
 
                 int activeRadioButton = 0;
@@ -84,7 +84,7 @@ public class DeviceContainer : UIBehaviour
                     DeviceLayers.Add(feat, activeRadioButton);
                 }
 
-                var radioButtonGroup = Create<RadioButtonGroup>("device-radiobuttons");
+                var radioButtonGroup = Create<RadioButtonGroup>("device-radio-button-group");
                 for (int i = 0; i < layerCount; i++)
                 {
                     var radioButton = Create<RadioButton>("device-radio-button");

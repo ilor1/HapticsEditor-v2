@@ -65,10 +65,12 @@ public class TimeLineBar : UIBehaviour
         TimeSpan lengthTimeSpan = TimeSpan.FromSeconds(lengthInSeconds);
         var clipLengthString = lengthTimeSpan.ToString(TIME_FORMAT);
 
+        bool neg = TimelineManager.Instance.TimeInSeconds < 0;
+
         // Update label
         TimeSpan currentTimeSpan = TimeSpan.FromSeconds(TimelineManager.Instance.TimeInSeconds);
         string formattedTime = currentTimeSpan.ToString(TIME_FORMAT);
-        _label.text = $"{formattedTime}/{clipLengthString}";
+        _label.text = neg ? $"-{formattedTime}/{clipLengthString}" : $"{formattedTime}/{clipLengthString}";
     }
 
     private void OnPointerDown(PointerDownEvent evt)

@@ -24,7 +24,8 @@ public class PatternRenderer : UIBehaviour
 
     private void Generate(VisualElement root)
     {
-        _patternContainer = Create("pattern-container");
+        _patternContainer = Create();
+        _patternContainer.name = "pattern-container";
         _patternContainer.pickingMode = PickingMode.Ignore;
 
         // Pattern settings
@@ -34,7 +35,7 @@ public class PatternRenderer : UIBehaviour
         _pattern.StrokeColor = color;
         _patternContainer.Add(_pattern);
 
-        _funscriptContainer = ((VisualElement)root.Query("haptics-container")).parent;
+        _funscriptContainer = root.Query("funscript-container-right");
         _isInitialized = true;
     }
 

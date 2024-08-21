@@ -87,6 +87,7 @@ public class MainUI : UIBehaviour
         funscriptValuesContainer.Add(label0);
 
         var containerRight = Create("align-right");
+        containerRight.name = "funscript-container-right";
         _funscriptContainer.Add(containerRight);
 
         _funscriptHapticContainer = Create("background--dark", "hide-overflow");
@@ -100,10 +101,10 @@ public class MainUI : UIBehaviour
         var timemarkersLeft = Create("values");
         var timemarkers = Create("background--dark", "hide-overflow");
         timemarkers.name = "timemarkers";
-        var timemarkersRedline = Create("center-line");
+        // var timemarkersRedline = Create("center-line");
         timemarkersContainer.Add(timemarkersLeft);
         timemarkersContainer.Add(timemarkers);
-        timemarkers.Add(timemarkersRedline);
+        // timemarkers.Add(timemarkersRedline);
 
         var waveformContainer = Create("row", "background--medium", "border-bottom", "border-left", "border-right");
         waveformContainer.name = "waveform-container";
@@ -122,6 +123,39 @@ public class MainUI : UIBehaviour
         var timeline = Create("background--medium", "bordered", "no-flexing");
         timeline.name = "timeline";
 
+        var overlayContainer = Create("overlay-container");
+        var marginLeft = Create("margin-left");
+        var centerLineContainer = Create("center-line-container");
+        var marginTop = Create("margin-top");
+        var marginBottom = Create("margin-bottom");
+        var centerLine = Create("center-line");
+
+        overlayContainer.Add(marginLeft);
+        overlayContainer.Add(centerLineContainer);
+        centerLineContainer.Add(marginTop);
+        centerLineContainer.Add(centerLine);
+        centerLineContainer.Add(marginBottom);
+
+        overlayContainer.pickingMode = PickingMode.Ignore;
+        marginLeft.pickingMode = PickingMode.Ignore;
+        centerLineContainer.pickingMode = PickingMode.Ignore;
+        marginTop.pickingMode = PickingMode.Ignore;
+        centerLine.pickingMode = PickingMode.Ignore;
+        marginBottom.pickingMode = PickingMode.Ignore;
+        
+        var endLineContainer = Create("end-line-container");
+        var endLineMarginTop = Create("margin-top");
+        var endLine = Create("end-line");
+        var endLineMarginBottom = Create("margin-bottom");
+        
+        endLineContainer.Add(endLineMarginTop);
+        endLineContainer.Add(endLine);
+        endLineContainer.Add(endLineMarginBottom);
+        endLineContainer.pickingMode = PickingMode.Ignore;
+        endLineMarginTop.pickingMode = PickingMode.Ignore;
+        endLine.pickingMode = PickingMode.Ignore;
+        endLineMarginBottom.pickingMode = PickingMode.Ignore;
+
         root.Add(titleBar);
         root.Add(menuBar);
         root.Add(toolBar);
@@ -132,6 +166,8 @@ public class MainUI : UIBehaviour
         root.Add(devicesContainer);
         root.Add(hapticOverview);
         root.Add(timeline);
+        root.Add(overlayContainer);
+        root.Add(endLineContainer);
 
         // Send event
         RootCreated?.Invoke(root);

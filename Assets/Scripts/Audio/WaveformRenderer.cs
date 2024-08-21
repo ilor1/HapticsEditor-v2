@@ -68,9 +68,6 @@ public class WaveformRenderer : UIBehaviour
         _waveformContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _waveformContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
         _waveformContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
-
-        var redLine = Create("center-line");
-        waveform.Add(redLine);
     }
 
     private void Update()
