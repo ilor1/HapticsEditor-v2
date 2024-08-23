@@ -1104,6 +1104,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stylesheets:
   - {fileID: 7433441132597879392, guid: b063df2d7cb4dad4f93b295f77bc74fc, type: 3}
+  - {fileID: 7433441132597879392, guid: 7f14e66813c510446a84c5759f9c862f, type: 3}
 --- !u!114 &1611213309
 MonoBehaviour:
   m_ObjectHideFlags: 0
