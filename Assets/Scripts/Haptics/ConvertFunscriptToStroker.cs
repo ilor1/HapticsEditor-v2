@@ -40,9 +40,9 @@ public class ConvertFunscriptToStroker : MonoBehaviour
 
                 // check if direction has changed between these three points
                 bool directionChanged = (a.pos < b.pos && c.pos < b.pos) || (a.pos > b.pos && c.pos > b.pos);
-                
+      
                 // remove middle point if not
-                if (!directionChanged)
+                if (!directionChanged && a.pos != b.pos && b.pos!= c.pos)
                 {
                     actions.RemoveAt(j-1);
                 }
