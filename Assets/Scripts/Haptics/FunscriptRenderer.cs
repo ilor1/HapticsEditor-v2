@@ -47,7 +47,7 @@ public class FunscriptRenderer : UIBehaviour
             line.pickingMode = PickingMode.Ignore;
             horizontalGrid.Add(line);
         }
-        
+
         _uiGenerated = true;
     }
 
@@ -135,7 +135,7 @@ public class FunscriptRenderer : UIBehaviour
     {
         foreach (var haptic in Haptics)
         {
-            if (!haptic.Selected) continue;
+            if (!haptic.Selected || !haptic.Visible) continue;
 
             var actionsNative = haptic.Funscript.actions.ToNativeList(Allocator.TempJob);
 

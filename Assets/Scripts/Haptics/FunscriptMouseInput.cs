@@ -79,6 +79,7 @@ public class FunscriptMouseInput : UIBehaviour
 
             if (!_isErasing && Input.GetMouseButton(1))
             {
+                Debug.Log("Started Erasing");
                 // start erasing if: RMB down, inside container, in free mode
                 StartErasing();
             }
@@ -90,6 +91,7 @@ public class FunscriptMouseInput : UIBehaviour
             // note: we allow cursor to exit container while drawing, but not while erasing
             if (Input.GetMouseButtonUp(0) || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Free)
             {
+                Debug.Log("Stopped Drawing");
                 StopDrawing();
             }
         }
@@ -99,6 +101,7 @@ public class FunscriptMouseInput : UIBehaviour
             // stop erasing if: RMB up OR outside container OR not in free mode
             if (Input.GetMouseButtonUp(1) || !_mouseInsideContainer || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Free)
             {
+                Debug.Log("Stopped Erasing");
                 StopErasing();
             }
         }
@@ -161,16 +164,22 @@ public class FunscriptMouseInput : UIBehaviour
         // remove any points between MouseAt and _previousAddedPointAt
         if (_previousAddedPointAt != -1)
         {
+            if (_previousAddedPointAt == at)
+            {
+                FunscriptRenderer.Singleton.RemovePointsBetween(at, at);
+            }
             if (_previousAddedPointAt < at)
             {
+                // drawing forward
                 FunscriptRenderer.Singleton.RemovePointsBetween(_previousAddedPointAt + 1, at);
             }
             else
             {
+                // drawing backward, 
                 FunscriptRenderer.Singleton.RemovePointsBetween(at, _previousAddedPointAt - 1);
             }
         }
-
+        
         AddFunAction(at, MousePos, false);
 
         _previousAddedPointAt = at;
@@ -522,6 +531,8 @@ public class FunscriptMouseInput : UIBehaviour
 
             haptic.Funscript.actions.Add(funaction);
         }
+
+        //Debug.Log($"{at},{pos}");
     }
 
     private Vector2 GetRelativeCoords(Vector2 coords, VisualElement target)
