@@ -99,6 +99,8 @@ public class IntifaceManager : MonoBehaviour
                 {
                     for (int j = 0; j < kvp.Value.Count; j++)
                     {
+                        if (!DeviceContainer.Singleton.DeviceLayers.ContainsKey(kvp.Value[j])) continue; // key doesn't exist for some reason
+                        
                         int hapticLayer = DeviceContainer.Singleton.DeviceLayers[kvp.Value[j]];
 
                         // this attribute should play on this layer
@@ -175,6 +177,8 @@ public class IntifaceManager : MonoBehaviour
             // found correct command
             if (attributeIndex == index && duration > 0)
             {
+                duration = (uint)(duration / AudioLoader.Singleton.AudioSource.pitch);
+
                 // // store position targets..
                 if (PositionTargets.TryGetValue(device.LinearAttributes[i], out double currentPosition))
                 {
