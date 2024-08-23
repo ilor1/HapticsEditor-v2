@@ -30,7 +30,8 @@ public enum ControlName
     DefaultMode,
     PatternMode,
     FreeMode,
-    AddNote
+    AddNote,
+    ConvertForStroker
 }
 
 [Serializable]
