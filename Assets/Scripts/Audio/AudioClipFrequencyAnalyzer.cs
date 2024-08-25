@@ -64,7 +64,7 @@ public class AudioClipFrequencyAnalyzer : MonoBehaviour
         FunscriptRenderer.Singleton.SortFunscript();
         FunscriptRenderer.Singleton.CleanupExcessPoints();
 
-        TitleBar.MarkLabelDirty();
+        ChangeManager.OnChange.Invoke();
         FunscriptOverview.Singleton.RenderHaptics();
     }
 

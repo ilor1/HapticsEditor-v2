@@ -69,6 +69,6 @@ public class FunscriptLoader : MonoBehaviour
         FunscriptLoaded?.Invoke(path);
 
         // mark label dirty if we created a new funscript track
-        if (markLabelDirty) TitleBar.MarkLabelDirty();
+        if (markLabelDirty) ChangeManager.OnChange.Invoke();
     }
 }

@@ -18,12 +18,14 @@ public class TitleBar : UIBehaviour
     {
         MainUI.RootCreated += Generate;
         FunscriptLoader.FunscriptLoaded += UpdateLabel;
+        ChangeManager.OnChange += MarkLabelDirty;
     }
 
     private void OnDisable()
     {
         MainUI.RootCreated -= Generate;
         FunscriptLoader.FunscriptLoaded -= UpdateLabel;
+        ChangeManager.OnChange -= MarkLabelDirty;
     }
 
     private void Generate(VisualElement root)
@@ -42,7 +44,7 @@ public class TitleBar : UIBehaviour
         _titleText.text = funscriptPath;
     }
 
-    public static void MarkLabelDirty()
+    private void MarkLabelDirty()
     {
         if (!Singleton._titleText.text.EndsWith("*"))
         {

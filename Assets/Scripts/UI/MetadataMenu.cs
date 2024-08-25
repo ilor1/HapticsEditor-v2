@@ -157,6 +157,6 @@ public class MetadataMenu : UIBehaviour
         haptics.Funscript.metadata = _data;
         haptics.Funscript.inverted = _inverted;
         FunscriptRenderer.Singleton.Haptics[0] = haptics;
-        TitleBar.MarkLabelDirty();
+        ChangeManager.OnChange.Invoke();
     }
 }

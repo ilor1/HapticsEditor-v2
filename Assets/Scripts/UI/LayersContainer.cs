@@ -110,7 +110,7 @@ public class LayersContainer : UIBehaviour
 
     private VisualElement CreateBottomBar()
     {
-        var bottomBar = Create("row","bottom-bar", "border-top", "background--medium");
+        var bottomBar = Create("row", "bottom-bar", "border-top", "background--medium");
 
         // create layer
         var createButton = Create<Button>();
@@ -141,6 +141,8 @@ public class LayersContainer : UIBehaviour
         FunscriptRenderer.Singleton.Haptics.Add(haptics);
 
         _internalLayersContainer.Add(CreateLayer(haptics));
+
+        UndoRedo.Instance.ResetUndoStack();
     }
 
     private void OnRemoveLayerClicked()
@@ -164,6 +166,8 @@ public class LayersContainer : UIBehaviour
 
         // Update OverallHaptics
         FunscriptOverview.Singleton.RenderHaptics();
+        
+        UndoRedo.Instance.ResetUndoStack();
     }
 
 

@@ -2,27 +2,23 @@ using UnityEngine;
 
 public class ConvertFunscriptToStroker : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start() { }
-
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ||  Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand);
+        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand);
         bool alt = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
-        
+
         // avoid ctrl-x/ctrl-c/ctrl-v triggering a destructive function by accident!
         if (shift || ctrl || alt) return;
-        
+
         if (InputManager.Singleton.GetKeyDown(ControlName.ConvertForStroker))
         {
             Convert();
+            ChangeManager.OnChange.Invoke();
         }
     }
 
-
-    public void Convert()
+    private void Convert()
     {
         for (int i = 0; i < FunscriptRenderer.Singleton.Haptics.Count; i++)
         {
@@ -40,11 +36,11 @@ public class ConvertFunscriptToStroker : MonoBehaviour
 
                 // check if direction has changed between these three points
                 bool directionChanged = (a.pos < b.pos && c.pos < b.pos) || (a.pos > b.pos && c.pos > b.pos);
-      
+
                 // remove middle point if not
-                if (!directionChanged && a.pos != b.pos && b.pos!= c.pos)
+                if (!directionChanged && a.pos != b.pos && b.pos != c.pos)
                 {
-                    actions.RemoveAt(j-1);
+                    actions.RemoveAt(j - 1);
                 }
             }
         }

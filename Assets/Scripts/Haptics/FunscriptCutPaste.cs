@@ -55,7 +55,7 @@ public class FunscriptCutPaste : MonoBehaviour
 
         Debug.Log($"FunscriptCutPaste: Cut done! [{StartTimeInMilliseconds}-{EndTimeInMilliseconds}], {_clipboardActions.Count} actions in clipboard");
 
-        TitleBar.MarkLabelDirty();
+        ChangeManager.OnChange.Invoke();
         FunscriptOverview.Singleton.RenderHaptics();
     }
 
@@ -133,9 +133,9 @@ public class FunscriptCutPaste : MonoBehaviour
         // }
 
         Debug.Log($"FunscriptCutPaste: Paste done! start: {start}, pointerAt: {pointerAt}");
-       // Debug.Log($"{sb.ToString()}");
+        // Debug.Log($"{sb.ToString()}");
 
-        TitleBar.MarkLabelDirty();
+        ChangeManager.OnChange.Invoke();
         FunscriptOverview.Singleton.RenderHaptics();
     }
 

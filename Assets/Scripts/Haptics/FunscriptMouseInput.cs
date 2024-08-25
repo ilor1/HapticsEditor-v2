@@ -127,7 +127,7 @@ public class FunscriptMouseInput : UIBehaviour
 
     private void StopErasing()
     {
-        TitleBar.MarkLabelDirty();
+        ChangeManager.OnChange.Invoke();
         _startRemovePointAt = -1;
         _isErasing = false;
     }
@@ -190,10 +190,10 @@ public class FunscriptMouseInput : UIBehaviour
     private void StopDrawing()
     {
         _isDrawing = false;
-        TitleBar.MarkLabelDirty();
         FunscriptRenderer.Singleton.CleanupExcessPoints();
         _previousAddedPointAt = -1;
         FunscriptOverview.Singleton.RenderHaptics();
+        ChangeManager.OnChange.Invoke();
     }
 
     private void OnMouseEnter(MouseEnterEvent evt)
@@ -240,7 +240,7 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptRenderer.Singleton.SortFunscript();
         FunscriptRenderer.Singleton.CleanupExcessPoints();
 
-        TitleBar.MarkLabelDirty();
+        ChangeManager.OnChange.Invoke();
         FunscriptOverview.Singleton.RenderHaptics();
     }
 
@@ -317,7 +317,7 @@ public class FunscriptMouseInput : UIBehaviour
                     }
                 }
 
-                TitleBar.MarkLabelDirty();
+                ChangeManager.OnChange.Invoke();
                 FunscriptOverview.Singleton.RenderHaptics();
             }
         }
@@ -454,7 +454,7 @@ public class FunscriptMouseInput : UIBehaviour
             haptic.Funscript.notes.Add(note);
         }
 
-        TitleBar.MarkLabelDirty();
+        ChangeManager.OnChange.Invoke();
         FunscriptRenderer.Singleton.SortFunscript();
         //FunscriptOverview.Singleton.RenderHaptics();
     }
@@ -647,7 +647,7 @@ public class FunscriptMouseInput : UIBehaviour
             var actions = haptics.Funscript.actions;
             actions.RemoveAt(index);
 
-            TitleBar.MarkLabelDirty();
+            ChangeManager.OnChange.Invoke();
             FunscriptOverview.Singleton.RenderHaptics();
         }
     }

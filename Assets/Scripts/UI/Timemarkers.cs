@@ -190,7 +190,7 @@ public class Timemarkers : UIBehaviour
         {
             FunscriptRenderer.Singleton.SortFunscript();
             FunscriptRenderer.Singleton.CleanupExcessPoints();
-            TitleBar.MarkLabelDirty();
+            ChangeManager.OnChange.Invoke();
         }
 
 
