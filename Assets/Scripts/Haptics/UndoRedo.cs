@@ -36,7 +36,7 @@ public class UndoRedo : MonoBehaviour
         // Ctrl-Z does undo in the editor which can break things...
         var undoKeyCode = KeyCode.T;
 #else
-        var undoBind = KeyCode.Z;
+        var undoKeyCode = KeyCode.Z;
 #endif
         if (Input.GetKeyDown(undoKeyCode) && control)
         {
