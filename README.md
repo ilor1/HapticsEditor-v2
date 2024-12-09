@@ -1,15 +1,22 @@
 # Haptics Editor
 
+This project is a tool for creating funscripts. For those unaware, funscript is a JSON file that contains a list of actions, that can be sent to a supported bluetooth toy to control it in sync with audio or video files. This tool uses [Intiface Central](https://buttplug.io/)'s unity package to connect to Intiface Central, in order to sync the haptics to toys.
+
+> This tool is a work in progress that I develop on my limited free-time. So if you like using it, and would like to donate towards its further development, or would just otherwise want to absolutely make my day <3  
+> You can buy me a [ko-fi](https://ko-fi.com/ilori) or sponsor me here [github](https://github.com/sponsors/ilor1). Not expected, but immensely appreciated!
+
 <img src="./_Documentation/Images/intro.png" alt="" height="720"/>
 
 
-This project is a tool for creating funscripts. For those unaware, funscript is a JSON file that contains a list of actions, that can be sent to a supported bluetooth toy to control it in sync with audio or video files. This tool uses [Intiface Central](https://buttplug.io/)'s unity package to connect to Intiface Central, in order to sync the haptics to toys.
 
-Supports only .mp3 audiofiles, for any other formats you should first export it as .mp3 using Audacity.
 
-Special thanks to u/yaliplover for pre-alpha-testing and supporting this tool since its infancy!
+Currently the tool supports only .mp3 audiofiles, for any other formats you should first export it as .mp3 using Audacity.
 
-> If you like using this Haptics Editor, and want to donate towards its development, or just in general make my day... You can sponsor me here on [github](https://github.com/sponsors/ilor1) or buy me a [ko-fi](https://ko-fi.com/ilori). Not expected, but immensely appreciated!
+> Special thanks to Yall (u/yaliplover) for pre-alpha-testing and supporting this tool since its infancy!  
+> - If you're a creator and need help hosting haptics, contact him at [HapticFun.com](https://hapticfun.com/)  
+> - If you're a listener and want the easiest way to playback the haptics, check out his webplayer at [HapticFun.com Player](https://hapticfun.com/player.html#)
+
+
 
 ## Installation
 
