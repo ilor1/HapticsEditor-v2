@@ -3,7 +3,7 @@
 This project is a tool for creating funscripts. For those unaware, funscript is a JSON file that contains a list of actions, that can be sent to a supported bluetooth toy to control it in sync with audio or video files. This tool uses [Intiface Central](https://buttplug.io/)'s unity package to connect to Intiface Central, in order to sync the haptics to toys.
 
 > This tool is a work in progress that I develop on my limited free-time. So if you like using it, and would like to donate towards its further development, or would just otherwise want to absolutely make my day <3  
-> You can buy me a [ko-fi](https://ko-fi.com/ilori) or sponsor me here [github](https://github.com/sponsors/ilor1). Not expected, but immensely appreciated!
+> You can buy me a [ko-fi](https://ko-fi.com/ilori) or sponsor me here at [github](https://github.com/sponsors/ilor1). Not expected, but immensely appreciated!
 
 <img src="./_Documentation/Images/intro.png" alt="" height="720"/>
 
