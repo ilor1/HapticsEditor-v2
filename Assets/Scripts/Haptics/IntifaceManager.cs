@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Buttplug.Client;
-using Buttplug.Client.Connectors.WebsocketConnector;
 using Buttplug.Core.Messages;
 using Unity.Collections;
 using Unity.Jobs;
