@@ -81,6 +81,34 @@ public class LayersContainer : UIBehaviour
         _internalLayersContainer.Add(CreateLayer(haptics));
     }
 
+    public void SelectOnlyLastLayer()
+    {
+        _selectedLayers.Clear();
+
+        for (int i = 0; i < Layers.Count; i++)
+        {
+            var layer = Layers[i];
+            bool isLast = i == Layers.Count - 1;
+
+            if (isLast)
+            {
+                _selectedLayers.Add(layer);
+                _visibleLayers.Add(layer);
+                layer.AddToClassList("background--light");
+                layer.RemoveFromClassList("background--dark");
+            }
+            else
+            {
+                layer.RemoveFromClassList("background--light");
+                layer.AddToClassList("background--dark");
+            }
+        }
+
+        SetHapticVisibilities();
+        SetHapticSelections();
+        FunscriptOverview.Singleton.RenderHaptics();
+    }
+
     public void ClearHapticsLayers()
     {
         FunscriptRenderer.Singleton.Haptics.Clear();
