@@ -1,6 +1,7 @@
 public struct AppSettings
 {
     public bool fillMode;
+    public bool timelineMarkersAsTime;
     public ScriptingMode Mode;
 }
 

@@ -134,6 +134,7 @@ public class LayersContainer : UIBehaviour
         // color
         var layerColor = Create("layers-color");
         layerColor.style.backgroundColor = haptics.LineRenderSettings.StrokeColor;
+        layerColor.RegisterCallback<ClickEvent>(OnLayerColorClick);
         layer.Add(layerColor);
 
         // label
@@ -206,6 +207,23 @@ public class LayersContainer : UIBehaviour
         FunscriptOverview.Singleton.RenderHaptics();
         
         UndoRedo.Instance.ResetUndoStack();
+    }
+
+    private void OnLayerColorClick(ClickEvent evt)
+    {
+        evt.StopPropagation();
+
+        VisualElement layerColor = evt.target as VisualElement;
+        VisualElement layer = layerColor.parent;
+        int layerIndex = Layers.IndexOf(layer);
+        if (layerIndex < 0 || layerIndex >= FunscriptRenderer.Singleton.Haptics.Count) return;
+
+        Color color = HapticColorUtility.GetRandomLayerColor();
+        var haptics = FunscriptRenderer.Singleton.Haptics[layerIndex];
+        var lineRenderSettings = haptics.LineRenderSettings;
+        lineRenderSettings.StrokeColor = color;
+        haptics.LineRenderSettings = lineRenderSettings;
+        layerColor.style.backgroundColor = color;
     }
 
 

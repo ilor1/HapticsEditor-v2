@@ -33,6 +33,7 @@ public class InputManager : MonoBehaviour
         { ControlName.AddNote, KeyCode.Mouse2 },
         { ControlName.ConvertForStroker, KeyCode.C },
         { ControlName.StrokerMode, KeyCode.Alpha4 },
+        { ControlName.ToggleTimelineMarkerFormat, KeyCode.T },
     };
 
     // To create a new binding:

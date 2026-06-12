@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(FunscriptRenderer))]
 public class FunscriptLoader : MonoBehaviour
@@ -42,12 +41,11 @@ public class FunscriptLoader : MonoBehaviour
         {
             string json = File.ReadAllText(path);
 
-            //ColorUtility.TryParseHtmlString("#C840C0", out var color); // TODO: pre-determined colors
-            Color color = new Color(Random.value, Random.value, Random.value, 1.0f);
+            Color color = HapticColorUtility.GetRandomLayerColor();
 
             var lineRenderSettings = new LineRenderSettings
             {
-                LineWidth = 4f,
+                LineWidth = 2f,
                 StrokeColor = color
             };
 

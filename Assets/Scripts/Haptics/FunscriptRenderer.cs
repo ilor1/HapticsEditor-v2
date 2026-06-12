@@ -8,6 +8,8 @@ public class FunscriptRenderer : UIBehaviour
     public static FunscriptRenderer Singleton;
 
     public List<Haptics> Haptics = new();
+    public int HoveredHapticsIndex { get; set; } = -1;
+    public int HoveredActionIndex { get; set; } = -1;
 
     private bool _uiGenerated;
     private VisualElement _funscriptContainer;
@@ -86,6 +88,7 @@ public class FunscriptRenderer : UIBehaviour
                 _lineDrawers[i].style.display = DisplayStyle.Flex;
                 _lineDrawers[i].StrokeColor = Haptics[i].LineRenderSettings.StrokeColor;
                 _lineDrawers[i].LineWidth = Haptics[i].LineRenderSettings.LineWidth;
+                _lineDrawers[i].HoveredActionIndex = i == HoveredHapticsIndex ? HoveredActionIndex : -1;
                 _lineDrawers[i].LengthInMilliseconds = TimelineManager.Instance.LengthInMilliseconds;
                 _lineDrawers[i].TimeInMilliseconds = TimelineManager.Instance.TimeInMilliseconds;
                 _lineDrawers[i].RenderFunActions(Haptics[i].Funscript.actions, Haptics[i].Funscript.notes);

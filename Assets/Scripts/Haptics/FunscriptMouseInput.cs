@@ -15,6 +15,7 @@ public class FunscriptMouseInput : UIBehaviour
     private const int StrokerFullRangeMinDurationMs = 200;
     private const int StrokerFullRangeMaxDurationMs = 3000;
     private const int StrokerStillDurationMs = 200;
+    private const float PointHitRadiusPixels = 8f;
 
     public bool Snapping { get; set; }
     public bool StepMode { get; set; }
@@ -23,6 +24,8 @@ public class FunscriptMouseInput : UIBehaviour
     private bool _mouseInsideContainer;
     private bool _isDrawing;
     private bool _isErasing;
+    private bool _isDraggingAction;
+    private bool _suppressNextClick;
     private VisualElement _funscriptContainer;
     private float _freeformTimeUntilAddingNextPoint = 0f;
     private float _freeformTimeUntilRemovingNextPoint = 0f;
@@ -36,6 +39,11 @@ public class FunscriptMouseInput : UIBehaviour
     private int _strokerLastWrittenPos = -1;
     private int _strokerStillStartAt = -1;
     private bool _strokerStillPointWritten = false;
+    private Haptics _draggedHaptics;
+    private int _draggedActionIndex = -1;
+    private int _draggedStepAnchorIndex = -1;
+    private int _draggedStepAnchorPos = -1;
+    private int _draggedPointerId = -1;
 
     private void Awake()
     {
@@ -51,13 +59,16 @@ public class FunscriptMouseInput : UIBehaviour
     private void OnDisable()
     {
         MainUI.RootCreated -= Generate;
+        CancelDraggingAction();
     }
 
     private void Generate(VisualElement root)
     {
         _funscriptContainer = root.Query("haptics-container");
         _funscriptContainer.RegisterCallback<ClickEvent>(OnLeftClick);
-        _funscriptContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
+        _funscriptContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
+        _funscriptContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        _funscriptContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
         _funscriptContainer.RegisterCallback<WheelEvent>(OnScrollWheel);
 
         root.RegisterCallback<MouseMoveEvent>(OnMouseMove);
@@ -79,7 +90,7 @@ public class FunscriptMouseInput : UIBehaviour
             AddNote();
         }
 
-        if (IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode) && _mouseInsideContainer)
+        if (IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode) && _mouseInsideContainer && !_isDraggingAction)
         {
             if (!_isDrawing && Input.GetMouseButton(0))
             {
@@ -127,6 +138,11 @@ public class FunscriptMouseInput : UIBehaviour
         {
             // erase while: RMB down, inside container, in free mode
             Erase();
+        }
+
+        if (_isDraggingAction && !Input.GetMouseButton(0))
+        {
+            StopDraggingAction();
         }
     }
 
@@ -305,6 +321,11 @@ public class FunscriptMouseInput : UIBehaviour
     private void OnMouseLeave(MouseLeaveEvent evt)
     {
         _mouseInsideContainer = false;
+        if (!_isDraggingAction)
+        {
+            SetHoveredAction(-1, -1);
+        }
+
         if (!_isDrawing || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Stroker)
         {
             FunscriptRenderer.Singleton.CleanupExcessPoints();
@@ -317,10 +338,22 @@ public class FunscriptMouseInput : UIBehaviour
         _mouseRelativePosition = GetRelativeCoords(localMousePosition, _funscriptContainer);
         MouseAt = GetAtValue(_mouseRelativePosition);
         MousePos = GetPosValue(_mouseRelativePosition, Snapping);
+
+        if (!_isDraggingAction && !TimelineManager.Instance.IsPlaying)
+        {
+            UpdateHoveredAction(localMousePosition);
+        }
     }
 
     private void OnLeftClick(ClickEvent evt)
     {
+        if (_suppressNextClick)
+        {
+            _suppressNextClick = false;
+            evt.StopPropagation();
+            return;
+        }
+
         if (IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode))
         {
             // continuous drawing modes are done on update
@@ -704,7 +737,222 @@ public class FunscriptMouseInput : UIBehaviour
         return -1;
     }
 
-    private void OnRightClick(PointerDownEvent evt)
+    private void OnPointerDown(PointerDownEvent evt)
+    {
+        if (evt.button == 0 && TryStartDraggingAction(evt))
+        {
+            evt.StopPropagation();
+            return;
+        }
+
+        RemoveActionOnRightClick(evt);
+    }
+
+    private void OnPointerMove(PointerMoveEvent evt)
+    {
+        if (!_isDraggingAction) return;
+
+        UpdateMouseValues(evt.localPosition);
+        DragActionToMouse();
+        CursorInfo.Singleton?.UpdateCursor(evt.position);
+        evt.StopPropagation();
+    }
+
+    private void OnPointerUp(PointerUpEvent evt)
+    {
+        if (!_isDraggingAction) return;
+
+        StopDraggingAction();
+        evt.StopPropagation();
+    }
+
+    private bool TryStartDraggingAction(PointerDownEvent evt)
+    {
+        if (TimelineManager.Instance.IsPlaying) return false;
+        if (!TryGetClosestAction(evt.localPosition, out var haptics, out int hapticsIndex, out int actionIndex)) return false;
+
+        _isDraggingAction = true;
+        _suppressNextClick = true;
+        _draggedHaptics = haptics;
+        _draggedActionIndex = actionIndex;
+        PrepareStepDragAnchor();
+        _draggedPointerId = evt.pointerId;
+        SetHoveredAction(hapticsIndex, actionIndex);
+        _funscriptContainer.CapturePointer(evt.pointerId);
+        UpdateMouseValues(evt.localPosition);
+        DragActionToMouse();
+        CursorInfo.Singleton?.UpdateCursor(evt.position);
+        return true;
+    }
+
+    private void StopDraggingAction()
+    {
+        ReleaseDraggedPointer();
+        _isDraggingAction = false;
+        _draggedHaptics = null;
+        _draggedActionIndex = -1;
+        _draggedStepAnchorIndex = -1;
+        _draggedStepAnchorPos = -1;
+        _draggedPointerId = -1;
+        FunscriptRenderer.Singleton.SortFunscript();
+        FunscriptOverview.Singleton.RenderHaptics();
+        ChangeManager.OnChange.Invoke();
+    }
+
+    private void CancelDraggingAction()
+    {
+        ReleaseDraggedPointer();
+        _isDraggingAction = false;
+        _draggedHaptics = null;
+        _draggedActionIndex = -1;
+        _draggedStepAnchorIndex = -1;
+        _draggedStepAnchorPos = -1;
+        _draggedPointerId = -1;
+        SetHoveredAction(-1, -1);
+    }
+
+    private void ReleaseDraggedPointer()
+    {
+        if (_funscriptContainer == null || _draggedPointerId == -1) return;
+
+        if (_funscriptContainer.HasPointerCapture(_draggedPointerId))
+        {
+            _funscriptContainer.ReleasePointer(_draggedPointerId);
+        }
+    }
+
+    private void DragActionToMouse()
+    {
+        if (_draggedHaptics == null) return;
+        if (_draggedActionIndex < 0 || _draggedActionIndex >= _draggedHaptics.Funscript.actions.Count) return;
+
+        int at = StepMode ? math.max(1, MouseAt) : math.max(0, MouseAt);
+        if (StepMode && _draggedStepAnchorIndex >= 0 && _draggedStepAnchorIndex < _draggedHaptics.Funscript.actions.Count)
+        {
+            _draggedHaptics.Funscript.actions[_draggedStepAnchorIndex] = new FunAction
+            {
+                at = at - 1,
+                pos = _draggedStepAnchorPos
+            };
+        }
+
+        _draggedHaptics.Funscript.actions[_draggedActionIndex] = new FunAction
+        {
+            at = at,
+            pos = MousePos
+        };
+    }
+
+    private void PrepareStepDragAnchor()
+    {
+        _draggedStepAnchorIndex = -1;
+        _draggedStepAnchorPos = -1;
+        if (!StepMode || _draggedHaptics == null) return;
+        if (_draggedActionIndex < 0 || _draggedActionIndex >= _draggedHaptics.Funscript.actions.Count) return;
+
+        var actions = _draggedHaptics.Funscript.actions;
+        var draggedAction = actions[_draggedActionIndex];
+        int anchorAt = draggedAction.at - 1;
+        if (anchorAt < 0) return;
+
+        for (int i = 0; i < actions.Count; i++)
+        {
+            if (i == _draggedActionIndex) continue;
+            if (actions[i].at != anchorAt) continue;
+
+            _draggedStepAnchorIndex = i;
+            _draggedStepAnchorPos = actions[i].pos;
+            return;
+        }
+
+        int anchorPos = GetStepAnchorPos(_draggedActionIndex);
+        actions.Insert(_draggedActionIndex, new FunAction { at = anchorAt, pos = anchorPos });
+        _draggedStepAnchorIndex = _draggedActionIndex;
+        _draggedActionIndex++;
+        _draggedStepAnchorPos = anchorPos;
+    }
+
+    private int GetStepAnchorPos(int actionIndex)
+    {
+        var actions = _draggedHaptics.Funscript.actions;
+        for (int i = actionIndex - 1; i >= 0; i--)
+        {
+            if (actions[i].at < actions[actionIndex].at)
+            {
+                return actions[i].pos;
+            }
+        }
+
+        return actions[actionIndex].pos;
+    }
+
+    private void UpdateHoveredAction(Vector2 localMousePosition)
+    {
+        if (TryGetClosestAction(localMousePosition, out _, out int hapticsIndex, out int actionIndex))
+        {
+            SetHoveredAction(hapticsIndex, actionIndex);
+        }
+        else
+        {
+            SetHoveredAction(-1, -1);
+        }
+    }
+
+    private void SetHoveredAction(int hapticsIndex, int actionIndex)
+    {
+        if (FunscriptRenderer.Singleton == null) return;
+
+        FunscriptRenderer.Singleton.HoveredHapticsIndex = hapticsIndex;
+        FunscriptRenderer.Singleton.HoveredActionIndex = actionIndex;
+    }
+
+    private bool TryGetClosestAction(Vector2 localMousePosition, out Haptics closestHaptics, out int closestHapticsIndex, out int closestActionIndex)
+    {
+        closestHaptics = null;
+        closestHapticsIndex = -1;
+        closestActionIndex = -1;
+        float closestDistanceSq = PointHitRadiusPixels * PointHitRadiusPixels;
+
+        for (int hapticsIndex = 0; hapticsIndex < FunscriptRenderer.Singleton.Haptics.Count; hapticsIndex++)
+        {
+            var haptics = FunscriptRenderer.Singleton.Haptics[hapticsIndex];
+            if (!haptics.Selected || !haptics.Visible) continue;
+
+            for (int actionIndex = 0; actionIndex < haptics.Funscript.actions.Count; actionIndex++)
+            {
+                Vector2 actionCoord = GetActionHitCoord(haptics.Funscript.actions[actionIndex]);
+                if (actionCoord.x <= 0 || actionCoord.x >= _funscriptContainer.contentRect.width) continue;
+
+                float distanceSq = (localMousePosition - actionCoord).sqrMagnitude;
+                if (distanceSq > closestDistanceSq) continue;
+
+                closestDistanceSq = distanceSq;
+                closestHaptics = haptics;
+                closestHapticsIndex = hapticsIndex;
+                closestActionIndex = actionIndex;
+            }
+        }
+
+        return closestHaptics != null;
+    }
+
+    private Vector2 GetActionHitCoord(FunAction action)
+    {
+        var style = _funscriptContainer.resolvedStyle;
+        float height = style.height - style.paddingTop - style.paddingBottom;
+        float x = (action.at - TimelineManager.Instance.TimeInMilliseconds + TimelineManager.Instance.LengthInMilliseconds * 0.5f) * (style.width / TimelineManager.Instance.LengthInMilliseconds);
+        float y = style.paddingTop + (100 - action.pos) * (height / 100);
+        return new Vector2(x, y);
+    }
+
+    private void UpdateMouseValues(Vector2 localMousePosition)
+    {
+        _mouseRelativePosition = GetRelativeCoords(localMousePosition, _funscriptContainer);
+        MouseAt = GetAtValue(_mouseRelativePosition);
+        MousePos = GetPosValue(_mouseRelativePosition, Snapping);
+    }
+
+    private void RemoveActionOnRightClick(PointerDownEvent evt)
     {
         // Not RMB
         if (evt.button != 1) return;

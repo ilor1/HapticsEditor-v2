@@ -2,7 +2,6 @@
 using System.IO;
 using Unity.Mathematics;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class FunscriptSaver : MonoBehaviour
 {
@@ -265,12 +264,11 @@ public class FunscriptSaver : MonoBehaviour
         // add a point to 0,0
         funscript.actions.Add(new FunAction { at = 0, pos = 0 });
 
-        //ColorUtility.TryParseHtmlString("#C840C0", out var color); // TODO: pre-determined colors
-        Color color = new Color(Random.value, Random.value, Random.value, 1.0f);
+        Color color = HapticColorUtility.GetRandomLayerColor();
         var lineRenderSettings = new LineRenderSettings
         {
             StrokeColor = color,
-            LineWidth = 4f
+            LineWidth = 2f
         };
 
         var haptics = new Haptics
