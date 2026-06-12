@@ -467,6 +467,35 @@ IntegerField {
     height: 30px;
 }
 
+#tool-bar .mode-buttons {
+    width: auto;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#tool-bar .mode-buttons .mode-button {
+    width: 86px;
+    margin: 0;
+    border-radius: 0;
+    border-right-width: 0;
+}
+
+#tool-bar .mode-buttons .mode-button.first {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#tool-bar .mode-buttons .mode-button.last {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-right-width: 2px;
+}
+
+#tool-bar .mode-buttons .mode-button.active {
+    color: rgb(255, 255, 255);
+    background-color: #C840C0;
+}
+
 #tool-bar .unity-button.default-mode {
     background-color: rgba(0, 0, 0, 0);
 }
