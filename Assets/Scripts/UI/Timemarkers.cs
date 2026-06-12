@@ -1,3 +1,4 @@
+using System;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -144,6 +145,12 @@ public class Timemarkers : UIBehaviour
         if (!_initialized) return;
         bool sortFunscript = false;
 
+        if (!InputManager.InputBlocked && InputManager.Singleton.GetKeyDown(ControlName.ToggleTimelineMarkerFormat))
+        {
+            SettingsManager.ApplicationSettings.timelineMarkersAsTime = !SettingsManager.ApplicationSettings.timelineMarkersAsTime;
+            SettingsManager.SaveCurrentSettings();
+        }
+
         // Cut (CTRL-X)
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
             && Input.GetKeyDown(KeyCode.X))
@@ -243,10 +250,30 @@ public class Timemarkers : UIBehaviour
 
             int time = ((int)math.round(time0 / spacingInMilliseconds) - index) * spacingInMilliseconds;
             time += TimelineManager.Instance.LengthInMilliseconds;
-            _labels[index].text = $"{time}";
+            _labels[index].text = FormatMarkerTime(time);
 
             index++;
         }
+    }
+
+    private string FormatMarkerTime(int timeInMilliseconds)
+    {
+        if (!SettingsManager.ApplicationSettings.timelineMarkersAsTime)
+        {
+            return $"{timeInMilliseconds}";
+        }
+
+        bool negative = timeInMilliseconds < 0;
+        TimeSpan time = TimeSpan.FromMilliseconds(math.abs(timeInMilliseconds));
+        string sign = negative ? "-" : "";
+        int hours = (int)time.TotalHours;
+
+        if (hours > 0)
+        {
+            return $"{sign}{hours}:{time.Minutes:00}:{time.Seconds:00}.{time.Milliseconds / 100}";
+        }
+
+        return $"{sign}{time.Minutes}:{time.Seconds:00}.{time.Milliseconds / 100}";
     }
 
     private void ShowHideEndMarker(int time0, int time1)

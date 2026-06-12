@@ -51,6 +51,10 @@ public class SettingsManager : UIBehaviour
         // Subscribe to value change events if needed
         fillModeToggle.RegisterValueChangedCallback(evt => ApplicationSettings.fillMode = evt.newValue);
 
+        Toggle timelineMarkersAsTimeToggle = CreateInputToggleField("Show timeline markers as time:", _container, "field");
+        timelineMarkersAsTimeToggle.SetValueWithoutNotify(ApplicationSettings.timelineMarkersAsTime);
+        timelineMarkersAsTimeToggle.RegisterValueChangedCallback(evt => ApplicationSettings.timelineMarkersAsTime = evt.newValue);
+
         var settingsButtons = Create("popup-container-buttons");
         var saveButton = Create<Button>();
         saveButton.clicked += OnSave;
@@ -103,7 +107,8 @@ public class SettingsManager : UIBehaviour
         {
             ApplicationSettings = new AppSettings
             {
-                fillMode = false
+                fillMode = false,
+                timelineMarkersAsTime = false
             };
         }
     }
@@ -116,5 +121,10 @@ public class SettingsManager : UIBehaviour
         string json = JsonUtility.ToJson(settingsToSave);
         PlayerPrefs.SetString("AppSettings", json);
         PlayerPrefs.Save();
+    }
+
+    public static void SaveCurrentSettings()
+    {
+        Singleton?.SaveAppSettings();
     }
 }

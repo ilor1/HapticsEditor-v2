@@ -32,7 +32,8 @@ public enum ControlName
     FreeMode,
     AddNote,
     ConvertForStroker,
-    StrokerMode
+    StrokerMode,
+    ToggleTimelineMarkerFormat
 }
 
 [Serializable]

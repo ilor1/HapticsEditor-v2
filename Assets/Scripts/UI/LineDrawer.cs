@@ -7,13 +7,21 @@ using UnityEngine.UIElements;
 
 public class LineDrawer : VisualElement
 {
+    private const float ActionPointRadius = 4.5f;
+    private const float HoveredActionPointRadius = 7.5f;
+    private const float NotePointRadius = 3.5f;
+
     public int LengthInMilliseconds { get; set; }
     public int TimeInMilliseconds { get; set; }
     public Color StrokeColor { get; set; }
     public float LineWidth { get; set; }
+    public int HoveredActionIndex { get; set; } = -1;
 
     private List<Vector2> _coords = new();
+    private List<Vector2> _actionCoords = new();
     private List<Vector2> _noteCoords = new();
+    private Vector2 _hoveredActionCoord;
+    private bool _hasHoveredActionCoord;
 
     public LineDrawer()
     {
@@ -24,15 +32,18 @@ public class LineDrawer : VisualElement
     {
         _noteCoords.Clear();
         _coords.Clear();
+        _actionCoords.Clear();
+        _hasHoveredActionCoord = false;
 
         VisualElement parentContainer = parent;
+        var size = new Vector2(parentContainer.contentRect.width, parentContainer.contentRect.height);
         var actionsNative = actions.ToNativeArray(Allocator.TempJob);
         var coords = new NativeList<Vector2>(actions.Count + 4, Allocator.TempJob);
 
         // draw funactions
         new RenderFunActionJob
         {
-            Size = new float2(parentContainer.contentRect.width, parentContainer.contentRect.height),
+            Size = new float2(size.x, size.y),
             TimeInMilliseconds = TimeInMilliseconds,
             LengthInMilliseconds = LengthInMilliseconds,
             Actions = actionsNative,
@@ -40,6 +51,19 @@ public class LineDrawer : VisualElement
         }.Schedule().Complete();
 
         _coords.AddRange(coords.AsArray());
+        for (int i = 0; i < actions.Count; i++)
+        {
+            var actionCoord = GetActionCoord(actions[i], size);
+            if (!IsInsideTimeline(actionCoord, size)) continue;
+
+            _actionCoords.Add(actionCoord);
+            if (i == HoveredActionIndex)
+            {
+                _hoveredActionCoord = actionCoord;
+                _hasHoveredActionCoord = true;
+            }
+        }
+
         actionsNative.Dispose();
         coords.Dispose();
 
@@ -50,7 +74,7 @@ public class LineDrawer : VisualElement
             var noteCoords = new NativeList<Vector2>(notes.Count, Allocator.TempJob);
             new RenderNotesJob
             {
-                Size = new float2(parentContainer.contentRect.width, parentContainer.contentRect.height),
+                Size = new float2(size.x, size.y),
                 TimeInMilliseconds = TimeInMilliseconds,
                 LengthInMilliseconds = LengthInMilliseconds,
                 Notes = notesNative,
@@ -118,14 +142,17 @@ public class LineDrawer : VisualElement
             mesh.SetAllVertices(vertices);
             mesh.SetAllIndices(triangles);
 
-            for (int i = 0; i < _coords.Count - 1; i++)
+            for (int i = 0; i < _actionCoords.Count; i++)
             {
-                // Don't draw points outside timeline
-                if (_coords[i].x <= 0) continue;
-
                 painter2D.BeginPath();
-                painter2D.Arc(_coords[i], LineWidth * 1.0f, 0, Angle.Degrees(360), ArcDirection.Clockwise);
-                //painter2D.Arc(Coords[i], LineWidth, 0, Angle.Degrees(360), ArcDirection.CounterClockwise); // to make a cutout in the circle
+                painter2D.Arc(_actionCoords[i], ActionPointRadius, 0, Angle.Degrees(360), ArcDirection.Clockwise);
+                painter2D.Fill();
+            }
+
+            if (_hasHoveredActionCoord)
+            {
+                painter2D.BeginPath();
+                painter2D.Arc(_hoveredActionCoord, HoveredActionPointRadius, 0, Angle.Degrees(360), ArcDirection.Clockwise);
                 painter2D.Fill();
             }
         }
@@ -141,7 +168,7 @@ public class LineDrawer : VisualElement
 
             // Calculate the coordinates for the diamond's vertices based on the center point and size
             Vector2 center = _noteCoords[i];
-            float halfWidth = LineWidth * 1.5f;
+            float halfWidth = NotePointRadius;
             Vector2[] diamondVertices = new Vector2[]
             {
                 new Vector2(center.x, center.y + halfWidth), // top vertex
@@ -201,14 +228,17 @@ public class LineDrawer : VisualElement
                 painter2D.Stroke();
             }
 
-            for (int i = 0; i < _coords.Count - 1; i++)
+            for (int i = 0; i < _actionCoords.Count; i++)
             {
-                // Don't draw points outside timeline
-                if (_coords[i].x <= 0) continue;
-
                 painter2D.BeginPath();
-                painter2D.Arc(_coords[i], LineWidth * 1.5f, 0, Angle.Degrees(360), ArcDirection.Clockwise);
-                //painter2D.Arc(Coords[i], LineWidth, 0, Angle.Degrees(360), ArcDirection.CounterClockwise); // to make a cutout in the circle
+                painter2D.Arc(_actionCoords[i], ActionPointRadius, 0, Angle.Degrees(360), ArcDirection.Clockwise);
+                painter2D.Fill();
+            }
+
+            if (_hasHoveredActionCoord)
+            {
+                painter2D.BeginPath();
+                painter2D.Arc(_hoveredActionCoord, HoveredActionPointRadius, 0, Angle.Degrees(360), ArcDirection.Clockwise);
                 painter2D.Fill();
             }
         }
@@ -224,7 +254,7 @@ public class LineDrawer : VisualElement
 
             // Calculate the coordinates for the diamond's vertices based on the center point and size
             Vector2 center = _noteCoords[i];
-            float halfWidth = LineWidth * 1.5f;
+            float halfWidth = NotePointRadius;
             Vector2[] diamondVertices = new Vector2[]
             {
                 new Vector2(center.x, center.y + halfWidth), // top vertex
@@ -246,5 +276,17 @@ public class LineDrawer : VisualElement
             painter2D.LineTo(diamondVertices[0]);
             painter2D.Stroke();
         }
+    }
+
+    private Vector2 GetActionCoord(FunAction action, Vector2 size)
+    {
+        float x = (action.at - TimeInMilliseconds + LengthInMilliseconds * 0.5f) * (size.x / LengthInMilliseconds);
+        float y = action.pos * -(size.y / 100);
+        return new Vector2(x, y);
+    }
+
+    private bool IsInsideTimeline(Vector2 coord, Vector2 size)
+    {
+        return coord.x > 0 && coord.x < size.x;
     }
 }

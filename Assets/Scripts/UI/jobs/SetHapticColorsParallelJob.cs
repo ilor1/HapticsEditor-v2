@@ -6,6 +6,8 @@ using UnityEngine;
 [BurstCompile]
 public struct SetHapticColorsParallelJob : IJobParallelFor
 {
+    private const byte FillAlpha = 51;
+
     [ReadOnly] public Color32 ColorHigh;
     [ReadOnly] public Color32 ColorLow;
     [ReadOnly] public Color32 ColorClear;
@@ -39,6 +41,7 @@ public struct SetHapticColorsParallelJob : IJobParallelFor
         else if (highest > y)
         {
             var color = Color32.Lerp(ColorLow, ColorHigh, AverageHapticAtPixel[x]);
+            color.a = FillAlpha;
             Colors[colorIndex] = color;
         }
         else
