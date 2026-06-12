@@ -57,6 +57,7 @@ alternatively:
 * '1' - changes to Default scripting mode
 * '2' - changes to Pattern scripting mode
 * '3' - changes to Free scripting mode
+* '4' - changes to Stroker scripting mode
 * 'F2' - toggles Snapping
 * 'F5' - cycles available stylesheets
 * 'MMB' - adds a note (marker that gets exported in the funscript "notes":[])
@@ -90,3 +91,12 @@ alternatively:
 * `Patterns`-Window for creating new patterns
 * `Edit > Bindings`-Window for editing bindings
 * `Edit > Settings`-Window for editing various settings
+
+## Changelog
+
+#### Unreleased
+* Added inline scripting mode buttons with active state.
+* Added Stroker scripting mode for recording direction-change haptics.
+* Added proportional Stroker timing limits for device-safe motion.
+* Added `File > New Haptic` for recording haptics without audio.
+* Hardened keyboard binding defaults so new controls do not break existing binds.

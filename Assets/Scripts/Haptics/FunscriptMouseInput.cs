@@ -12,6 +12,10 @@ public class FunscriptMouseInput : UIBehaviour
     public static int MouseAt;
     public static int MousePos;
 
+    private const int StrokerFullRangeMinDurationMs = 200;
+    private const int StrokerFullRangeMaxDurationMs = 3000;
+    private const int StrokerStillDurationMs = 200;
+
     public bool Snapping { get; set; }
     public bool StepMode { get; set; }
 
@@ -25,6 +29,13 @@ public class FunscriptMouseInput : UIBehaviour
     private List<FunAction> _patternActions = new List<FunAction>();
     private int _previousAddedPointAt = -1;
     private int _startRemovePointAt = -1;
+    private int _strokerPreviousSampleAt = -1;
+    private int _strokerPreviousSamplePos = -1;
+    private int _strokerPreviousDirection = 0;
+    private int _strokerLastWrittenAt = -1;
+    private int _strokerLastWrittenPos = -1;
+    private int _strokerStillStartAt = -1;
+    private bool _strokerStillPointWritten = false;
 
     private void Awake()
     {
@@ -68,28 +79,28 @@ public class FunscriptMouseInput : UIBehaviour
             AddNote();
         }
 
-        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free && _mouseInsideContainer)
+        if (IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode) && _mouseInsideContainer)
         {
             if (!_isDrawing && Input.GetMouseButton(0))
             {
                 Debug.Log("Started Drawing");
-                // start drawing if: LMB down, inside container, in free mode
+                // start drawing if: LMB down, inside container, in freeform/stroker mode
                 StartDrawing();
             }
 
             if (!_isErasing && Input.GetMouseButton(1))
             {
                 Debug.Log("Started Erasing");
-                // start erasing if: RMB down, inside container, in free mode
+                // start erasing if: RMB down, inside container, in freeform/stroker mode
                 StartErasing();
             }
         }
 
         if (_isDrawing)
         {
-            // stop drawing if: LMB up OR not in free mode
+            // stop drawing if: LMB up OR not in a continuous drawing mode
             // note: we allow cursor to exit container while drawing, but not while erasing
-            if (Input.GetMouseButtonUp(0) || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Free)
+            if (Input.GetMouseButtonUp(0) || !IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode))
             {
                 Debug.Log("Stopped Drawing");
                 StopDrawing();
@@ -98,8 +109,8 @@ public class FunscriptMouseInput : UIBehaviour
 
         if (_isErasing)
         {
-            // stop erasing if: RMB up OR outside container OR not in free mode
-            if (Input.GetMouseButtonUp(1) || !_mouseInsideContainer || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Free)
+            // stop erasing if: RMB up OR outside container OR not in a continuous drawing mode
+            if (Input.GetMouseButtonUp(1) || !_mouseInsideContainer || !IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode))
             {
                 Debug.Log("Stopped Erasing");
                 StopErasing();
@@ -155,9 +166,27 @@ public class FunscriptMouseInput : UIBehaviour
     private void StartDrawing()
     {
         _isDrawing = true;
+
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Stroker)
+        {
+            ResetStrokerDrawing();
+            DrawStroker();
+        }
     }
 
     private void Draw()
+    {
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Stroker)
+        {
+            DrawStroker();
+        }
+        else
+        {
+            DrawFreeform();
+        }
+    }
+
+    private void DrawFreeform()
     {
         int at = TimelineManager.Instance.IsPlaying ? TimelineManager.Instance.TimeInMilliseconds : MouseAt;
 
@@ -187,10 +216,82 @@ public class FunscriptMouseInput : UIBehaviour
         FunscriptRenderer.Singleton.SortFunscript();
     }
 
+    private void DrawStroker()
+    {
+        int at = TimelineManager.Instance.IsPlaying ? TimelineManager.Instance.TimeInMilliseconds : MouseAt;
+        int pos = MousePos;
+
+        if (at < 0) return;
+
+        if (_strokerPreviousSampleAt == -1)
+        {
+            AddStrokerPoint(at, pos);
+            _strokerPreviousSampleAt = at;
+            _strokerPreviousSamplePos = pos;
+            _previousAddedPointAt = at;
+            FunscriptRenderer.Singleton.SortFunscript();
+            return;
+        }
+
+        RemovePointsBetweenSamples(_previousAddedPointAt, at);
+
+        int direction = pos > _strokerPreviousSamplePos ? 1 : pos < _strokerPreviousSamplePos ? -1 : 0;
+        if (direction == 0)
+        {
+            HandleStrokerStill(at, pos);
+        }
+        else
+        {
+            if (_strokerStillStartAt != -1)
+            {
+                if (_strokerStillPointWritten || math.abs(at - _strokerStillStartAt) >= StrokerStillDurationMs)
+                {
+                    if (!_strokerStillPointWritten)
+                    {
+                        AddStrokerPoint(_strokerStillStartAt, _strokerPreviousSamplePos);
+                    }
+
+                    AddStrokerPoint(_strokerPreviousSampleAt, _strokerPreviousSamplePos, true);
+                }
+                else if (_strokerPreviousDirection != 0 && direction != _strokerPreviousDirection)
+                {
+                    AddStrokerPoint(_strokerPreviousSampleAt, _strokerPreviousSamplePos);
+                }
+
+                ResetStrokerStill();
+            }
+            else if (_strokerPreviousDirection != 0 && direction != _strokerPreviousDirection)
+            {
+                AddStrokerPoint(_strokerPreviousSampleAt, _strokerPreviousSamplePos);
+            }
+
+            _strokerPreviousDirection = direction;
+        }
+
+        _strokerPreviousSampleAt = at;
+        _strokerPreviousSamplePos = pos;
+        _previousAddedPointAt = at;
+
+        FunscriptRenderer.Singleton.SortFunscript();
+    }
+
     private void StopDrawing()
     {
+        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Stroker)
+        {
+            if (ShouldAddStrokerStopPoint())
+            {
+                AddStrokerPoint(_strokerPreviousSampleAt, _strokerPreviousSamplePos);
+            }
+        }
+
         _isDrawing = false;
-        FunscriptRenderer.Singleton.CleanupExcessPoints();
+        if (SettingsManager.ApplicationSettings.Mode != ScriptingMode.Stroker)
+        {
+            FunscriptRenderer.Singleton.CleanupExcessPoints();
+        }
+
+        ResetStrokerDrawing();
         _previousAddedPointAt = -1;
         FunscriptOverview.Singleton.RenderHaptics();
         ChangeManager.OnChange.Invoke();
@@ -204,7 +305,10 @@ public class FunscriptMouseInput : UIBehaviour
     private void OnMouseLeave(MouseLeaveEvent evt)
     {
         _mouseInsideContainer = false;
-        FunscriptRenderer.Singleton.CleanupExcessPoints();
+        if (!_isDrawing || SettingsManager.ApplicationSettings.Mode != ScriptingMode.Stroker)
+        {
+            FunscriptRenderer.Singleton.CleanupExcessPoints();
+        }
     }
 
     private void OnMouseMove(MouseMoveEvent evt)
@@ -217,9 +321,9 @@ public class FunscriptMouseInput : UIBehaviour
 
     private void OnLeftClick(ClickEvent evt)
     {
-        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free)
+        if (IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode))
         {
-            // free mode is done on update
+            // continuous drawing modes are done on update
             return;
         }
 
@@ -605,7 +709,7 @@ public class FunscriptMouseInput : UIBehaviour
         // Not RMB
         if (evt.button != 1) return;
 
-        if (SettingsManager.ApplicationSettings.Mode == ScriptingMode.Free) return;
+        if (IsContinuousDrawingMode(SettingsManager.ApplicationSettings.Mode)) return;
 
         bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
         int index = -1;
@@ -697,5 +801,103 @@ public class FunscriptMouseInput : UIBehaviour
         actions.Dispose();
 
         return index;
+    }
+
+    private bool IsContinuousDrawingMode(ScriptingMode mode)
+    {
+        return mode == ScriptingMode.Free || mode == ScriptingMode.Stroker;
+    }
+
+    private void RemovePointsBetweenSamples(int previousAt, int at)
+    {
+        if (previousAt == -1) return;
+
+        if (previousAt == at) return;
+
+        if (previousAt < at)
+        {
+            FunscriptRenderer.Singleton.RemovePointsBetween(previousAt + 1, at);
+        }
+        else
+        {
+            FunscriptRenderer.Singleton.RemovePointsBetween(at, previousAt - 1);
+        }
+    }
+
+    private void AddStrokerPoint(int at, int pos, bool allowSamePosition = false)
+    {
+        if (at < 0 || at == _strokerLastWrittenAt) return;
+
+        if (_strokerLastWrittenAt != -1 && _strokerLastWrittenPos != -1)
+        {
+            int posDelta = math.abs(pos - _strokerLastWrittenPos);
+            if (posDelta == 0)
+            {
+                if (!allowSamePosition) return;
+            }
+            else
+            {
+                int atDelta = at - _strokerLastWrittenAt;
+                int duration = math.abs(atDelta);
+                int minDuration = GetStrokerDurationForDistance(posDelta, StrokerFullRangeMinDurationMs);
+                int maxDuration = GetStrokerDurationForDistance(posDelta, StrokerFullRangeMaxDurationMs);
+
+                if (duration < minDuration || atDelta <= 0)
+                {
+                    at = _strokerLastWrittenAt + minDuration;
+                }
+                else if (duration > maxDuration)
+                {
+                    at = _strokerLastWrittenAt + maxDuration;
+                }
+            }
+        }
+
+        AddFunAction(at, pos, false);
+        _strokerLastWrittenAt = at;
+        _strokerLastWrittenPos = pos;
+    }
+
+    private int GetStrokerDurationForDistance(int posDelta, int fullRangeDuration)
+    {
+        return math.max(1, (int)math.round(fullRangeDuration * (posDelta / 100f)));
+    }
+
+    private void HandleStrokerStill(int at, int pos)
+    {
+        if (_strokerPreviousDirection == 0) return;
+
+        if (_strokerStillStartAt == -1)
+        {
+            _strokerStillStartAt = _strokerPreviousSampleAt;
+        }
+
+        if (!_strokerStillPointWritten && math.abs(at - _strokerStillStartAt) >= StrokerStillDurationMs)
+        {
+            AddStrokerPoint(_strokerStillStartAt, pos);
+            _strokerPreviousDirection = 0;
+            _strokerStillPointWritten = true;
+        }
+    }
+
+    private void ResetStrokerStill()
+    {
+        _strokerStillStartAt = -1;
+        _strokerStillPointWritten = false;
+    }
+
+    private bool ShouldAddStrokerStopPoint()
+    {
+        return _strokerStillStartAt == -1 || math.abs(_strokerPreviousSampleAt - _strokerStillStartAt) >= StrokerStillDurationMs;
+    }
+
+    private void ResetStrokerDrawing()
+    {
+        _strokerPreviousSampleAt = -1;
+        _strokerPreviousSamplePos = -1;
+        _strokerPreviousDirection = 0;
+        _strokerLastWrittenAt = -1;
+        _strokerLastWrittenPos = -1;
+        ResetStrokerStill();
     }
 }

@@ -8,5 +8,6 @@ public enum ScriptingMode
 {
     Default,
     Pattern,
-    Free
+    Free,
+    Stroker
 }
