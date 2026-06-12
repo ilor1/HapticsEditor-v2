@@ -8,6 +8,7 @@ public class TimelineManager : MonoBehaviour
     public static Action ZoomLevelChanged;
 
     public bool IsPlaying;
+    public bool OpenEndedWithoutAudio;
     public int TimeInMilliseconds;
     public float TimeInSeconds => TimeInMilliseconds * 0.001f;
     public int LengthInMilliseconds = 15000;
@@ -36,6 +37,7 @@ public class TimelineManager : MonoBehaviour
     private void OnClipLoaded(AudioSource src)
     {
         _audioSource = src;
+        OpenEndedWithoutAudio = false;
     }
 
     private void FixedUpdate()
@@ -62,7 +64,11 @@ public class TimelineManager : MonoBehaviour
         // Update Timeline while playing. Scrub timeline while paused 
         if (IsPlaying)
         {
-            if (_audioSource != null && _audioSource.pitch < 0.9f)
+            if (_audioSource == null && OpenEndedWithoutAudio)
+            {
+                TimeInMilliseconds += (int)math.round(Time.deltaTime * 1000f);
+            }
+            else if (_audioSource != null && _audioSource.pitch < 0.9f)
             {
                 TimeInMilliseconds = (int)math.round(_audioSource.time * 1000f);
             }
@@ -105,6 +111,21 @@ public class TimelineManager : MonoBehaviour
             return (int)math.round(_audioSource.clip.length * 1000f);
         }
 
+        if (OpenEndedWithoutAudio)
+        {
+            int length = math.max(1, TimeInMilliseconds);
+            if (FunscriptRenderer.Singleton.Haptics.Count > 0)
+            {
+                var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
+                if (actions.Count > 0)
+                {
+                    length = math.max(length, actions[^1].at);
+                }
+            }
+
+            return length;
+        }
+
         if (FunscriptRenderer.Singleton.Haptics.Count > 0)
         {
             var actions = FunscriptRenderer.Singleton.Haptics[0].Funscript.actions;
@@ -129,5 +150,12 @@ public class TimelineManager : MonoBehaviour
     public void SetTimeInSeconds(float timeInSeconds)
     {
         TimeInMilliseconds = (int)math.round(timeInSeconds * 1000f);
+    }
+
+    public void StartOpenEndedTimeline()
+    {
+        OpenEndedWithoutAudio = true;
+        IsPlaying = false;
+        TimeInMilliseconds = 0;
     }
 }

@@ -15,6 +15,7 @@ public class ToolBar : UIBehaviour
     private Button _defaultModeButton;
     private Button _patternModeButton;
     private Button _freeModeButton;
+    private Button _strokerModeButton;
     private VisualElement _snappingToggleContainer;
     private Toggle _snappingToggle;
 
@@ -78,6 +79,11 @@ public class ToolBar : UIBehaviour
         {
             SetScriptingMode(ScriptingMode.Free);
         }
+
+        if (InputManager.Singleton.GetKeyDown(ControlName.StrokerMode))
+        {
+            SetScriptingMode(ScriptingMode.Stroker);
+        }
         
         if (InputManager.Singleton.GetKeyDown(ControlName.CycleMode))
         {
@@ -107,11 +113,13 @@ public class ToolBar : UIBehaviour
         _defaultModeButton = CreateModeButton("Default", ScriptingMode.Default);
         _patternModeButton = CreateModeButton("Pattern", ScriptingMode.Pattern);
         _freeModeButton = CreateModeButton("Freeform", ScriptingMode.Free);
+        _strokerModeButton = CreateModeButton("Stroker", ScriptingMode.Stroker);
         _defaultModeButton.AddToClassList("first");
-        _freeModeButton.AddToClassList("last");
+        _strokerModeButton.AddToClassList("last");
         _modeButtons.Add(_defaultModeButton);
         _modeButtons.Add(_patternModeButton);
         _modeButtons.Add(_freeModeButton);
+        _modeButtons.Add(_strokerModeButton);
         _toolBar.Add(_modeButtons);
         
         _snappingToggleContainer = CreateItem("Snapping:", out _snappingToggle);
@@ -200,6 +208,9 @@ public class ToolBar : UIBehaviour
                 SetScriptingMode(ScriptingMode.Free);
                 break;
             case ScriptingMode.Free:
+                SetScriptingMode(ScriptingMode.Stroker);
+                break;
+            case ScriptingMode.Stroker:
                 SetScriptingMode(ScriptingMode.Default);
                 break;
             default:
@@ -213,6 +224,7 @@ public class ToolBar : UIBehaviour
         SetModeButtonActive(_defaultModeButton, mode == ScriptingMode.Default);
         SetModeButtonActive(_patternModeButton, mode == ScriptingMode.Pattern);
         SetModeButtonActive(_freeModeButton, mode == ScriptingMode.Free);
+        SetModeButtonActive(_strokerModeButton, mode == ScriptingMode.Stroker);
 
         // Change toolbar based on mode
         switch (mode)
@@ -242,6 +254,7 @@ public class ToolBar : UIBehaviour
                 if (!_toolBar.Contains(_invertYContainer)) _toolBar.Add(_invertYContainer);
                 break;
             case ScriptingMode.Free:
+            case ScriptingMode.Stroker:
                 if (_toolBar.Contains(_stepMode)) _toolBar.Remove(_stepMode);
                 if (_toolBar.Contains(_nextPatternButton)) _toolBar.Remove(_nextPatternButton);
                 if (_toolBar.Contains(_repeatContainer)) _toolBar.Remove(_repeatContainer);

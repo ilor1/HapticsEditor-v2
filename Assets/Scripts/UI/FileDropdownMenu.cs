@@ -36,6 +36,11 @@ public class FileDropdownMenu : MonoBehaviour
         BrowseAudio();
     }
 
+    public static void OnNewHapticClick()
+    {
+        Singleton.CreateNewHaptic();
+    }
+
     public static void OnLoadFunscriptClick()
     {
         BrowseFunscript();
@@ -93,6 +98,20 @@ public class FileDropdownMenu : MonoBehaviour
         Singleton.StartCoroutine(Singleton.ShowLoadFunscriptDialogCoroutine());
     }
 
+    private void CreateNewHaptic()
+    {
+        LayersContainer.Singleton.ClearHapticsLayers();
+        FunscriptOverview.Singleton.RenderHaptics();
+        TimelineManager.Instance.StartOpenEndedTimeline();
+
+        string pathWithoutExtension = Path.Combine(Application.persistentDataPath, $"New_Haptic_{DateTime.Now:yyyyMMdd_HHmmss}");
+        FunscriptPathWithoutExtension = pathWithoutExtension;
+        FunscriptPath = pathWithoutExtension + FUNSCRIPT_EXT;
+
+        FunscriptPathLoaded?.Invoke(FunscriptPath);
+        UndoRedo.Instance.ResetUndoStack();
+    }
+
     private IEnumerator ShowLoadAudioDialogCoroutine()
     {
         yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null,
@@ -142,7 +161,9 @@ public class FileDropdownMenu : MonoBehaviour
             string result = FileBrowser.Result[0];
             Debug.Log($"FileBrowser: loaded path: ({result})");
 
+            TimelineManager.Instance.OpenEndedWithoutAudio = false;
             FunscriptPath = result;
+            FunscriptPathWithoutExtension = result.Substring(0, result.Length - FUNSCRIPT_EXT.Length);
 
             // Load or Create funscript
             FunscriptPathLoaded?.Invoke(result);

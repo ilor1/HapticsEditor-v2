@@ -81,6 +81,16 @@ public class LayersContainer : UIBehaviour
         _internalLayersContainer.Add(CreateLayer(haptics));
     }
 
+    public void ClearHapticsLayers()
+    {
+        FunscriptRenderer.Singleton.Haptics.Clear();
+        _internalLayersContainer.Clear();
+        Layers.Clear();
+        _visibleLayers.Clear();
+        _selectedLayers.Clear();
+        _layerRunningNumber = 1;
+    }
+
     private VisualElement CreateLayer(Haptics haptics = null)
     {
         var layer = Create("item", "border-bottom", "row", "background--light");

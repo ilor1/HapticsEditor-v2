@@ -10,6 +10,30 @@ public class InputManager : MonoBehaviour
     private string _bindingsPath = $"{Application.streamingAssetsPath}/bindings.json";
     private Bindings _bindings;
     private Dictionary<ControlName, KeyCode> _keyboardControls = new();
+    private readonly Dictionary<ControlName, KeyCode> _defaultKeyboardControls = new()
+    {
+        { ControlName.TogglePlay, KeyCode.Space },
+        { ControlName.SkipForward, KeyCode.D },
+        { ControlName.SkipBack, KeyCode.A },
+        { ControlName.DecreaseSpeed, KeyCode.S },
+        { ControlName.IncreaseSpeed, KeyCode.W },
+        { ControlName.ZoomIn, KeyCode.PageUp },
+        { ControlName.ZoomOut, KeyCode.PageDown },
+        { ControlName.Reset, KeyCode.R },
+        { ControlName.TargetPreviousModifier, KeyCode.LeftAlt },
+        { ControlName.ChangeModeOrPattern, KeyCode.Q },
+        { ControlName.CycleMode, KeyCode.F1 },
+        { ControlName.ToggleSnapping, KeyCode.F2 },
+        { ControlName.PatternScaleX, KeyCode.LeftShift },
+        { ControlName.PatternRepeat, KeyCode.LeftControl },
+        { ControlName.PatternSpacing, KeyCode.LeftAlt },
+        { ControlName.DefaultMode, KeyCode.Alpha1 },
+        { ControlName.PatternMode, KeyCode.Alpha2 },
+        { ControlName.FreeMode, KeyCode.Alpha3 },
+        { ControlName.AddNote, KeyCode.Mouse2 },
+        { ControlName.ConvertForStroker, KeyCode.C },
+        { ControlName.StrokerMode, KeyCode.Alpha4 },
+    };
 
     // To create a new binding:
     // 1. Add it to Bindings.cs -> ControlName enum
@@ -31,12 +55,14 @@ public class InputManager : MonoBehaviour
 
     public void SetKeyboardControls(Dictionary<ControlName, KeyCode> keyboardControls)
     {
-        _keyboardControls = keyboardControls;
+        _keyboardControls = new Dictionary<ControlName, KeyCode>(keyboardControls);
+        AddMissingDefaultBindings();
+        _keyboardControls[ControlName.TogglePlay] = KeyCode.Space;
     }
 
     public Dictionary<ControlName, KeyCode> GetKeyboardControls()
     {
-        return _keyboardControls;
+        return new Dictionary<ControlName, KeyCode>(_keyboardControls);
     }
 
     public void SaveBindings()
@@ -58,7 +84,13 @@ public class InputManager : MonoBehaviour
             _bindings = JsonUtility.FromJson<Bindings>(json);
             Debug.Log($"InputManager: Bindings loaded: ({_bindingsPath})");
 
+            if (_bindings.Keyboard == null)
+            {
+                _bindings.Keyboard = new SerializableDictionary<ControlName, KeyCode>();
+            }
+
             _keyboardControls = _bindings.Keyboard.ToDictionary();
+            AddMissingDefaultBindings();
             _keyboardControls[ControlName.TogglePlay] = KeyCode.Space;
 
             var bindingsDebug = new StringBuilder();
@@ -74,15 +106,29 @@ public class InputManager : MonoBehaviour
         else
         {
             // Otherwise save default bindings from what's setup in the inspector.
+            _bindings.Keyboard = new SerializableDictionary<ControlName, KeyCode>();
+            _keyboardControls = new Dictionary<ControlName, KeyCode>(_defaultKeyboardControls);
             SaveBindings();
+        }
+    }
+
+    private void AddMissingDefaultBindings()
+    {
+        foreach (var kvp in _defaultKeyboardControls)
+        {
+            if (!_keyboardControls.ContainsKey(kvp.Key))
+            {
+                _keyboardControls[kvp.Key] = kvp.Value;
+            }
         }
     }
 
     public bool GetKeyDown(ControlName controlName)
     {
-        if (_keyboardControls.ContainsKey(controlName) && _keyboardControls[controlName] != KeyCode.None)
+        KeyCode keyCode = GetKeyCode(controlName);
+        if (keyCode != KeyCode.None)
         {
-            return Input.GetKeyDown(_keyboardControls[controlName]);
+            return Input.GetKeyDown(keyCode);
         }
         else
         {
@@ -92,13 +138,26 @@ public class InputManager : MonoBehaviour
 
     public bool GetKey(ControlName controlName)
     {
-        if (_keyboardControls.ContainsKey(controlName) && _keyboardControls[controlName] != KeyCode.None)
+        KeyCode keyCode = GetKeyCode(controlName);
+        if (keyCode != KeyCode.None)
         {
-            return Input.GetKey(_keyboardControls[controlName]);
+            return Input.GetKey(keyCode);
         }
         else
         {
             return false;
         }
+    }
+
+    private KeyCode GetKeyCode(ControlName controlName)
+    {
+        if (_keyboardControls.TryGetValue(controlName, out KeyCode keyCode))
+        {
+            return keyCode;
+        }
+
+        return _defaultKeyboardControls.TryGetValue(controlName, out KeyCode defaultKeyCode)
+            ? defaultKeyCode
+            : KeyCode.None;
     }
 }

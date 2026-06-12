@@ -24,6 +24,7 @@ public class MenuBar : UIBehaviour
 
         // File Dropdown
         _fileDropdown = CreateDropdownMenu(root);
+        _fileDropdown.Append("New Haptic", FileDropdownMenu.OnNewHapticClick);
         _fileDropdown.Append("Load Audio", FileDropdownMenu.OnLoadAudioClick);
         _fileDropdown.Append("Load Funscript", FileDropdownMenu.OnLoadFunscriptClick);
         _fileDropdown.Append("Save Funscript", FileDropdownMenu.OnSaveClick);

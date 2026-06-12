@@ -134,6 +134,7 @@ public class FunscriptSaver : MonoBehaviour
 
                 var haptic = FunscriptRenderer.Singleton.Haptics[hapticIndex];
                 var funscript = haptic.Funscript;
+                funscript.metadata.duration = math.max((int)math.round(TimelineManager.Instance.GetClipLengthInSeconds()), funscript.metadata.duration);
 
                 // process
                 var actions = ProcessFunscriptForSaving(funscript);

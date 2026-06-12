@@ -31,7 +31,8 @@ public enum ControlName
     PatternMode,
     FreeMode,
     AddNote,
-    ConvertForStroker
+    ConvertForStroker,
+    StrokerMode
 }
 
 [Serializable]
