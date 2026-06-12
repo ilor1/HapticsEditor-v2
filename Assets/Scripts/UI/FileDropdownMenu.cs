@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using SimpleFileBrowser;
 using UnityEngine;
@@ -59,6 +60,41 @@ public class FileDropdownMenu : MonoBehaviour
         FunscriptSaver.Singleton.Save(Singleton.FunscriptPath);
     }
 
+    public static void LoadPaths(IEnumerable<string> paths)
+    {
+        string audioPath = null;
+        var funscriptPaths = new List<string>();
+
+        foreach (string path in paths)
+        {
+            string extension = Path.GetExtension(path).ToLowerInvariant();
+            switch (extension)
+            {
+                case MP3_EXT:
+                case WAV_EXT:
+                    if (audioPath == null) audioPath = path;
+                    break;
+                case FUNSCRIPT_EXT:
+                    funscriptPaths.Add(path);
+                    break;
+                default:
+                    Debug.LogWarning($"FileDropdownMenu: unsupported file: ({path})");
+                    break;
+            }
+        }
+
+        bool hasExplicitFunscript = funscriptPaths.Count > 0;
+        if (!string.IsNullOrEmpty(audioPath))
+        {
+            Singleton.LoadAudioPath(audioPath, !hasExplicitFunscript);
+        }
+
+        foreach (string funscriptPath in funscriptPaths)
+        {
+            Singleton.LoadFunscriptPath(funscriptPath, true);
+        }
+    }
+
     public static void OnExitClick()
     {
         Singleton.StartCoroutine(Singleton.ExitIE());
@@ -104,12 +140,47 @@ public class FileDropdownMenu : MonoBehaviour
         FunscriptOverview.Singleton.RenderHaptics();
         TimelineManager.Instance.StartOpenEndedTimeline();
 
-        string pathWithoutExtension = Path.Combine(Application.persistentDataPath, $"New_Haptic_{DateTime.Now:yyyyMMdd_HHmmss}");
+        string pathWithoutExtension = Path.Combine(Application.persistentDataPath, $"New_Funscript_{DateTime.Now:yyyyMMdd_HHmmss}");
         FunscriptPathWithoutExtension = pathWithoutExtension;
         FunscriptPath = pathWithoutExtension + FUNSCRIPT_EXT;
 
         FunscriptPathLoaded?.Invoke(FunscriptPath);
         UndoRedo.Instance.ResetUndoStack();
+    }
+
+    private void LoadAudioPath(string path, bool loadMatchingFunscript)
+    {
+        _audioPath = path;
+        TimelineManager.Instance.OpenEndedWithoutAudio = false;
+        AudioPathLoaded?.Invoke(path);
+
+        if (!loadMatchingFunscript) return;
+
+        string dir = Path.GetDirectoryName(path);
+        string filename = Path.GetFileNameWithoutExtension(path);
+        FunscriptPathWithoutExtension = Path.Combine(dir!, filename);
+        FunscriptPath = FunscriptPathWithoutExtension + FUNSCRIPT_EXT;
+
+        if (!File.Exists(FunscriptPath))
+        {
+            Debug.Log($"FileDropdownMenu: No matching funscript for: ({path})");
+        }
+
+        FunscriptPathLoaded?.Invoke(FunscriptPath);
+        LayersContainer.Singleton.SelectOnlyLastLayer();
+    }
+
+    private void LoadFunscriptPath(string path, bool selectOnlyLoaded)
+    {
+        TimelineManager.Instance.OpenEndedWithoutAudio = false;
+        FunscriptPath = path;
+        FunscriptPathWithoutExtension = path.Substring(0, path.Length - FUNSCRIPT_EXT.Length);
+
+        FunscriptPathLoaded?.Invoke(path);
+        if (selectOnlyLoaded)
+        {
+            LayersContainer.Singleton.SelectOnlyLastLayer();
+        }
     }
 
     private IEnumerator ShowLoadAudioDialogCoroutine()
@@ -122,26 +193,7 @@ public class FileDropdownMenu : MonoBehaviour
             string result = FileBrowser.Result[0];
 
             Debug.Log($"FileBrowser: loaded path: ({result})");
-
-            // Load Audio
-            AudioPathLoaded?.Invoke(result);
-
-            // Load funscript with matching name automatically
-            string dir = Path.GetDirectoryName(result);
-            string filename = Path.GetFileNameWithoutExtension(result);
-            FunscriptPathWithoutExtension = Path.Combine(dir!, filename);
-            FunscriptPath = FunscriptPathWithoutExtension + ".funscript";
-            
-            if (File.Exists(FunscriptPath))
-            {
-                FunscriptPathLoaded?.Invoke(FunscriptPath);
-            }
-            else
-            {
-                Debug.Log($"FileDropdownMenu: No matching funscript for: ({result})");
-
-                FunscriptPathLoaded?.Invoke(FunscriptPath);
-            }
+            LoadAudioPath(result, true);
         }
         else
         {
@@ -160,13 +212,7 @@ public class FileDropdownMenu : MonoBehaviour
         {
             string result = FileBrowser.Result[0];
             Debug.Log($"FileBrowser: loaded path: ({result})");
-
-            TimelineManager.Instance.OpenEndedWithoutAudio = false;
-            FunscriptPath = result;
-            FunscriptPathWithoutExtension = result.Substring(0, result.Length - FUNSCRIPT_EXT.Length);
-
-            // Load or Create funscript
-            FunscriptPathLoaded?.Invoke(result);
+            LoadFunscriptPath(result, true);
         }
         else
         {

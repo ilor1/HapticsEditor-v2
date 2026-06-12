@@ -98,5 +98,6 @@ alternatively:
 * Added inline scripting mode buttons with active state.
 * Added Stroker scripting mode for recording direction-change haptics.
 * Added proportional Stroker timing limits for device-safe motion.
-* Added `File > New Haptic` for recording haptics without audio.
+* Added `File > New Funscript` for recording haptics without audio.
+* Added shared file loading for menus and drag/drop, with initial Windows file drop support.
 * Hardened keyboard binding defaults so new controls do not break existing binds.
