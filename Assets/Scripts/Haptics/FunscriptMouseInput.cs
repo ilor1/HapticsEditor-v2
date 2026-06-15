@@ -81,11 +81,11 @@ public class FunscriptMouseInput : UIBehaviour
         _freeformTimeUntilAddingNextPoint -= Time.deltaTime;
         _freeformTimeUntilRemovingNextPoint -= Time.deltaTime;
 
-        if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+        if (InputManager.Singleton.GetKeyUp(ControlName.AddNote) && _mouseInsideContainer && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
         {
             RemoveNote();
         }
-        else if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer)
+        else if (InputManager.Singleton.GetKeyUp(ControlName.AddNote) && _mouseInsideContainer)
         {
             AddNote();
         }

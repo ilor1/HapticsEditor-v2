@@ -137,6 +137,19 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    public bool GetKeyUp(ControlName controlName)
+    {
+        KeyCode keyCode = GetKeyCode(controlName);
+        if (keyCode != KeyCode.None)
+        {
+            return Input.GetKeyUp(keyCode);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public bool GetKey(ControlName controlName)
     {
         KeyCode keyCode = GetKeyCode(controlName);

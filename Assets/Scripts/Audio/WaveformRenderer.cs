@@ -42,6 +42,11 @@ public class WaveformRenderer : UIBehaviour
         TimelineManager.ZoomLevelChanged -= OnZoomLevelChanged;
     }
 
+    private void OnDestroy()
+    {
+        DisposeSamples();
+    }
+
     private void OnRootCreated(VisualElement root)
     {
         StartCoroutine(Generate(root));
@@ -98,10 +103,11 @@ public class WaveformRenderer : UIBehaviour
         int samplesPerPixel = GetSamplesPerPixel();
         if (_samplesPerPixel != samplesPerPixel)
         {
-            _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
+            _clip.GetData(_samples, GetPreloadOffsetSamples());
             _samplesPerPixel = samplesPerPixel;
 
-            int sampleNum = (int)math.round((_samples.Length / (float)_clip.channels) / (float)_samplesPerPixel);
+            int sampleNum = math.max(1, (int)math.round((_samples.Length / (float)_clip.channels) / (float)_samplesPerPixel));
+            DisposeProcessedSamples();
             _leftHigh = new NativeArray<float>(sampleNum, Allocator.Persistent);
             _leftRMS = new NativeArray<float>(sampleNum, Allocator.Persistent);
             _rightHigh = new NativeArray<float>(sampleNum, Allocator.Persistent);
@@ -128,24 +134,27 @@ public class WaveformRenderer : UIBehaviour
         var leftRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
         var rightRmsValues = new NativeArray<float>(_texture.width, Allocator.TempJob);
 
-        // copy with offsets
-        if (startPixel + _texture.width > _leftHigh.Length)
+        int centerOffsetSamples = (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds);
+
+        // Copy values without drawing the wrapped audio before the start or after the end.
+        for (int i = 0; i < _texture.width; i++)
         {
-            for (int i = 0; i < _texture.width; i++)
+            int sourcePixel = startPixel + i;
+            int absoluteSample = sourcePixel * samplesPerPixel - centerOffsetSamples;
+            if (absoluteSample < 0 || absoluteSample >= _clip.samples)
             {
-                int sourceIndex = (startPixel + i) % _leftHigh.Length;
-                leftHighestValues[i] = _leftHigh[sourceIndex];
-                rightHighestValues[i] = _rightHigh[sourceIndex];
-                rightRmsValues[i] = _rightRMS[sourceIndex];
-                leftRmsValues[i] = _leftRMS[sourceIndex];
+                leftHighestValues[i] = 0f;
+                rightHighestValues[i] = 0f;
+                rightRmsValues[i] = 0f;
+                leftRmsValues[i] = 0f;
+                continue;
             }
-        }
-        else
-        {
-            leftHighestValues.CopyFrom(_leftHigh.GetSubArray(startPixel, _texture.width));
-            rightHighestValues.CopyFrom(_rightHigh.GetSubArray(startPixel, _texture.width));
-            leftRmsValues.CopyFrom(_leftRMS.GetSubArray(startPixel, _texture.width));
-            rightRmsValues.CopyFrom(_rightRMS.GetSubArray(startPixel, _texture.width));
+
+            int sourceIndex = sourcePixel % _leftHigh.Length;
+            leftHighestValues[i] = _leftHigh[sourceIndex];
+            rightHighestValues[i] = _rightHigh[sourceIndex];
+            rightRmsValues[i] = _rightRMS[sourceIndex];
+            leftRmsValues[i] = _leftRMS[sourceIndex];
         }
 
         // Get colors
@@ -212,7 +221,7 @@ public class WaveformRenderer : UIBehaviour
     private void OnZoomLevelChanged()
     {
         if (!_clipLoaded) return;
-        _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
+        _clip.GetData(_samples, GetPreloadOffsetSamples());
     }
 
     private void OnPointerDown(PointerDownEvent evt)
@@ -255,17 +264,43 @@ public class WaveformRenderer : UIBehaviour
 
     private void OnAudioClipLoaded(AudioSource audioSource)
     {
+        _clipLoaded = false;
+        DisposeSamples();
+
         _audioSource = audioSource;
         _clip = _audioSource.clip;
+        _samplesPerPixel = 0;
+        _maxSample = -1f;
 
         _samples = new NativeArray<float>(_clip.samples * _clip.channels, Allocator.Persistent);
-        _clip.GetData(_samples, _clip.samples - (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds));
+        _clip.GetData(_samples, GetPreloadOffsetSamples());
         _clipLoaded = true;
     }
 
     private int GetSamplesPerPixel()
     {
         float samples = TimelineManager.Instance.LengthInSeconds * _clip.frequency;
-        return (int)math.floor(samples / _texture.width);
+        return math.max(1, (int)math.floor(samples / _texture.width));
+    }
+
+    private int GetPreloadOffsetSamples()
+    {
+        int centerOffsetSamples = (int)math.round(_clip.frequency * 0.5f * TimelineManager.Instance.LengthInSeconds);
+        int wrappedOffset = centerOffsetSamples % _clip.samples;
+        return (_clip.samples - wrappedOffset) % _clip.samples;
+    }
+
+    private void DisposeSamples()
+    {
+        if (_samples.IsCreated) _samples.Dispose();
+        DisposeProcessedSamples();
+    }
+
+    private void DisposeProcessedSamples()
+    {
+        if (_leftHigh.IsCreated) _leftHigh.Dispose();
+        if (_leftRMS.IsCreated) _leftRMS.Dispose();
+        if (_rightHigh.IsCreated) _rightHigh.Dispose();
+        if (_rightRMS.IsCreated) _rightRMS.Dispose();
     }
 }
