@@ -1,5 +1,7 @@
 # Haptics Editor
 
+Author: [Ilor1](https://github.com/ilor1)
+
 This project is a tool for creating funscripts. For those unaware, funscript is a JSON file that contains a list of actions, that can be sent to a supported bluetooth toy to control it in sync with audio or video files. This tool uses [Intiface Central](https://buttplug.io/)'s unity package to connect to Intiface Central, in order to sync the haptics to toys.
 
 > This tool is a work in progress that I develop on my limited free-time. So if you like using it, and would like to donate towards its further development, or would just otherwise want to absolutely make my day <3  
@@ -12,7 +14,7 @@ This project is a tool for creating funscripts. For those unaware, funscript is 
 
 Currently the tool supports only .mp3 audiofiles, for any other formats you should first export it as .mp3 using Audacity.
 
-> Special thanks to Yall (u/yaliplover) for pre-alpha-testing and supporting this tool since its infancy!  
+> Special thanks to [Yall](https://yallhypno.com/) for pre-alpha-testing and supporting this tool since its infancy!
 > - If you're a creator and need help hosting haptics, contact him at [HapticFun.com](https://hapticfun.com/)  
 > - If you're a listener and want the easiest way to playback the haptics, check out his webplayer at [HapticFun.com Player](https://hapticfun.com/player.html#)
 
@@ -101,3 +103,6 @@ alternatively:
 * Added `File > New Funscript` for recording haptics without audio.
 * Added shared file loading for menus and drag/drop, with initial Windows file drop support.
 * Hardened keyboard binding defaults so new controls do not break existing binds.
+* Added a visual pattern picker grid with compact previews.
+* Changed the pattern toolbar button to `Choose pattern`, while leaving the next-pattern keybind unchanged.
+* Improved the pattern editor with drag-to-edit points, hover feedback, right-click removal of the nearest point, and automatic merging of overlapping points.

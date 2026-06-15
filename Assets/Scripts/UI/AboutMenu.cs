@@ -51,6 +51,10 @@ public class AboutMenu : UIBehaviour
         versionLabel.enableRichText = true;
         versionLabel.text = $"<b>Haptics Editor</b> Version: {_projectInfoSo.Version}";
         _container.Add(versionLabel);
+
+        var authorLabel = Create<Label>();
+        authorLabel.text = "Author: Ilor1";
+        _container.Add(authorLabel);
         
         // support links
         // ko-fi: https://ko-fi.com/ilori
@@ -67,7 +71,7 @@ public class AboutMenu : UIBehaviour
 
         // copyright
         var copyrightLabel = Create<Label>();
-        copyrightLabel.text = $"Copyright \u00a9 2024 ilori";
+        copyrightLabel.text = $"Copyright \u00a9 2024 Ilor1";
         _container.Add(copyrightLabel);
         
         _container.Add(aboutButtons);
@@ -76,7 +80,11 @@ public class AboutMenu : UIBehaviour
 
     private void OnClose()
     {
-        _root.Remove(_popup);
+        if (_popup.parent != null)
+        {
+            _root.Remove(_popup);
+        }
+
         InputManager.InputBlocked = false;
     }
 
@@ -84,5 +92,13 @@ public class AboutMenu : UIBehaviour
     {
         InputManager.InputBlocked = true;
         root.Add(_popup);
+    }
+
+    public static bool TryCloseWithEscape()
+    {
+        if (Singleton == null || Singleton._popup.parent == null) return false;
+
+        Singleton.OnClose();
+        return true;
     }
 }

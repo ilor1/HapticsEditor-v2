@@ -16,6 +16,7 @@ public class FunscriptMouseInput : UIBehaviour
     private const int StrokerFullRangeMaxDurationMs = 3000;
     private const int StrokerStillDurationMs = 200;
     private const float PointHitRadiusPixels = 8f;
+    private const float TimeSelectionDragThresholdPixels = 4f;
 
     public bool Snapping { get; set; }
     public bool StepMode { get; set; }
@@ -25,11 +26,17 @@ public class FunscriptMouseInput : UIBehaviour
     private bool _isDrawing;
     private bool _isErasing;
     private bool _isDraggingAction;
+    private bool _isDraggingTimeSelection;
+    private bool _isTimeSelectionCandidate;
+    private bool _suppressNextNote;
     private bool _suppressNextClick;
     private VisualElement _funscriptContainer;
+    private VisualElement _selectionOverlay;
     private float _freeformTimeUntilAddingNextPoint = 0f;
     private float _freeformTimeUntilRemovingNextPoint = 0f;
     private List<FunAction> _patternActions = new List<FunAction>();
+    private Vector3 _timeSelectionStartPosition;
+    private int _timeSelectionStartAt = -1;
     private int _previousAddedPointAt = -1;
     private int _startRemovePointAt = -1;
     private int _strokerPreviousSampleAt = -1;
@@ -60,6 +67,7 @@ public class FunscriptMouseInput : UIBehaviour
     {
         MainUI.RootCreated -= Generate;
         CancelDraggingAction();
+        CancelTimeSelectionDrag();
     }
 
     private void Generate(VisualElement root)
@@ -74,6 +82,12 @@ public class FunscriptMouseInput : UIBehaviour
         root.RegisterCallback<MouseMoveEvent>(OnMouseMove);
         _funscriptContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
         _funscriptContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+
+        _selectionOverlay = Create("time-selection-overlay");
+        _selectionOverlay.pickingMode = PickingMode.Ignore;
+        _selectionOverlay.SetEnabled(false);
+        _selectionOverlay.style.display = DisplayStyle.None;
+        _funscriptContainer.Insert(0, _selectionOverlay);
     }
 
     private void Update()
@@ -81,11 +95,20 @@ public class FunscriptMouseInput : UIBehaviour
         _freeformTimeUntilAddingNextPoint -= Time.deltaTime;
         _freeformTimeUntilRemovingNextPoint -= Time.deltaTime;
 
-        if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+        if (InputManager.Singleton == null)
+        {
+            return;
+        }
+
+        if (_suppressNextNote && InputManager.Singleton.GetKeyUp(ControlName.AddNote))
+        {
+            _suppressNextNote = false;
+        }
+        else if (InputManager.Singleton.GetKeyUp(ControlName.AddNote) && _mouseInsideContainer && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
         {
             RemoveNote();
         }
-        else if (InputManager.Singleton.GetKeyDown(ControlName.AddNote) && _mouseInsideContainer)
+        else if (InputManager.Singleton.GetKeyUp(ControlName.AddNote) && _mouseInsideContainer)
         {
             AddNote();
         }
@@ -144,6 +167,13 @@ public class FunscriptMouseInput : UIBehaviour
         {
             StopDraggingAction();
         }
+
+        if ((_isTimeSelectionCandidate || _isDraggingTimeSelection) && !InputManager.Singleton.GetKey(ControlName.DragTimeSelection))
+        {
+            FinishTimeSelectionDrag();
+        }
+
+        UpdateSelectionOverlay();
     }
 
     private void StartErasing()
@@ -745,11 +775,27 @@ public class FunscriptMouseInput : UIBehaviour
             return;
         }
 
+        if (TryStartTimeSelectionCandidate(evt))
+        {
+            return;
+        }
+
         RemoveActionOnRightClick(evt);
     }
 
     private void OnPointerMove(PointerMoveEvent evt)
     {
+        if (_isTimeSelectionCandidate || _isDraggingTimeSelection)
+        {
+            UpdateTimeSelectionDrag(evt);
+            if (_isDraggingTimeSelection)
+            {
+                evt.StopPropagation();
+            }
+
+            return;
+        }
+
         if (!_isDraggingAction) return;
 
         UpdateMouseValues(evt.localPosition);
@@ -760,10 +806,123 @@ public class FunscriptMouseInput : UIBehaviour
 
     private void OnPointerUp(PointerUpEvent evt)
     {
+        if (_isTimeSelectionCandidate || _isDraggingTimeSelection)
+        {
+            bool wasDraggingTimeSelection = _isDraggingTimeSelection;
+            StopTimeSelectionDrag(evt);
+            if (wasDraggingTimeSelection)
+            {
+                evt.StopPropagation();
+            }
+
+            return;
+        }
+
         if (!_isDraggingAction) return;
 
         StopDraggingAction();
         evt.StopPropagation();
+    }
+
+    private bool TryStartTimeSelectionCandidate(PointerDownEvent evt)
+    {
+        if (TimelineManager.Instance.IsPlaying) return false;
+        if (Timemarkers.Singleton == null) return false;
+        if (!InputManager.Singleton.IsPointerButton(ControlName.DragTimeSelection, evt.button)) return false;
+
+        _isTimeSelectionCandidate = true;
+        _timeSelectionStartPosition = evt.localPosition;
+        UpdateMouseValues(evt.localPosition);
+        _timeSelectionStartAt = MouseAt;
+        _draggedPointerId = evt.pointerId;
+        _funscriptContainer.CapturePointer(evt.pointerId);
+        return true;
+    }
+
+    private void UpdateTimeSelectionDrag(PointerMoveEvent evt)
+    {
+        UpdateMouseValues(evt.localPosition);
+
+        if (!_isDraggingTimeSelection && (evt.localPosition - _timeSelectionStartPosition).sqrMagnitude < TimeSelectionDragThresholdPixels * TimeSelectionDragThresholdPixels)
+        {
+            return;
+        }
+
+        _isTimeSelectionCandidate = false;
+        _isDraggingTimeSelection = true;
+        _suppressNextNote = true;
+        Timemarkers.Singleton.SetSelection(_timeSelectionStartAt, MouseAt);
+    }
+
+    private void StopTimeSelectionDrag(PointerUpEvent evt)
+    {
+        UpdateMouseValues(evt.localPosition);
+        FinishTimeSelectionDrag();
+    }
+
+    private void FinishTimeSelectionDrag()
+    {
+        if (!_isTimeSelectionCandidate && !_isDraggingTimeSelection) return;
+
+        if (_isDraggingTimeSelection)
+        {
+            Timemarkers.Singleton.SetSelection(_timeSelectionStartAt, MouseAt);
+        }
+
+        ReleaseDraggedPointer();
+        _isTimeSelectionCandidate = false;
+        _isDraggingTimeSelection = false;
+        _timeSelectionStartAt = -1;
+        _draggedPointerId = -1;
+    }
+
+    private void CancelTimeSelectionDrag()
+    {
+        if (!_isTimeSelectionCandidate && !_isDraggingTimeSelection) return;
+
+        ReleaseDraggedPointer();
+        _isTimeSelectionCandidate = false;
+        _isDraggingTimeSelection = false;
+        _timeSelectionStartAt = -1;
+        _draggedPointerId = -1;
+    }
+
+    private void UpdateSelectionOverlay()
+    {
+        if (_selectionOverlay == null || Timemarkers.Singleton == null || !Timemarkers.Singleton.HasSelection)
+        {
+            if (_selectionOverlay != null)
+            {
+                _selectionOverlay.style.display = DisplayStyle.None;
+            }
+
+            return;
+        }
+
+        int selectionStart = math.min(Timemarkers.Singleton.StartAt, Timemarkers.Singleton.EndAt);
+        int selectionEnd = math.max(Timemarkers.Singleton.StartAt, Timemarkers.Singleton.EndAt);
+        if (selectionStart == selectionEnd)
+        {
+            _selectionOverlay.style.display = DisplayStyle.None;
+            return;
+        }
+
+        int time0 = (int)math.round(TimelineManager.Instance.TimeInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
+        int time1 = time0 + TimelineManager.Instance.LengthInMilliseconds;
+
+        if (selectionEnd < time0 || selectionStart > time1)
+        {
+            _selectionOverlay.style.display = DisplayStyle.None;
+            return;
+        }
+
+        float ratio = _funscriptContainer.contentRect.width / TimelineManager.Instance.LengthInMilliseconds;
+        float x0 = math.clamp((selectionStart - time0) * ratio, 0f, _funscriptContainer.contentRect.width);
+        float x1 = math.clamp((selectionEnd - time0) * ratio, 0f, _funscriptContainer.contentRect.width);
+
+        _selectionOverlay.style.left = x0;
+        _selectionOverlay.style.width = math.max(1f, x1 - x0);
+        _selectionOverlay.style.display = DisplayStyle.Flex;
     }
 
     private bool TryStartDraggingAction(PointerDownEvent evt)

@@ -133,8 +133,8 @@ public class ToolBar : UIBehaviour
 
         // Pattern tools
         _nextPatternButton = Create<Button>();
-        _nextPatternButton.text = "Next pattern";
-        _nextPatternButton.clicked += OnNextPattern;
+        _nextPatternButton.text = "Choose pattern";
+        _nextPatternButton.clicked += OnChoosePattern;
 
         _repeatContainer = CreateItem("Repeat:", out _repeatField);
         _repeatField.RegisterValueChangedCallback(OnRepeatChanged);
@@ -280,6 +280,11 @@ public class ToolBar : UIBehaviour
     private void OnNextPattern()
     {
         PatternManager.Singleton.NextPattern();
+    }
+
+    private void OnChoosePattern()
+    {
+        PatternCreatorMenu.Singleton.OpenPicker();
     }
 
     private void OnRepeatChanged(ChangeEvent<int> evt)

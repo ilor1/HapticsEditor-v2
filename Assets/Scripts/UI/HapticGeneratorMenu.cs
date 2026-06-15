@@ -82,7 +82,11 @@ public class HapticGeneratorMenu : UIBehaviour
 
     private void OnClose()
     {
-        _root.Remove(_popup);
+        if (_popup.parent != null)
+        {
+            _root.Remove(_popup);
+        }
+
         InputManager.InputBlocked = false;
     }
 
@@ -90,5 +94,13 @@ public class HapticGeneratorMenu : UIBehaviour
     {
         InputManager.InputBlocked = true;
         root.Add(_popup);
+    }
+
+    public static bool TryCloseWithEscape()
+    {
+        if (Singleton == null || Singleton._popup.parent == null) return false;
+
+        Singleton.OnClose();
+        return true;
     }
 }

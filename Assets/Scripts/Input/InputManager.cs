@@ -34,6 +34,7 @@ public class InputManager : MonoBehaviour
         { ControlName.ConvertForStroker, KeyCode.C },
         { ControlName.StrokerMode, KeyCode.Alpha4 },
         { ControlName.ToggleTimelineMarkerFormat, KeyCode.T },
+        { ControlName.DragTimeSelection, KeyCode.Mouse2 },
     };
 
     // To create a new binding:
@@ -137,6 +138,19 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    public bool GetKeyUp(ControlName controlName)
+    {
+        KeyCode keyCode = GetKeyCode(controlName);
+        if (keyCode != KeyCode.None)
+        {
+            return Input.GetKeyUp(keyCode);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public bool GetKey(ControlName controlName)
     {
         KeyCode keyCode = GetKeyCode(controlName);
@@ -148,6 +162,21 @@ public class InputManager : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public bool IsPointerButton(ControlName controlName, int button)
+    {
+        return GetKeyCode(controlName) switch
+        {
+            KeyCode.Mouse0 => button == 0,
+            KeyCode.Mouse1 => button == 1,
+            KeyCode.Mouse2 => button == 2,
+            KeyCode.Mouse3 => button == 3,
+            KeyCode.Mouse4 => button == 4,
+            KeyCode.Mouse5 => button == 5,
+            KeyCode.Mouse6 => button == 6,
+            _ => false
+        };
     }
 
     private KeyCode GetKeyCode(ControlName controlName)

@@ -522,6 +522,13 @@ IntegerField {
     height: 100%;
 }
 
+.time-selection-overlay {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.035);
+}
+
 #funscript-container-right #pattern-container {
     position: absolute;
     flex-direction: column-reverse;
@@ -530,6 +537,35 @@ IntegerField {
     width: 100%;
     height: 100%;
     overflow: hidden;
+}
+
+.pattern-list {
+    height: 230px;
+    padding: 8px;
+}
+
+.pattern-list-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.pattern-choice {
+    width: 132px;
+    height: 82px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    padding: 8px;
+    background-color: rgb(14, 14, 14);
+}
+
+.pattern-choice.active {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+.pattern-choice-preview {
+    height: 100%;
+    width: 100%;
+    background-color: rgb(4, 4, 4);
 }
 
 .values {

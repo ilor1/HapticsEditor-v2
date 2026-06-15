@@ -19,6 +19,8 @@ public class Timemarkers : UIBehaviour
     private bool _dragStartMarker;
     private bool _dragEndMarker;
 
+    public bool HasSelection => StartAt != -1 && EndAt != -1;
+
     private void Awake()
     {
         if (Singleton == null) Singleton = this;
@@ -121,6 +123,18 @@ public class Timemarkers : UIBehaviour
         }
     }
 
+    public void SetSelection(int startAt, int endAt)
+    {
+        StartAt = math.min(startAt, endAt);
+        EndAt = math.max(startAt, endAt);
+    }
+
+    public void ClearSelection()
+    {
+        StartAt = -1;
+        EndAt = -1;
+    }
+
     private void OnPointerDown(PointerDownEvent evt)
     {
         int time0 = (int)math.round(TimelineManager.Instance.TimeInMilliseconds - TimelineManager.Instance.LengthInMilliseconds * 0.5f);
@@ -149,6 +163,14 @@ public class Timemarkers : UIBehaviour
         {
             SettingsManager.ApplicationSettings.timelineMarkersAsTime = !SettingsManager.ApplicationSettings.timelineMarkersAsTime;
             SettingsManager.SaveCurrentSettings();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (ClosePopupWithEscape()) return;
+            if (InputManager.InputBlocked) return;
+
+            ClearSelection();
         }
 
         // Cut (CTRL-X)
@@ -226,6 +248,16 @@ public class Timemarkers : UIBehaviour
         }
 
         return selectedHapticLayer;
+    }
+
+    private bool ClosePopupWithEscape()
+    {
+        return BindingsMenu.TryCloseWithEscape()
+               || SettingsManager.TryCloseWithEscape()
+               || PatternCreatorMenu.TryCloseWithEscape()
+               || HapticGeneratorMenu.TryCloseWithEscape()
+               || MetadataMenu.TryCloseWithEscape()
+               || AboutMenu.TryCloseWithEscape();
     }
 
     private void ShowHideVerticalMarkers(int time0)
