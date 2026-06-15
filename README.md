@@ -1,5 +1,7 @@
 # Haptics Editor
 
+Author: Yall <yaliplover@gmail.com>
+
 This project is a tool for creating funscripts. For those unaware, funscript is a JSON file that contains a list of actions, that can be sent to a supported bluetooth toy to control it in sync with audio or video files. This tool uses [Intiface Central](https://buttplug.io/)'s unity package to connect to Intiface Central, in order to sync the haptics to toys.
 
 > This tool is a work in progress that I develop on my limited free-time. So if you like using it, and would like to donate towards its further development, or would just otherwise want to absolutely make my day <3  
@@ -101,3 +103,6 @@ alternatively:
 * Added `File > New Funscript` for recording haptics without audio.
 * Added shared file loading for menus and drag/drop, with initial Windows file drop support.
 * Hardened keyboard binding defaults so new controls do not break existing binds.
+* Added a visual pattern picker grid with compact previews.
+* Changed the pattern toolbar button to `Choose pattern`, while leaving the next-pattern keybind unchanged.
+* Improved the pattern editor with drag-to-edit points, hover feedback, right-click removal of the nearest point, and automatic merging of overlapping points.

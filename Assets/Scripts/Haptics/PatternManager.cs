@@ -38,6 +38,7 @@ public class PatternManager : MonoBehaviour
     public bool InvertX { get; set; }
 
     public Pattern ActivePattern => Patterns[_activePatternIndex];
+    public int ActivePatternIndex => _activePatternIndex;
     public List<Pattern> Patterns = new();
 
     private readonly string _patternsFolder = $"{Application.streamingAssetsPath}/Patterns";
@@ -74,6 +75,7 @@ public class PatternManager : MonoBehaviour
                 }
             }
 
+            SetActivePattern(_activePatternIndex);
             Debug.Log($"PatternManager: patterns loaded.");
         }
         else
@@ -110,5 +112,12 @@ public class PatternManager : MonoBehaviour
     {
         _activePatternIndex++;
         if (_activePatternIndex > Patterns.Count - 1) _activePatternIndex = 0;
+    }
+
+    public void SetActivePattern(int index)
+    {
+        if (Patterns.Count == 0) return;
+
+        _activePatternIndex = Mathf.Clamp(index, 0, Patterns.Count - 1);
     }
 }

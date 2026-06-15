@@ -51,6 +51,10 @@ public class AboutMenu : UIBehaviour
         versionLabel.enableRichText = true;
         versionLabel.text = $"<b>Haptics Editor</b> Version: {_projectInfoSo.Version}";
         _container.Add(versionLabel);
+
+        var authorLabel = Create<Label>();
+        authorLabel.text = "Author: Yall <yaliplover@gmail.com>";
+        _container.Add(authorLabel);
         
         // support links
         // ko-fi: https://ko-fi.com/ilori
@@ -67,7 +71,7 @@ public class AboutMenu : UIBehaviour
 
         // copyright
         var copyrightLabel = Create<Label>();
-        copyrightLabel.text = $"Copyright \u00a9 2024 ilori";
+        copyrightLabel.text = $"Copyright \u00a9 2024 Yall";
         _container.Add(copyrightLabel);
         
         _container.Add(aboutButtons);
