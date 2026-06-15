@@ -63,7 +63,9 @@ public class AudioLoader : UIBehaviour
     private IEnumerator GetAudioClip()
     {
         _progressBar.style.display = DisplayStyle.Flex;
-        using (var www = UnityWebRequestMultimedia.GetAudioClip("file:///" + AudioFilePath, AudioType.MPEG))
+        string escapedPath = Uri.EscapeDataString(AudioFilePath);
+        string fullUri = "file:///" + escapedPath;
+        using (var www = UnityWebRequestMultimedia.GetAudioClip(fullUri, AudioType.MPEG))
         {
             var operation = www.SendWebRequest();
 
