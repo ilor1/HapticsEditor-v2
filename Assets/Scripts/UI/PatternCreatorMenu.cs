@@ -12,13 +12,21 @@ public class PatternCreatorMenu : UIBehaviour
 {
     public static PatternCreatorMenu Singleton;
 
+    private const float PointHitRadiusPixels = 8f;
+
     private VisualElement _root;
     private VisualElement _popup;
     private VisualElement _container;
+    private VisualElement _patternContainer;
     private LineDrawer _pattern;
     private List<Pattern> _patterns = new();
     private int _activePatternIndex;
     private List<FunAction> _activePattern = new();
+    private bool _isDraggingAction;
+    private bool _suppressNextClick;
+    private int _hoveredActionIndex = -1;
+    private int _draggedActionIndex = -1;
+    private int _draggedPointerId = -1;
 
     private void Awake()
     {
@@ -34,6 +42,7 @@ public class PatternCreatorMenu : UIBehaviour
     private void OnDisable()
     {
         MainUI.RootCreated -= Generate;
+        CancelDraggingAction();
     }
 
     private void Generate(VisualElement root)
@@ -65,7 +74,7 @@ public class PatternCreatorMenu : UIBehaviour
         nextButton.clicked += NextPattern;
         topButtons.Add(nextButton);
 
-        var patternContainer = Create("pattern-editor-pattern", "background--dark");
+        _patternContainer = Create("pattern-editor-pattern", "background--dark");
         var horizontalGrid = Create("horizontal-grid");
         for (int i = 0; i < 11; i++)
         {
@@ -74,7 +83,7 @@ public class PatternCreatorMenu : UIBehaviour
             horizontalGrid.Add(line);
         }
 
-        patternContainer.Add(horizontalGrid);
+        _patternContainer.Add(horizontalGrid);
 
         var verticalGrid = Create("vertical-grid");
         for (int i = 0; i < 11; i++)
@@ -84,15 +93,18 @@ public class PatternCreatorMenu : UIBehaviour
             verticalGrid.Add(line);
         }
 
-        patternContainer.Add(verticalGrid);
+        _patternContainer.Add(verticalGrid);
 
         _pattern = Create<LineDrawer>("pattern-pattern");
         _pattern.LineWidth = 4f;
         ColorUtility.TryParseHtmlString("#4d54b2", out Color color);
         _pattern.StrokeColor = color;
-        patternContainer.Add(_pattern);
-        patternContainer.RegisterCallback<ClickEvent>(OnLeftClick);
-        patternContainer.RegisterCallback<PointerDownEvent>(OnRightClick);
+        _patternContainer.Add(_pattern);
+        _patternContainer.RegisterCallback<ClickEvent>(OnLeftClick);
+        _patternContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
+        _patternContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        _patternContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
+        _patternContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
 
         var bottomButtons = Create("popup-container-buttons");
 
@@ -107,19 +119,25 @@ public class PatternCreatorMenu : UIBehaviour
         bottomButtons.Add(closeButton);
 
         _container.Add(topButtons);
-        _container.Add(patternContainer);
+        _container.Add(_patternContainer);
         _container.Add(bottomButtons);
         _popup.Add(_container);
     }
 
     private void OnLeftClick(ClickEvent evt)
     {
-        // Get coords
-        VisualElement target = evt.target as VisualElement;
-        var coords = evt.localPosition;
-        coords.y -= target.resolvedStyle.paddingTop;
+        if (_suppressNextClick)
+        {
+            _suppressNextClick = false;
+            evt.StopPropagation();
+            return;
+        }
 
-        var relativeCoords = GetRelativeCoords(coords, target.contentRect);
+        // Get coords
+        var coords = _patternContainer.WorldToLocal(evt.position);
+        coords.y -= _patternContainer.resolvedStyle.paddingTop;
+
+        var relativeCoords = GetRelativeCoords(coords, _patternContainer.contentRect);
 
         AddFunAction(relativeCoords);
     }
@@ -145,25 +163,129 @@ public class PatternCreatorMenu : UIBehaviour
         _activePattern.Add(funaction);
         _activePattern.Sort();
 
-        // save changes to pattern array
-        var pattern = _patterns[_activePatternIndex];
-        pattern.actions = _activePattern.ToArray();
-        _patterns[_activePatternIndex] = pattern;
+        SaveActivePattern(false);
 
-        _pattern.RenderFunActions(_activePattern, null);
+        RenderActivePattern();
     }
 
-    private void OnRightClick(PointerDownEvent evt)
+    private void OnPointerDown(PointerDownEvent evt)
+    {
+        if (evt.button == 0 && TryStartDraggingAction(evt))
+        {
+            evt.StopPropagation();
+            return;
+        }
+
+        RemoveActionOnRightClick(evt);
+    }
+
+    private void OnPointerMove(PointerMoveEvent evt)
+    {
+        if (!_isDraggingAction)
+        {
+            UpdateHoveredAction(_patternContainer.WorldToLocal(evt.position));
+            return;
+        }
+
+        DragActionToPointer(evt.position);
+        evt.StopPropagation();
+    }
+
+    private void OnPointerUp(PointerUpEvent evt)
+    {
+        if (!_isDraggingAction) return;
+
+        StopDraggingAction();
+        evt.StopPropagation();
+    }
+
+    private void OnPointerLeave(PointerLeaveEvent evt)
+    {
+        if (_isDraggingAction) return;
+
+        SetHoveredAction(-1);
+    }
+
+    private bool TryStartDraggingAction(PointerDownEvent evt)
+    {
+        if (!TryGetClosestAction(_patternContainer.WorldToLocal(evt.position), out int actionIndex)) return false;
+
+        _isDraggingAction = true;
+        _suppressNextClick = true;
+        _draggedActionIndex = actionIndex;
+        _draggedPointerId = evt.pointerId;
+        _patternContainer.CapturePointer(evt.pointerId);
+        DragActionToPointer(evt.position);
+        return true;
+    }
+
+    private void StopDraggingAction()
+    {
+        ReleaseDraggedPointer();
+        _isDraggingAction = false;
+        _draggedActionIndex = -1;
+        _draggedPointerId = -1;
+        SaveActivePattern(true);
+        RenderActivePattern();
+    }
+
+    private void ReleaseDraggedPointer()
+    {
+        if (_patternContainer == null || _draggedPointerId == -1) return;
+
+        if (_patternContainer.HasPointerCapture(_draggedPointerId))
+        {
+            _patternContainer.ReleasePointer(_draggedPointerId);
+        }
+    }
+
+    private void DragActionToPointer(Vector3 pointerPosition)
+    {
+        if (_draggedActionIndex < 0 || _draggedActionIndex >= _activePattern.Count) return;
+
+        var coords = _patternContainer.WorldToLocal(pointerPosition);
+        coords.y -= _patternContainer.resolvedStyle.paddingTop;
+        var relativeCoords = GetRelativeCoords(coords, _patternContainer.contentRect);
+
+        var funaction = _activePattern[_draggedActionIndex];
+        funaction.at = math.clamp(GetAtValue(relativeCoords), 0, 1000);
+        funaction.pos = math.clamp(GetPosValue(relativeCoords, false), 0, 100);
+        _activePattern[_draggedActionIndex] = funaction;
+
+        SaveActivePattern(false);
+        RenderActivePattern();
+    }
+
+    private void UpdateHoveredAction(Vector2 localMousePosition)
+    {
+        if (TryGetClosestAction(localMousePosition, out int actionIndex))
+        {
+            SetHoveredAction(actionIndex);
+        }
+        else
+        {
+            SetHoveredAction(-1);
+        }
+    }
+
+    private void SetHoveredAction(int actionIndex)
+    {
+        if (_hoveredActionIndex == actionIndex) return;
+
+        _hoveredActionIndex = actionIndex;
+        RenderActivePattern();
+    }
+
+    private void RemoveActionOnRightClick(PointerDownEvent evt)
     {
         // Not RMB
         if (evt.button != 1) return;
 
         // Get coords
-        VisualElement target = evt.target as VisualElement;
-        var coords = evt.localPosition;
-        coords.y -= target.resolvedStyle.paddingTop;
+        var coords = _patternContainer.WorldToLocal(evt.position);
+        coords.y -= _patternContainer.resolvedStyle.paddingTop;
 
-        var relativeCoords = GetRelativeCoords(coords, target.contentRect);
+        var relativeCoords = GetRelativeCoords(coords, _patternContainer.contentRect);
         int at = GetAtValue(relativeCoords);
 
         bool targetPrevModifier = InputManager.Singleton.GetKey(ControlName.TargetPreviousModifier);
@@ -175,12 +297,61 @@ public class PatternCreatorMenu : UIBehaviour
 
         _activePattern.Sort();
 
-        // save changes to pattern array
+        SaveActivePattern(false);
+
+        RenderActivePattern();
+    }
+
+    private bool TryGetClosestAction(Vector2 localMousePosition, out int closestActionIndex)
+    {
+        closestActionIndex = -1;
+        float closestDistanceSq = PointHitRadiusPixels * PointHitRadiusPixels;
+
+        for (int actionIndex = 0; actionIndex < _activePattern.Count; actionIndex++)
+        {
+            Vector2 actionCoord = GetActionHitCoord(_activePattern[actionIndex]);
+            float distanceSq = (localMousePosition - actionCoord).sqrMagnitude;
+            if (distanceSq > closestDistanceSq) continue;
+
+            closestDistanceSq = distanceSq;
+            closestActionIndex = actionIndex;
+        }
+
+        return closestActionIndex != -1;
+    }
+
+    private Vector2 GetActionHitCoord(FunAction action)
+    {
+        var style = _patternContainer.resolvedStyle;
+        float height = style.height - style.paddingTop - style.paddingBottom;
+        float x = action.at * (style.width / 1000f);
+        float y = style.paddingTop + (100 - action.pos) * (height / 100f);
+        return new Vector2(x, y);
+    }
+
+    private void SaveActivePattern(bool sort)
+    {
+        if (sort)
+        {
+            _activePattern.Sort();
+        }
+
         var pattern = _patterns[_activePatternIndex];
         pattern.actions = _activePattern.ToArray();
         _patterns[_activePatternIndex] = pattern;
+    }
 
+    private void RenderActivePattern()
+    {
+        _pattern.HoveredActionIndex = _hoveredActionIndex;
         _pattern.RenderFunActions(_activePattern, null);
+    }
+
+    private void LoadActivePattern()
+    {
+        _hoveredActionIndex = -1;
+        _activePattern = _patterns[_activePatternIndex].actions.ToList();
+        RenderActivePattern();
     }
 
     private int GetPosValue(Vector2 relativeCoords, bool snapping)
@@ -254,6 +425,7 @@ public class PatternCreatorMenu : UIBehaviour
     public void Open()
     {
         // Called from MenuBar
+        InputManager.InputBlocked = true;
 
         // Load patterns
         PatternManager.Singleton.LoadPatterns();
@@ -271,8 +443,7 @@ public class PatternCreatorMenu : UIBehaviour
     {
         yield return null;
         _activePatternIndex = 0;
-        _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern, null);
+        LoadActivePattern();
     }
 
     private void Save()
@@ -285,7 +456,31 @@ public class PatternCreatorMenu : UIBehaviour
 
     private void Close()
     {
-        _root.Remove(_popup);
+        CancelDraggingAction();
+
+        if (_popup.parent != null)
+        {
+            _root.Remove(_popup);
+        }
+
+        InputManager.InputBlocked = false;
+    }
+
+    private void CancelDraggingAction()
+    {
+        ReleaseDraggedPointer();
+        _isDraggingAction = false;
+        _suppressNextClick = false;
+        _draggedActionIndex = -1;
+        _draggedPointerId = -1;
+    }
+
+    public static bool TryCloseWithEscape()
+    {
+        if (Singleton == null || Singleton._popup.parent == null) return false;
+
+        Singleton.Close();
+        return true;
     }
 
     private void NextPattern()
@@ -297,8 +492,7 @@ public class PatternCreatorMenu : UIBehaviour
             _activePatternIndex = 0;
         }
 
-        _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern, null);
+        LoadActivePattern();
     }
 
     private void PrevPattern()
@@ -310,8 +504,7 @@ public class PatternCreatorMenu : UIBehaviour
             _activePatternIndex = _patterns.Count - 1;
         }
 
-        _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern, null);
+        LoadActivePattern();
     }
 
     private void NewPattern()
@@ -324,8 +517,7 @@ public class PatternCreatorMenu : UIBehaviour
         });
 
         _activePatternIndex = _patterns.Count - 1;
-        _activePattern = _patterns[_activePatternIndex].actions.ToList();
-        _pattern.RenderFunActions(_activePattern, null);
+        LoadActivePattern();
     }
 
     private void RemovePattern()
@@ -335,8 +527,7 @@ public class PatternCreatorMenu : UIBehaviour
             _patterns.RemoveAt(_activePatternIndex);
             _activePatternIndex = math.max(0, _activePatternIndex - 1);
 
-            _activePattern = _patterns[_activePatternIndex].actions.ToList();
-            _pattern.RenderFunActions(_activePattern, null);
+            LoadActivePattern();
         }
     }
 }

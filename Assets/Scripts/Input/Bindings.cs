@@ -33,7 +33,8 @@ public enum ControlName
     AddNote,
     ConvertForStroker,
     StrokerMode,
-    ToggleTimelineMarkerFormat
+    ToggleTimelineMarkerFormat,
+    DragTimeSelection
 }
 
 [Serializable]

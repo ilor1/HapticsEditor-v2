@@ -56,7 +56,7 @@ public class FunscriptRenderer : UIBehaviour
     private void Update()
     {
         // wait for the UI to be Generated
-        if (!_uiGenerated)
+        if (!_uiGenerated || TimelineManager.Instance == null)
         {
             return;
         }

@@ -76,7 +76,11 @@ public class AboutMenu : UIBehaviour
 
     private void OnClose()
     {
-        _root.Remove(_popup);
+        if (_popup.parent != null)
+        {
+            _root.Remove(_popup);
+        }
+
         InputManager.InputBlocked = false;
     }
 
@@ -84,5 +88,13 @@ public class AboutMenu : UIBehaviour
     {
         InputManager.InputBlocked = true;
         root.Add(_popup);
+    }
+
+    public static bool TryCloseWithEscape()
+    {
+        if (Singleton == null || Singleton._popup.parent == null) return false;
+
+        Singleton.OnClose();
+        return true;
     }
 }
