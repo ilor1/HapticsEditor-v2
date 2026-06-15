@@ -97,6 +97,7 @@ alternatively:
 ## Changelog
 
 #### Unreleased
+* Fixed loading audiofiles from filepaths that contain spaces.
 * Added inline scripting mode buttons with active state.
 * Added Stroker scripting mode for recording direction-change haptics.
 * Added proportional Stroker timing limits for device-safe motion.

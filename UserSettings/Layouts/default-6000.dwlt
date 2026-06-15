@@ -301,8 +301,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "UnityEditor.MainToolbarWindow\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 2241
-    y: 95
+    x: 0
+    y: 0
     width: 2232
     height: 36
   m_SerializedDataModeController:
@@ -582,8 +582,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Console\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 2241
-    y: 709
+    x: 0
+    y: 602
     width: 1915
     height: 629
   m_SerializedDataModeController:
@@ -621,8 +621,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Hierarchy\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 2241
-    y: 131
+    x: 0
+    y: 24
     width: 330
     height: 552
   m_SerializedDataModeController:
@@ -700,8 +700,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Game\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 2572
-    y: 131
+    x: 332
+    y: 24
     width: 1583
     height: 552
   m_SerializedDataModeController:
@@ -1524,16 +1524,13 @@ MonoBehaviour:
       m_Data: 74824
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 74824
-    - m_Data: 74826
-    - m_Data: 74828
-    - m_Data: 74830
-    - m_Data: 74832
-    - m_Data: 74834
-    - m_Data: 74836
-    - m_Data: 74838
-    - m_Data: 1000000000
-    - m_Data: 2147483647
+    - m_Data: 55476
+    - m_Data: 55478
+    - m_Data: 55480
+    - m_Data: 55482
+    - m_Data: 55484
+    - m_Data: 55486
+    - m_Data: 55488
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1567,14 +1564,13 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 74824
-    - m_Data: 74826
-    - m_Data: 74828
-    - m_Data: 74830
-    - m_Data: 74832
-    - m_Data: 74834
-    - m_Data: 74836
-    - m_Data: 74838
+    - m_Data: 55476
+    - m_Data: 55478
+    - m_Data: 55480
+    - m_Data: 55482
+    - m_Data: 55484
+    - m_Data: 55486
+    - m_Data: 55488
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1659,8 +1655,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Inspector\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 4157
-    y: 131
+    x: 1917
+    y: 24
     width: 315
     height: 1207
   m_SerializedDataModeController:
