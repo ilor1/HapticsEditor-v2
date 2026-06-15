@@ -53,7 +53,7 @@ public class AboutMenu : UIBehaviour
         _container.Add(versionLabel);
 
         var authorLabel = Create<Label>();
-        authorLabel.text = "Author: Yall <yaliplover@gmail.com>";
+        authorLabel.text = "Author: Ilor1";
         _container.Add(authorLabel);
         
         // support links
@@ -71,7 +71,7 @@ public class AboutMenu : UIBehaviour
 
         // copyright
         var copyrightLabel = Create<Label>();
-        copyrightLabel.text = $"Copyright \u00a9 2024 Yall";
+        copyrightLabel.text = $"Copyright \u00a9 2024 Ilor1";
         _container.Add(copyrightLabel);
         
         _container.Add(aboutButtons);

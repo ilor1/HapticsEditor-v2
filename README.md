@@ -1,6 +1,6 @@
 # Haptics Editor
 
-Author: Yall <yaliplover@gmail.com>
+Author: [Ilor1](https://github.com/ilor1)
 
 This project is a tool for creating funscripts. For those unaware, funscript is a JSON file that contains a list of actions, that can be sent to a supported bluetooth toy to control it in sync with audio or video files. This tool uses [Intiface Central](https://buttplug.io/)'s unity package to connect to Intiface Central, in order to sync the haptics to toys.
 
