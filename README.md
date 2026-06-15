@@ -14,7 +14,7 @@ This project is a tool for creating funscripts. For those unaware, funscript is 
 
 Currently the tool supports only .mp3 audiofiles, for any other formats you should first export it as .mp3 using Audacity.
 
-> Special thanks to Yall (u/yaliplover) for pre-alpha-testing and supporting this tool since its infancy!  
+> Special thanks to [Yall](https://yallhypno.com/) for pre-alpha-testing and supporting this tool since its infancy!
 > - If you're a creator and need help hosting haptics, contact him at [HapticFun.com](https://hapticfun.com/)  
 > - If you're a listener and want the easiest way to playback the haptics, check out his webplayer at [HapticFun.com Player](https://hapticfun.com/player.html#)
 
